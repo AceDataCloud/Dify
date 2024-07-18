@@ -1,0 +1,50 @@
+provider: acedatacloud
+label:
+  en_US: AceDataCloud
+description:
+  en_US: Models provided by Ace Data Cloud, such as GPT-3.5-Turbo and GPT-4.
+  zh_Hans: Ace Data Cloud 提供的模型，例如 GPT-3.5-Turbo 和 GPT-4。
+icon_small:
+  en_US: icon_s_en.svg
+icon_large:
+  en_US: icon_l_en.svg
+background: "#E5E7EB"
+help:
+  title:
+    en_US: Get your API Key from Ace Data Cloud
+    zh_Hans: 从 Ace Data Cloud 获取 API Key
+  url:
+    en_US: https://platform.acedata.cloud/documents/1bcf3bba-102b-495d-9bba-47cd96717e45
+supported_model_types:
+  - llm
+  - text-embedding
+configurate_methods:
+  - predefined-model
+  - customizable-model
+model_credential_schema:
+  model:
+    label:
+      en_US: Model Name
+      zh_Hans: 模型名称
+    placeholder:
+      en_US: Enter your model name
+      zh_Hans: 输入模型名称
+  credential_form_schemas:
+    - variable: api_key
+      label:
+        en_US: API Key
+      type: secret-input
+      required: true
+      placeholder:
+        zh_Hans: 在此输入您的 API Key
+        en_US: Enter your API Key
+provider_credential_schema:
+  credential_form_schemas:
+    - variable: api_key
+      label:
+        en_US: API Key
+      type: secret-input
+      required: true
+      placeholder:
+        zh_Hans: 在此输入您的 API Key
+        en_US: Enter your API Key
