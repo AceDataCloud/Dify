@@ -95,7 +95,9 @@ FIRECRAWL_API_KEY = "fc-"
 
 [tool.poetry]
 name = "dify-api"
-package-mode = false
+version = "0.1.0"
+description = "Dify API"
+authors = ["Dify <dev@dify.ai>"]
 
 ############################################################
 # Main dependencies
