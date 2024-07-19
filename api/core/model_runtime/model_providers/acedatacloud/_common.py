@@ -1,6 +1,7 @@
-from collections.abc import Mapping
-from httpx import Timeout
 import logging
+from collections.abc import Mapping
+
+from httpx import Timeout
 
 logger = logging.getLogger(__name__)
 
