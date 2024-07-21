@@ -2,6 +2,10 @@
 import { useTranslation } from 'react-i18next'
 import { useEffect, useRef, useState } from 'react'
 import {
+  RiAccountCircleFill,
+  RiAccountCircleLine,
+  RiApps2AddFill,
+  RiApps2AddLine,
   RiBox3Fill,
   RiBox3Line,
   RiCloseLine,
@@ -9,6 +13,8 @@ import {
   RiColorFilterLine,
   RiDatabase2Fill,
   RiDatabase2Line,
+  RiGroup2Fill,
+  RiGroup2Line,
   RiMoneyDollarCircleFill,
   RiMoneyDollarCircleLine,
   RiPuzzle2Fill,
@@ -72,6 +78,12 @@ export default function AccountSetting({
         activeIcon: <RiBox3Fill className={iconClassName} />,
       },
       {
+        key: 'members',
+        name: t('common.settings.members'),
+        icon: <RiGroup2Line className={iconClassName} />,
+        activeIcon: <RiGroup2Fill className={iconClassName} />,
+      },
+      {
         // Use key false to hide this item
         key: enableBilling ? 'billing' : false,
         name: t('common.settings.billing'),
@@ -113,6 +125,18 @@ export default function AccountSetting({
       key: 'account-group',
       name: t('common.settings.accountGroup'),
       items: [
+        {
+          key: 'account',
+          name: t('common.settings.account'),
+          icon: <RiAccountCircleLine className={iconClassName} />,
+          activeIcon: <RiAccountCircleFill className={iconClassName} />,
+        },
+        {
+          key: 'integrations',
+          name: t('common.settings.integrations'),
+          icon: <RiApps2AddLine className={iconClassName} />,
+          activeIcon: <RiApps2AddFill className={iconClassName} />,
+        },
         {
           key: 'language',
           name: t('common.settings.language'),

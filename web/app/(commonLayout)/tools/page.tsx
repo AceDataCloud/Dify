@@ -12,7 +12,7 @@ const Layout: FC = () => {
   const { isCurrentWorkspaceDatasetOperator } = useAppContext()
 
   useEffect(() => {
-    document.title = `${t('tools.title')} - Ace Data Cloud`
+    document.title = `${t('tools.title')} - Dify`
     if (isCurrentWorkspaceDatasetOperator)
       return router.replace('/datasets')
   }, [])
