@@ -8,7 +8,7 @@ import './styles/globals.css'
 import './styles/markdown.scss'
 
 export const metadata = {
-  title: 'Ace Data Cloud',
+  title: 'Dify',
 }
 
 export const viewport: Viewport = {
