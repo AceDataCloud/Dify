@@ -3,6 +3,7 @@ import logging
 import httpx
 import yaml  # type: ignore
 
+from core.app.segments import factory
 from events.app_event import app_model_config_was_updated, app_was_created
 from extensions.ext_database import db
 from models.account import Account
@@ -12,9 +13,9 @@ from services.workflow_service import WorkflowService
 
 logger = logging.getLogger(__name__)
 
-current_dsl_version = "0.1.0"
+current_dsl_version = "0.1.1"
 dsl_to_dify_version_mapping: dict[str, str] = {
-    "0.1.0": "0.6.0",  # dsl version -> from dify version
+    "0.1.1": "0.6.0",  # dsl version -> from dify version
 }
 
 
@@ -150,7 +151,7 @@ class AppDslService:
         )
 
     @classmethod
-    def export_dsl(cls, app_model: App) -> str:
+    def export_dsl(cls, app_model: App, include_secret:bool = False) -> str:
         """
         Export app
         :param app_model: App instance
@@ -171,11 +172,11 @@ class AppDslService:
         }
 
         if app_mode in [AppMode.ADVANCED_CHAT, AppMode.WORKFLOW]:
-            cls._append_workflow_export_data(export_data, app_model)
+            cls._append_workflow_export_data(export_data=export_data, app_model=app_model, include_secret=include_secret)
         else:
             cls._append_model_config_export_data(export_data, app_model)
 
-        return yaml.dump(export_data)
+        return yaml.dump(export_data, allow_unicode=True)
 
     @classmethod
     def _check_or_fix_dsl(cls, import_data: dict) -> dict:
@@ -235,13 +236,19 @@ class AppDslService:
         )
 
         # init draft workflow
+        environment_variables_list = workflow_data.get('environment_variables') or []
+        environment_variables = [factory.build_variable_from_mapping(obj) for obj in environment_variables_list]
+        conversation_variables_list = workflow_data.get('conversation_variables') or []
+        conversation_variables = [factory.build_variable_from_mapping(obj) for obj in conversation_variables_list]
         workflow_service = WorkflowService()
         draft_workflow = workflow_service.sync_draft_workflow(
             app_model=app,
             graph=workflow_data.get('graph', {}),
             features=workflow_data.get('../core/app/features', {}),
             unique_hash=None,
-            account=account
+            account=account,
+            environment_variables=environment_variables,
+            conversation_variables=conversation_variables,
         )
         workflow_service.publish_workflow(
             app_model=app,
@@ -276,12 +283,18 @@ class AppDslService:
             unique_hash = None
 
         # sync draft workflow
+        environment_variables_list = workflow_data.get('environment_variables') or []
+        environment_variables = [factory.build_variable_from_mapping(obj) for obj in environment_variables_list]
+        conversation_variables_list = workflow_data.get('conversation_variables') or []
+        conversation_variables = [factory.build_variable_from_mapping(obj) for obj in conversation_variables_list]
         draft_workflow = workflow_service.sync_draft_workflow(
             app_model=app_model,
             graph=workflow_data.get('graph', {}),
             features=workflow_data.get('features', {}),
             unique_hash=unique_hash,
-            account=account
+            account=account,
+            environment_variables=environment_variables,
+            conversation_variables=conversation_variables,
         )
 
         return draft_workflow
@@ -377,7 +390,7 @@ class AppDslService:
         return app
 
     @classmethod
-    def _append_workflow_export_data(cls, export_data: dict, app_model: App) -> None:
+    def _append_workflow_export_data(cls, *, export_data: dict, app_model: App, include_secret: bool) -> None:
         """
         Append workflow export data
         :param export_data: export data
@@ -388,10 +401,7 @@ class AppDslService:
         if not workflow:
             raise ValueError("Missing draft workflow configuration, please check.")
 
-        export_data['workflow'] = {
-            "graph": workflow.graph_dict,
-            "features": workflow.features_dict
-        }
+        export_data['workflow'] = workflow.to_dict(include_secret=include_secret)
 
     @classmethod
     def _append_model_config_export_data(cls, export_data: dict, app_model: App) -> None:

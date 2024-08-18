@@ -7,6 +7,7 @@ from typing import Optional
 from flask import request
 from flask_login import UserMixin
 from sqlalchemy import Float, func, text
+from sqlalchemy.orm import Mapped, mapped_column
 
 from configs import dify_config
 from core.file.tool_file_parser import ToolFileParser
@@ -14,8 +15,8 @@ from core.file.upload_file_parser import UploadFileParser
 from extensions.ext_database import db
 from libs.helper import generate_string
 
-from . import StringUUID
 from .account import Account, Tenant
+from .types import StringUUID
 
 
 class DifySetup(db.Model):
@@ -328,7 +329,9 @@ class AppModelConfig(db.Model):
                 return {'retrieval_model': 'single'}
             else:
                 return dataset_configs
-        return {'retrieval_model': 'single'}
+        return {
+                'retrieval_model': 'multiple',
+            }
 
     @property
     def file_upload_dict(self) -> dict:
@@ -510,12 +513,12 @@ class Conversation(db.Model):
     from_account_id = db.Column(StringUUID)
     read_at = db.Column(db.DateTime)
     read_account_id = db.Column(StringUUID)
+    dialogue_count: Mapped[int] = mapped_column(default=0)
     created_at = db.Column(db.DateTime, nullable=False, server_default=db.text('CURRENT_TIMESTAMP(0)'))
     updated_at = db.Column(db.DateTime, nullable=False, server_default=db.text('CURRENT_TIMESTAMP(0)'))
 
     messages = db.relationship("Message", backref="conversation", lazy='select', passive_deletes="all")
-    message_annotations = db.relationship("MessageAnnotation", backref="conversation", lazy='select',
-                                          passive_deletes="all")
+    message_annotations = db.relationship("MessageAnnotation", backref="conversation", lazy='select', passive_deletes="all")
 
     is_deleted = db.Column(db.Boolean, nullable=False, server_default=db.text('false'))
 
@@ -1114,7 +1117,7 @@ class Site(db.Model):
     @property
     def app_base_url(self):
         return (
-            dify_config.APP_WEB_URL if  dify_config.APP_WEB_URL else request.host_url.rstrip('/'))
+            dify_config.APP_WEB_URL if  dify_config.APP_WEB_URL else request.url_root.rstrip('/'))
 
 
 class ApiToken(db.Model):
@@ -1383,7 +1386,7 @@ class TraceAppConfig(db.Model):
     __tablename__ = 'trace_app_config'
     __table_args__ = (
         db.PrimaryKeyConstraint('id', name='tracing_app_config_pkey'),
-        db.Index('tracing_app_config_app_id_idx', 'app_id'),
+        db.Index('trace_app_config_app_id_idx', 'app_id'),
     )
 
     id = db.Column(StringUUID, server_default=db.text('uuid_generate_v4()'))
