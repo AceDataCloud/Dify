@@ -105,6 +105,7 @@ const translation = {
   withSSO: 'Nadaljujte z enotno prijavo',
   licenseLostTip: 'Povezava z licenčnim strežnikom Dify ni uspela. Če želite še naprej uporabljati Dify, se obrnite na skrbnika.',
   licenseInactiveTip: 'Licenca Dify Enterprise za vaš delovni prostor je neaktivna. Če želite še naprej uporabljati Dify, se obrnite na skrbnika.',
+  withAceData: 'Nadaljujte z AceData',
 }
 
 export default translation
