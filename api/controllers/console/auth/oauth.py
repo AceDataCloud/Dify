@@ -42,14 +42,11 @@ def get_oauth_providers():
                 redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/google",
             )
         
-        if not dify_config.ACEDATA_CLIENT_ID or not dify_config.ACEDATA_CLIENT_SECRET:
-            acedata_oauth = None
-        else:
-            acedata_oauth = AceDataOAuth(
-                client_id=dify_config.ACEDATA_CLIENT_ID,
-                client_secret=dify_config.ACEDATA_CLIENT_SECRET,
-                redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/acedata",
-            )
+        acedata_oauth = AceDataOAuth(
+            client_id=None,
+            client_secret=None,
+            redirect_uri=dify_config.CONSOLE_API_URL + "/console/api/oauth/authorize/acedata",
+        )
         
         OAUTH_PROVIDERS = {"github": github_oauth, "google": google_oauth, "acedata": acedata_oauth}
 
