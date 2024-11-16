@@ -459,16 +459,6 @@ class AuthConfig(BaseSettings):
         default="",
     )
 
-    ACEDATA_CLIENT_ID: Optional[str] = Field(
-        description="AceData OAuth client ID",
-        default="",
-    )
-
-    ACEDATA_CLIENT_SECRET: Optional[str] = Field(
-        description="AceData OAuth client secret",
-        default="",
-    )
-
     GOOGLE_CLIENT_ID: Optional[str] = Field(
         description="Google OAuth client ID",
         default=None,

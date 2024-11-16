@@ -142,7 +142,7 @@ class AceDataOAuth(OAuth):
         
         params = {
             "site" : "https://dify.acedata.cloud/",
-            "redirect" : "http://dify.acedata.cloud/console/api/oauth/authorize/acedata"
+            "redirect" : self.redirect_uri,
         }
         return f"https://auth.acedata.cloud/auth/login?{urllib.parse.urlencode(params)}"
 
