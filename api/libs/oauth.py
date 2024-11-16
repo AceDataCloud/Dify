@@ -141,14 +141,14 @@ class AceDataOAuth(OAuth):
     def get_authorization_url(self, invite_token: Optional[str] = None):
         
         params = {
-            "site" : "https://dify.acedata.cloud/",
-            "redirect" : self.redirect_uri,
+            "site": "https://dify.acedata.cloud/",
+            "redirect": self.redirect_uri,
         }
         return f"https://auth.acedata.cloud/auth/login?{urllib.parse.urlencode(params)}"
 
     def get_access_token(self, code: str):
         data = {
-            "code" : code
+            "code": code
         }
         headers = {"Accept": "application/json"}
         response = requests.post(self._TOKEN_URL, data=data, headers=headers)
