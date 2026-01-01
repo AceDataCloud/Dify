@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: platform-service-dify-worker
+  name: dify-worker
   namespace: acedatacloud
 spec:
   type: ClusterIP
   selector:
-    app: platform-service-dify-worker
+    app: dify-worker
   ports:
     - name: http
       port: 5001

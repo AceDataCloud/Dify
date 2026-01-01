@@ -20,15 +20,15 @@ kubectl apply -f "${SCRIPT_DIR}/production/statefulset"
 kubectl apply -f "${SCRIPT_DIR}/production/deployment"
 
 if [ -n "${BUILD_NUMBER:-}" ]; then
-  kubectl -n acedatacloud set image statefulset/platform-service-dify-api \
-    platform-service-dify-api="ghcr.io/acedatacloud/platform-service-dify-api:${BUILD_NUMBER}"
+  kubectl -n acedatacloud set image statefulset/dify-api \
+    dify-api="ghcr.io/acedatacloud/platform-service-dify-api:${BUILD_NUMBER}"
 
-  kubectl -n acedatacloud set image statefulset/platform-service-dify-worker \
-    platform-service-dify-worker="ghcr.io/acedatacloud/platform-service-dify-api:${BUILD_NUMBER}"
+  kubectl -n acedatacloud set image statefulset/dify-worker \
+    dify-worker="ghcr.io/acedatacloud/platform-service-dify-api:${BUILD_NUMBER}"
 
-  kubectl -n acedatacloud set image deployment/platform-service-dify-worker-beat \
-    platform-service-dify-worker-beat="ghcr.io/acedatacloud/platform-service-dify-api:${BUILD_NUMBER}"
+  kubectl -n acedatacloud set image deployment/dify-worker-beat \
+    dify-worker-beat="ghcr.io/acedatacloud/platform-service-dify-api:${BUILD_NUMBER}"
 
-  kubectl -n acedatacloud set image deployment/platform-service-dify-web \
-    platform-service-dify-web="ghcr.io/acedatacloud/platform-service-dify-web:${BUILD_NUMBER}"
+  kubectl -n acedatacloud set image deployment/dify-web \
+    dify-web="ghcr.io/acedatacloud/platform-service-dify-web:${BUILD_NUMBER}"
 fi

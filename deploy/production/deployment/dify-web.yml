@@ -2,8 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: platform-service-dify-web
-  name: platform-service-dify-web
+    app: dify-web
+  name: dify-web
   namespace: acedatacloud
 spec:
   progressDeadlineSeconds: 600
@@ -11,7 +11,7 @@ spec:
   revisionHistoryLimit: 1
   selector:
     matchLabels:
-      app: platform-service-dify-web
+      app: dify-web
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -21,7 +21,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        app: platform-service-dify-web
+        app: dify-web
     spec:
       automountServiceAccountToken: false
       containers:
@@ -31,7 +31,7 @@ spec:
         - name: APP_WEB_URL
         image: ghcr.io/acedatacloud/platform-service-dify-web:latest
         imagePullPolicy: IfNotPresent
-        name: platform-service-dify-web
+        name: dify-web
         ports:
         - containerPort: 3000
           protocol: TCP

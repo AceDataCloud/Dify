@@ -2,22 +2,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: platform-service-dify-plugin-daemon
-  name: platform-service-dify-plugin-daemon
+    app: dify-plugin-daemon
+  name: dify-plugin-daemon
   namespace: acedatacloud
 spec:
   replicas: 1
   revisionHistoryLimit: 1
   selector:
     matchLabels:
-      app: platform-service-dify-plugin-daemon
+      app: dify-plugin-daemon
   template:
     metadata:
       labels:
-        app: platform-service-dify-plugin-daemon
+        app: dify-plugin-daemon
     spec:
       containers:
-        - name: platform-service-dify-plugin-daemon
+        - name: dify-plugin-daemon
           image: langgenius/dify-plugin-daemon:0.5.2-local
           imagePullPolicy: IfNotPresent
           env:
@@ -57,7 +57,7 @@ spec:
                   name: dify
                   key: SECRET_KEY
             - name: DIFY_INNER_API_URL
-              value: http://platform-service-dify-api:5001
+              value: http://dify-api:5001
             - name: DIFY_INNER_API_KEY
               valueFrom:
                 secretKeyRef:
@@ -83,7 +83,7 @@ spec:
             privileged: false
           volumeMounts:
             - mountPath: /app/storage
-              name: platform-service-dify-storage
+              name: dify-storage
               subPath: plugin-daemon-storage
       imagePullSecrets:
         - name: docker-registry
@@ -92,6 +92,6 @@ spec:
         kubernetes.io/os: linux
       terminationGracePeriodSeconds: 30
       volumes:
-        - name: platform-service-dify-storage
+        - name: dify-storage
           persistentVolumeClaim:
-            claimName: platform-service-dify-storage
+            claimName: dify

@@ -2,23 +2,23 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: platform-service-dify-worker-beat
-  name: platform-service-dify-worker-beat
+    app: dify-worker-beat
+  name: dify-worker-beat
   namespace: acedatacloud
 spec:
   replicas: 1
   revisionHistoryLimit: 1
   selector:
     matchLabels:
-      app: platform-service-dify-worker-beat
+      app: dify-worker-beat
   template:
     metadata:
       labels:
-        app: platform-service-dify-worker-beat
+        app: dify-worker-beat
     spec:
       automountServiceAccountToken: false
       containers:
-        - name: platform-service-dify-worker-beat
+        - name: dify-worker-beat
           image: ghcr.io/acedatacloud/platform-service-dify-api:latest
           imagePullPolicy: IfNotPresent
           env:
@@ -94,7 +94,7 @@ spec:
             - name: OPENDAL_FS_ROOT
               value: storage
             - name: PLUGIN_DAEMON_URL
-              value: http://platform-service-dify-plugin-daemon:5002
+              value: http://dify-plugin-daemon:5002
             - name: INNER_API_KEY_FOR_PLUGIN
               valueFrom:
                 secretKeyRef:

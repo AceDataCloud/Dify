@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: platform-service-dify-web
+  name: dify-web
   namespace: acedatacloud
 spec:
   type: ClusterIP
   selector:
-    app: platform-service-dify-web
+    app: dify-web
   ports:
     - name: http
       port: 3000

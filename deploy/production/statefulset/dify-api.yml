@@ -2,9 +2,9 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: platform-service-dify-api
-    app.kubernetes.io/instance: platform-service-dify-api
-  name: platform-service-dify-api
+    app: dify-api
+    app.kubernetes.io/instance: dify-api
+  name: dify-api
   namespace: acedatacloud
 spec:
   minReadySeconds: 10
@@ -13,12 +13,12 @@ spec:
   revisionHistoryLimit: 1
   selector:
     matchLabels:
-      app: platform-service-dify-api
-  serviceName: platform-service-dify-api
+      app: dify-api
+  serviceName: dify-api-headless
   template:
     metadata:
       labels:
-        app: platform-service-dify-api
+        app: dify-api
     spec:
       automountServiceAccountToken: false
       initContainers:
@@ -38,7 +38,7 @@ spec:
             echo "Permissions initialized. Exiting."
         volumeMounts:
         - mountPath: /app/api/storage
-          name: platform-service-dify-storage
+          name: dify-storage
           subPath: api-storage
       containers:
       - env:
@@ -59,7 +59,7 @@ spec:
         - name: MIGRATION_ENABLED
           value: "true"
         - name: PLUGIN_DAEMON_URL
-          value: http://platform-service-dify-plugin-daemon:5002
+          value: http://dify-plugin-daemon:5002
         - name: INNER_API_KEY_FOR_PLUGIN
           valueFrom:
             secretKeyRef:
@@ -158,7 +158,7 @@ spec:
         - name: TENCENT_VECTOR_DB_ENABLE_HYBRID_SEARCH
           value: "false"
         - name: CODE_EXECUTION_ENDPOINT
-          value: http://platform-service-dify-sandbox:8194
+          value: http://dify-sandbox:8194
         - name: CODE_EXECUTION_API_KEY
           valueFrom:
             secretKeyRef:
@@ -196,7 +196,7 @@ spec:
           value: "1000"
         image: ghcr.io/acedatacloud/platform-service-dify-api:latest
         imagePullPolicy: IfNotPresent
-        name: platform-service-dify-api
+        name: dify-api
         ports:
         - containerPort: 5001
           protocol: TCP
@@ -227,7 +227,7 @@ spec:
           privileged: false
         volumeMounts:
         - mountPath: /app/api/storage
-          name: platform-service-dify-storage
+          name: dify-storage
           subPath: api-storage
       dnsPolicy: ClusterFirst
       imagePullSecrets:
@@ -239,9 +239,9 @@ spec:
       securityContext: {}
       terminationGracePeriodSeconds: 30
       volumes:
-      - name: platform-service-dify-storage
+      - name: dify-storage
         persistentVolumeClaim:
-          claimName: platform-service-dify-storage
+          claimName: dify
   updateStrategy:
     rollingUpdate:
       partition: 0

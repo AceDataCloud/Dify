@@ -1,13 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: dify-sandbox
+  name: dify-worker-headless
   namespace: acedatacloud
 spec:
-  type: ClusterIP
+  clusterIP: None
   selector:
-    app: dify-sandbox
+    app: dify-worker
   ports:
     - name: http
-      port: 8194
-      targetPort: 8194
+      port: 5001
+      targetPort: 5001
+

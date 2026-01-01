@@ -2,8 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: platform-service-dify-nginx
-  name: platform-service-dify-nginx
+    app: dify-nginx
+  name: dify-nginx
   namespace: acedatacloud
 spec:
   progressDeadlineSeconds: 600
@@ -11,7 +11,7 @@ spec:
   revisionHistoryLimit: 1
   selector:
     matchLabels:
-      app: platform-service-dify-nginx
+      app: dify-nginx
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -21,13 +21,13 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        app: platform-service-dify-nginx
+        app: dify-nginx
     spec:
       automountServiceAccountToken: false
       containers:
       - image: nginx:latest
         imagePullPolicy: IfNotPresent
-        name: platform-service-dify-nginx
+        name: dify-nginx
         ports:
         - containerPort: 80
           protocol: TCP
@@ -44,13 +44,13 @@ spec:
         terminationMessagePolicy: File
         volumeMounts:
         - mountPath: /etc/nginx/nginx.conf
-          name: platform-service-dify-nginx
+          name: dify-nginx
           subPath: nginx.conf
         - mountPath: /etc/nginx/proxy.conf
-          name: platform-service-dify-nginx
+          name: dify-nginx
           subPath: proxy.conf
         - mountPath: /etc/nginx/conf.d/default.conf
-          name: platform-service-dify-nginx
+          name: dify-nginx
           subPath: default.conf
       dnsPolicy: ClusterFirst
       nodeSelector:
@@ -62,5 +62,5 @@ spec:
       volumes:
       - configMap:
           defaultMode: 420
-          name: platform-service-dify-nginx
-        name: platform-service-dify-nginx
+          name: dify-nginx
+        name: dify-nginx

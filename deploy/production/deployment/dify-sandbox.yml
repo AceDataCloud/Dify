@@ -2,8 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: platform-service-dify-sandbox
-  name: platform-service-dify-sandbox
+    app: dify-sandbox
+  name: dify-sandbox
   namespace: acedatacloud
 spec:
   progressDeadlineSeconds: 600
@@ -11,7 +11,7 @@ spec:
   revisionHistoryLimit: 1
   selector:
     matchLabels:
-      app: platform-service-dify-sandbox
+      app: dify-sandbox
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -21,7 +21,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        app: platform-service-dify-sandbox
+        app: dify-sandbox
     spec:
       automountServiceAccountToken: false
       containers:
@@ -41,7 +41,7 @@ spec:
           value: "8194"
         image: langgenius/dify-sandbox:0.2.12
         imagePullPolicy: IfNotPresent
-        name: platform-service-dify-sandbox
+        name: dify-sandbox
         ports:
         - containerPort: 8194
           protocol: TCP
