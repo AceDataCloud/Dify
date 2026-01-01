@@ -1,13 +1,26 @@
 'use client'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 import MailForm from './components/input-mail'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+import { API_PREFIX } from '@/config'
 
 const Signup = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { t } = useTranslation()
+  const noAceDataCloudOAuth = searchParams.get('no_acedatacloud_oauth') === '1'
+
+  useEffect(() => {
+    if (noAceDataCloudOAuth)
+      return
+    if (typeof window === 'undefined')
+      return
+    const loginUrl = new URL(`${API_PREFIX}/oauth/login/acedatacloud`, window.location.origin)
+    if (window.location.search)
+      loginUrl.search = new URLSearchParams(window.location.search).toString()
+    window.location.href = loginUrl.toString()
+  }, [noAceDataCloudOAuth])
 
   const handleInputMailSubmitted = useCallback((email: string, result: string) => {
     const params = new URLSearchParams(searchParams)

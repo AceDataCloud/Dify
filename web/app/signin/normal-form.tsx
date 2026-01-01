@@ -12,11 +12,11 @@ import cn from '@/utils/classnames'
 import { invitationCheck } from '@/service/common'
 import { LicenseStatus } from '@/types/feature'
 import Toast from '@/app/components/base/toast'
-import { IS_CE_EDITION } from '@/config'
 import { useGlobalPublicStore } from '@/context/global-public-context'
 import { resolvePostLoginRedirect } from './utils/post-login-redirect'
 import Split from './split'
 import { useIsLogin } from '@/service/use-common'
+import { API_PREFIX, IS_CE_EDITION } from '@/config'
 
 const NormalForm = () => {
   const { t } = useTranslation()
@@ -26,6 +26,7 @@ const NormalForm = () => {
   const isLoggedIn = loginData?.logged_in
   const message = decodeURIComponent(searchParams.get('message') || '')
   const invite_token = decodeURIComponent(searchParams.get('invite_token') || '')
+  const noAceDataCloudOAuth = searchParams.get('no_acedatacloud_oauth') === '1'
   const [isInitCheckLoading, setInitCheckLoading] = useState(true)
   const isLoading = isCheckLoading || loginData?.logged_in || isInitCheckLoading
   const { systemFeatures } = useGlobalPublicStore()
@@ -35,6 +36,21 @@ const NormalForm = () => {
   const [workspaceName, setWorkSpaceName] = useState('')
 
   const isInviteLink = Boolean(invite_token && invite_token !== 'null')
+
+  useEffect(() => {
+    if (isCheckLoading)
+      return
+    if (loginData?.logged_in)
+      return
+    if (message || noAceDataCloudOAuth)
+      return
+    if (typeof window === 'undefined')
+      return
+    const loginUrl = new URL(`${API_PREFIX}/oauth/login/acedatacloud`, window.location.origin)
+    if (window.location.search)
+      loginUrl.search = new URLSearchParams(window.location.search).toString()
+    window.location.href = loginUrl.toString()
+  }, [isCheckLoading, loginData, message, noAceDataCloudOAuth])
 
   const init = useCallback(async () => {
     try {
