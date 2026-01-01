@@ -20,6 +20,9 @@ spec:
         - name: dify-plugin-daemon
           image: langgenius/dify-plugin-daemon:0.5.2-local
           imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: dify-env
           env:
             - name: DB_TYPE
               value: postgresql
@@ -91,6 +94,8 @@ spec:
               value: 0.0.0.0
             - name: PLUGIN_REMOTE_INSTALLING_PORT
               value: "5003"
+            - name: PPROF_ENABLED
+              value: "false"
             - name: PLUGIN_STORAGE_TYPE
               value: local
             - name: PLUGIN_STORAGE_LOCAL_ROOT
@@ -104,13 +109,29 @@ spec:
               protocol: TCP
           resources:
             limits:
-              cpu: 200m
-              memory: 1Gi
+              cpu: "1"
+              memory: 2Gi
             requests:
-              cpu: 20m
-              memory: 128Mi
+              cpu: 200m
+              memory: 256Mi
           securityContext:
             privileged: false
+          readinessProbe:
+            httpGet:
+              path: /health/check
+              port: 5002
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /health/check
+              port: 5002
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
           volumeMounts:
             - mountPath: /app/storage
               name: dify-storage
