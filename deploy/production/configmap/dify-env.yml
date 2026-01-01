@@ -6,9 +6,10 @@ metadata:
 data:
   # External base URLs (must be set for OAuth callbacks and secure cookie behavior).
   CONSOLE_API_URL: "https://dify.acedata.cloud"
-  CONSOLE_WEB_URL: "https://dify.acedata.cloud"
+  # Keep a trailing slash so proxies that rewrite absolute Location headers don't turn it into `?oauth_new_user=...`.
+  CONSOLE_WEB_URL: "https://dify.acedata.cloud/"
   APP_API_URL: "https://dify.acedata.cloud"
-  APP_WEB_URL: "https://dify.acedata.cloud"
+  APP_WEB_URL: "https://dify.acedata.cloud/"
   SERVICE_API_URL: "https://dify.acedata.cloud"
   FILES_URL: "https://dify.acedata.cloud/files"
   ENDPOINT_URL_TEMPLATE: "https://dify.acedata.cloud/e/{hook_id}"
