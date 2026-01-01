@@ -12,6 +12,24 @@ identity:
     pt_BR: "Nano Banana"
     ja_JP: "Nano Banana"
   icon: "icon.svg"
+  icon_dark: "icon-dark.svg"
+  tags:
+    - image
+
+credentials_for_provider:
+  acedata_bearer_token:
+    type: secret-input
+    required: true
+    label:
+      en_US: Ace Data Cloud Bearer Token
+      zh_Hans: Ace Data Cloud Token
+    placeholder:
+      en_US: Paste your token (without "Bearer ")
+      zh_Hans: 粘贴 Token（不需要带 Bearer）
+    help:
+      en_US: Acquire a token from the Ace Data Cloud console.
+      zh_Hans: 从 Ace Data Cloud 控制台获取 Token。
+    url: https://platform.acedata.cloud/documents/nano-banana-images-integration
 
 #########################################################################################
 # If you want to support OAuth, you can uncomment the following code.
@@ -56,7 +74,8 @@ identity:
 #         en_US: "Access Token"
 
 tools:
-  - tools/nano-banana.yaml
+  - tools/nano_banana_generate.yaml
+  - tools/nano_banana_edit.yaml
 extra:
   python:
-    source: provider/nano-banana.py
+    source: provider/nano_banana.py
