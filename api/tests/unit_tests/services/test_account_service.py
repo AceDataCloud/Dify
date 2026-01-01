@@ -174,8 +174,10 @@ class TestAccountService:
         mock_account = TestAccountAssociatedDataFactory.create_account_mock()
 
         # Setup smart database query mock
-        query_results = {("Account", "email", "test@example.com"): mock_account}
-        ServiceDbTestHelper.setup_db_query_filter_by_mock(mock_db_dependencies["db"], query_results)
+        query_results = {
+            ("Account", "email", "test@example.com"): mock_account}
+        ServiceDbTestHelper.setup_db_query_filter_by_mock(
+            mock_db_dependencies["db"], query_results)
 
         mock_password_dependencies["compare_password"].return_value = True
 
@@ -190,7 +192,8 @@ class TestAccountService:
         """Test authentication when account does not exist."""
         # Setup smart database query mock - no matching results
         query_results = {("Account", "email", "notfound@example.com"): None}
-        ServiceDbTestHelper.setup_db_query_filter_by_mock(mock_db_dependencies["db"], query_results)
+        ServiceDbTestHelper.setup_db_query_filter_by_mock(
+            mock_db_dependencies["db"], query_results)
 
         # Execute test and verify exception
         self._assert_exception_raised(
@@ -200,14 +203,18 @@ class TestAccountService:
     def test_authenticate_account_banned(self, mock_db_dependencies):
         """Test authentication when account is banned."""
         # Setup test data
-        mock_account = TestAccountAssociatedDataFactory.create_account_mock(status="banned")
+        mock_account = TestAccountAssociatedDataFactory.create_account_mock(
+            status="banned")
 
         # Setup smart database query mock
-        query_results = {("Account", "email", "banned@example.com"): mock_account}
-        ServiceDbTestHelper.setup_db_query_filter_by_mock(mock_db_dependencies["db"], query_results)
+        query_results = {
+            ("Account", "email", "banned@example.com"): mock_account}
+        ServiceDbTestHelper.setup_db_query_filter_by_mock(
+            mock_db_dependencies["db"], query_results)
 
         # Execute test and verify exception
-        self._assert_exception_raised(AccountLoginError, AccountService.authenticate, "banned@example.com", "password")
+        self._assert_exception_raised(
+            AccountLoginError, AccountService.authenticate, "banned@example.com", "password")
 
     def test_authenticate_password_error(self, mock_db_dependencies, mock_password_dependencies):
         """Test authentication with wrong password."""
@@ -215,8 +222,10 @@ class TestAccountService:
         mock_account = TestAccountAssociatedDataFactory.create_account_mock()
 
         # Setup smart database query mock
-        query_results = {("Account", "email", "test@example.com"): mock_account}
-        ServiceDbTestHelper.setup_db_query_filter_by_mock(mock_db_dependencies["db"], query_results)
+        query_results = {
+            ("Account", "email", "test@example.com"): mock_account}
+        ServiceDbTestHelper.setup_db_query_filter_by_mock(
+            mock_db_dependencies["db"], query_results)
 
         mock_password_dependencies["compare_password"].return_value = False
 
@@ -228,11 +237,14 @@ class TestAccountService:
     def test_authenticate_pending_account_activates(self, mock_db_dependencies, mock_password_dependencies):
         """Test authentication for a pending account, which should activate on login."""
         # Setup test data
-        mock_account = TestAccountAssociatedDataFactory.create_account_mock(status="pending")
+        mock_account = TestAccountAssociatedDataFactory.create_account_mock(
+            status="pending")
 
         # Setup smart database query mock
-        query_results = {("Account", "email", "pending@example.com"): mock_account}
-        ServiceDbTestHelper.setup_db_query_filter_by_mock(mock_db_dependencies["db"], query_results)
+        query_results = {
+            ("Account", "email", "pending@example.com"): mock_account}
+        ServiceDbTestHelper.setup_db_query_filter_by_mock(
+            mock_db_dependencies["db"], query_results)
 
         mock_password_dependencies["compare_password"].return_value = True
 
@@ -363,7 +375,8 @@ class TestAccountService:
         mock_password_dependencies["hash_password"].return_value = b"new_hashed_password"
 
         # Execute test
-        result = AccountService.update_account_password(mock_account, "old_password", "new_password123")
+        result = AccountService.update_account_password(
+            mock_account, "old_password", "new_password123")
 
         # Verify results
         assert result == mock_account
@@ -374,7 +387,8 @@ class TestAccountService:
         mock_password_dependencies["compare_password"].assert_called_once_with(
             "old_password", "hashed_password", "salt"
         )
-        mock_password_dependencies["valid_password"].assert_called_once_with("new_password123")
+        mock_password_dependencies["valid_password"].assert_called_once_with(
+            "new_password123")
 
         # Verify database operations
         self._assert_database_operations_called(mock_db_dependencies["db"])
@@ -404,7 +418,8 @@ class TestAccountService:
         # Setup test data
         mock_account = TestAccountAssociatedDataFactory.create_account_mock()
         mock_password_dependencies["compare_password"].return_value = True
-        mock_password_dependencies["valid_password"].side_effect = ValueError("Password too short")
+        mock_password_dependencies["valid_password"].side_effect = ValueError(
+            "Password too short")
 
         # Execute test and verify exception
         self._assert_exception_raised(
@@ -412,7 +427,8 @@ class TestAccountService:
         )
 
         # Verify password validation was called
-        mock_password_dependencies["valid_password"].assert_called_once_with("short")
+        mock_password_dependencies["valid_password"].assert_called_once_with(
+            "short")
 
     # ==================== User Loading Tests ====================
 
@@ -427,7 +443,8 @@ class TestAccountService:
             ("Account", "id", "user-123"): mock_account,
             ("TenantAccountJoin", "account_id", "user-123"): mock_tenant_join,
         }
-        ServiceDbTestHelper.setup_db_query_filter_by_mock(mock_db_dependencies["db"], query_results)
+        ServiceDbTestHelper.setup_db_query_filter_by_mock(
+            mock_db_dependencies["db"], query_results)
 
         # Mock datetime
         with patch("services.account_service.datetime") as mock_datetime:
@@ -446,7 +463,8 @@ class TestAccountService:
         """Test user loading when user does not exist."""
         # Setup smart database query mock - no matching results
         query_results = {("Account", "id", "non-existent-user"): None}
-        ServiceDbTestHelper.setup_db_query_filter_by_mock(mock_db_dependencies["db"], query_results)
+        ServiceDbTestHelper.setup_db_query_filter_by_mock(
+            mock_db_dependencies["db"], query_results)
 
         # Execute test
         result = AccountService.load_user("non-existent-user")
@@ -457,11 +475,13 @@ class TestAccountService:
     def test_load_user_banned(self, mock_db_dependencies):
         """Test user loading when user is banned."""
         # Setup test data
-        mock_account = TestAccountAssociatedDataFactory.create_account_mock(status="banned")
+        mock_account = TestAccountAssociatedDataFactory.create_account_mock(
+            status="banned")
 
         # Setup smart database query mock
         query_results = {("Account", "id", "user-123"): mock_account}
-        ServiceDbTestHelper.setup_db_query_filter_by_mock(mock_db_dependencies["db"], query_results)
+        ServiceDbTestHelper.setup_db_query_filter_by_mock(
+            mock_db_dependencies["db"], query_results)
 
         # Execute test and verify exception
         self._assert_exception_raised(
@@ -474,15 +494,19 @@ class TestAccountService:
         """Test user loading when user has no current tenant but has available tenants."""
         # Setup test data
         mock_account = TestAccountAssociatedDataFactory.create_account_mock()
-        mock_available_tenant = TestAccountAssociatedDataFactory.create_tenant_join_mock(current=False)
+        mock_available_tenant = TestAccountAssociatedDataFactory.create_tenant_join_mock(
+            current=False)
 
         # Setup smart database query mock for complex scenario
         query_results = {
             ("Account", "id", "user-123"): mock_account,
-            ("TenantAccountJoin", "account_id", "user-123"): None,  # No current tenant
-            ("TenantAccountJoin", "order_by", "first_available"): mock_available_tenant,  # First available tenant
+            # No current tenant
+            ("TenantAccountJoin", "account_id", "user-123"): None,
+            # First available tenant
+            ("TenantAccountJoin", "order_by", "first_available"): mock_available_tenant,
         }
-        ServiceDbTestHelper.setup_db_query_filter_by_mock(mock_db_dependencies["db"], query_results)
+        ServiceDbTestHelper.setup_db_query_filter_by_mock(
+            mock_db_dependencies["db"], query_results)
 
         # Mock datetime
         with patch("services.account_service.datetime") as mock_datetime:
@@ -506,10 +530,13 @@ class TestAccountService:
         # Setup smart database query mock for no tenants scenario
         query_results = {
             ("Account", "id", "user-123"): mock_account,
-            ("TenantAccountJoin", "account_id", "user-123"): None,  # No current tenant
-            ("TenantAccountJoin", "order_by", "first_available"): None,  # No available tenants
+            # No current tenant
+            ("TenantAccountJoin", "account_id", "user-123"): None,
+            # No available tenants
+            ("TenantAccountJoin", "order_by", "first_available"): None,
         }
-        ServiceDbTestHelper.setup_db_query_filter_by_mock(mock_db_dependencies["db"], query_results)
+        ServiceDbTestHelper.setup_db_query_filter_by_mock(
+            mock_db_dependencies["db"], query_results)
 
         # Mock datetime
         with patch("services.account_service.datetime") as mock_datetime:
@@ -585,9 +612,11 @@ class TestTenantService:
         # Setup smart database query mock - no existing tenant joins
         query_results = {
             ("TenantAccountJoin", "account_id", "user-123"): None,
-            ("TenantAccountJoin", "tenant_id", "tenant-456"): None,  # For has_roles check
+            # For has_roles check
+            ("TenantAccountJoin", "tenant_id", "tenant-456"): None,
         }
-        ServiceDbTestHelper.setup_db_query_filter_by_mock(mock_db_dependencies["db"], query_results)
+        ServiceDbTestHelper.setup_db_query_filter_by_mock(
+            mock_db_dependencies["db"], query_results)
 
         # Setup external service mocks
         mock_external_service_dependencies[
@@ -677,14 +706,17 @@ class TestTenantService:
         mock_account = TestAccountAssociatedDataFactory.create_account_mock()
 
         # Setup smart database query mock - no existing member
-        query_results = {("TenantAccountJoin", "tenant_id", "tenant-456"): None}
-        ServiceDbTestHelper.setup_db_query_filter_by_mock(mock_db_dependencies["db"], query_results)
+        query_results = {
+            ("TenantAccountJoin", "tenant_id", "tenant-456"): None}
+        ServiceDbTestHelper.setup_db_query_filter_by_mock(
+            mock_db_dependencies["db"], query_results)
 
         # Mock database operations
         mock_db_dependencies["db"].session.add = MagicMock()
 
         # Execute test
-        result = TenantService.create_tenant_member(mock_tenant, mock_account, "normal")
+        result = TenantService.create_tenant_member(
+            mock_tenant, mock_account, "normal")
 
         # Verify member was created with correct parameters
         assert result is not None
@@ -857,7 +889,8 @@ class TestTenantService:
         mock_account = TestAccountAssociatedDataFactory.create_account_mock()
 
         # Execute test and verify exception
-        self._assert_exception_raised(ValueError, TenantService.switch_tenant, mock_account, None)
+        self._assert_exception_raised(
+            ValueError, TenantService.switch_tenant, mock_account, None)
 
     # ==================== Role Management Tests ====================
 
@@ -866,8 +899,10 @@ class TestTenantService:
         # Setup test data
         mock_tenant = MagicMock()
         mock_tenant.id = "tenant-456"
-        mock_member = TestAccountAssociatedDataFactory.create_account_mock(account_id="member-789")
-        mock_operator = TestAccountAssociatedDataFactory.create_account_mock(account_id="operator-123")
+        mock_member = TestAccountAssociatedDataFactory.create_account_mock(
+            account_id="member-789")
+        mock_operator = TestAccountAssociatedDataFactory.create_account_mock(
+            account_id="operator-123")
         mock_target_join = TestAccountAssociatedDataFactory.create_tenant_join_mock(
             tenant_id="tenant-456", account_id="member-789", role="normal"
         )
@@ -893,7 +928,8 @@ class TestTenantService:
             mock_db.session.query.side_effect = [mock_query1, mock_query2]
 
             # Execute test
-            TenantService.update_member_role(mock_tenant, mock_member, "admin", mock_operator)
+            TenantService.update_member_role(
+                mock_tenant, mock_member, "admin", mock_operator)
 
             # Verify role was updated
             assert mock_target_join.role == "admin"
@@ -906,25 +942,31 @@ class TestTenantService:
         # Setup test data
         mock_tenant = MagicMock()
         mock_tenant.id = "tenant-456"
-        mock_operator = TestAccountAssociatedDataFactory.create_account_mock(account_id="operator-123")
-        mock_member = TestAccountAssociatedDataFactory.create_account_mock(account_id="member-789")
+        mock_operator = TestAccountAssociatedDataFactory.create_account_mock(
+            account_id="operator-123")
+        mock_member = TestAccountAssociatedDataFactory.create_account_mock(
+            account_id="member-789")
         mock_operator_join = TestAccountAssociatedDataFactory.create_tenant_join_mock(
             tenant_id="tenant-456", account_id="operator-123", role="owner"
         )
 
         # Setup smart database query mock
-        query_results = {("TenantAccountJoin", "tenant_id", "tenant-456"): mock_operator_join}
-        ServiceDbTestHelper.setup_db_query_filter_by_mock(mock_db_dependencies["db"], query_results)
+        query_results = {("TenantAccountJoin", "tenant_id",
+                          "tenant-456"): mock_operator_join}
+        ServiceDbTestHelper.setup_db_query_filter_by_mock(
+            mock_db_dependencies["db"], query_results)
 
         # Execute test - should not raise exception
-        TenantService.check_member_permission(mock_tenant, mock_operator, mock_member, "add")
+        TenantService.check_member_permission(
+            mock_tenant, mock_operator, mock_member, "add")
 
     def test_check_member_permission_operate_self(self):
         """Test member permission check when operator tries to operate self."""
         # Setup test data
         mock_tenant = MagicMock()
         mock_tenant.id = "tenant-456"
-        mock_operator = TestAccountAssociatedDataFactory.create_account_mock(account_id="operator-123")
+        mock_operator = TestAccountAssociatedDataFactory.create_account_mock(
+            account_id="operator-123")
 
         # Execute test and verify exception
         from services.errors.account import CannotOperateSelfError
@@ -1024,7 +1066,8 @@ class TestRegisterService:
                     mock_dify_setup.return_value = mock_dify_setup_instance
 
                     # Execute test
-                    RegisterService.setup("admin@example.com", "Admin User", "password123", "192.168.1.1", "en-US")
+                    RegisterService.setup(
+                        "admin@example.com", "Admin User", "password123", "192.168.1.1", "en-US")
 
                     # Verify results
                     mock_create_account.assert_called_once_with(
@@ -1034,9 +1077,11 @@ class TestRegisterService:
                         password="password123",
                         is_setup=True,
                     )
-                    mock_create_tenant.assert_called_once_with(account=mock_account, is_setup=True)
+                    mock_create_tenant.assert_called_once_with(
+                        account=mock_account, is_setup=True)
                     mock_dify_setup.assert_called_once()
-                    self._assert_database_operations_called(mock_db_dependencies["db"])
+                    self._assert_database_operations_called(
+                        mock_db_dependencies["db"])
 
     def test_setup_failure_rollback(self, mock_db_dependencies, mock_external_service_dependencies):
         """Test setup failure with proper rollback."""
@@ -1171,10 +1216,13 @@ class TestRegisterService:
                     password="password123",
                     is_setup=False,
                 )
-                mock_create_tenant.assert_called_once_with("Test User's Workspace")
-                mock_create_member.assert_called_once_with(mock_tenant, mock_account, role="owner")
+                mock_create_tenant.assert_called_once_with(
+                    "Test User's Workspace")
+                mock_create_member.assert_called_once_with(
+                    mock_tenant, mock_account, role="owner")
                 mock_event.send.assert_called_once_with(mock_tenant)
-                self._assert_database_operations_called(mock_db_dependencies["db"])
+                self._assert_database_operations_called(
+                    mock_db_dependencies["db"])
 
     def test_register_calls_default_workspace_join_when_enterprise_enabled(
         self, mock_db_dependencies, mock_external_service_dependencies, monkeypatch
@@ -1276,8 +1324,45 @@ class TestRegisterService:
 
                 # Verify results
                 assert result == mock_account
-                mock_link_account.assert_called_once_with("google", "oauth123", mock_account)
-                self._assert_database_operations_called(mock_db_dependencies["db"])
+                mock_link_account.assert_called_once_with(
+                    "google", "oauth123", mock_account)
+                self._assert_database_operations_called(
+                    mock_db_dependencies["db"])
+
+    def test_register_with_acedatacloud_oauth_auto_register(
+        self, mock_db_dependencies, mock_external_service_dependencies
+    ):
+        """AceDataCloud OAuth should auto-provision even when registration is disabled."""
+        mock_external_service_dependencies["feature_service"].get_system_features.return_value.is_allow_register = False
+        mock_external_service_dependencies[
+            "feature_service"
+        ].get_system_features.return_value.is_allow_create_workspace = False
+        mock_external_service_dependencies["billing_service"].is_email_in_freeze.return_value = False
+
+        mock_account = TestAccountAssociatedDataFactory.create_account_mock()
+        with (
+            patch("services.account_service.AccountService.create_account") as mock_create_account,
+            patch("services.account_service.AccountService.link_account_integrate") as mock_link_account,
+            patch("services.account_service.dify_config") as mock_config,
+        ):
+            mock_config.ACEDATACLOUD_AUTH_AUTO_REGISTER = True
+            mock_create_account.return_value = mock_account
+
+            result = RegisterService.register(
+                email="test@example.com",
+                name="Test User",
+                password=None,
+                open_id="oauth123",
+                provider="acedatacloud",
+                language="en-US",
+                create_workspace_required=False,
+            )
+
+            assert result == mock_account
+            mock_create_account.assert_called_once()
+            assert mock_create_account.call_args.kwargs.get("is_setup") is True
+            mock_link_account.assert_called_once_with(
+                "acedatacloud", "oauth123", mock_account)
 
     def test_register_with_pending_status(self, mock_db_dependencies, mock_external_service_dependencies):
         """Test account registration with pending status."""
@@ -1319,7 +1404,8 @@ class TestRegisterService:
                 # Verify results
                 assert result == mock_account
                 assert result.status == "pending"
-                self._assert_database_operations_called(mock_db_dependencies["db"])
+                self._assert_database_operations_called(
+                    mock_db_dependencies["db"])
 
     def test_register_workspace_not_allowed(self, mock_db_dependencies, mock_external_service_dependencies):
         """Test registration when workspace creation is not allowed."""
@@ -1387,11 +1473,13 @@ class TestRegisterService:
         mock_tenant = MagicMock()
         mock_tenant.id = "tenant-456"
         mock_tenant.name = "Test Workspace"
-        mock_inviter = TestAccountAssociatedDataFactory.create_account_mock(account_id="inviter-123", name="Inviter")
+        mock_inviter = TestAccountAssociatedDataFactory.create_account_mock(
+            account_id="inviter-123", name="Inviter")
 
         # Mock database queries - need to mock the Session query
         mock_session = MagicMock()
-        mock_session.query.return_value.filter_by.return_value.first.return_value = None  # No existing account
+        # No existing account
+        mock_session.query.return_value.filter_by.return_value.first.return_value = None
 
         with (
             patch("services.account_service.Session") as mock_session_class,
@@ -1435,59 +1523,12 @@ class TestRegisterService:
                         status=AccountStatus.PENDING,
                         is_setup=True,
                     )
-                    mock_lookup.assert_called_once_with("newuser@example.com", session=mock_session)
-
-    def test_invite_new_member_normalizes_new_account_email(
-        self, mock_db_dependencies, mock_redis_dependencies, mock_task_dependencies
-    ):
-        """Ensure inviting with mixed-case email normalizes before registering."""
-        mock_tenant = MagicMock()
-        mock_tenant.id = "tenant-456"
-        mock_inviter = TestAccountAssociatedDataFactory.create_account_mock(account_id="inviter-123", name="Inviter")
-        mixed_email = "Invitee@Example.com"
-
-        mock_session = MagicMock()
-        with (
-            patch("services.account_service.Session") as mock_session_class,
-            patch("services.account_service.AccountService.get_account_by_email_with_case_fallback") as mock_lookup,
-        ):
-            mock_session_class.return_value.__enter__.return_value = mock_session
-            mock_session_class.return_value.__exit__.return_value = None
-            mock_lookup.return_value = None
-
-            mock_new_account = TestAccountAssociatedDataFactory.create_account_mock(
-                account_id="new-user-789", email="invitee@example.com", name="invitee", status="pending"
-            )
-            with patch("services.account_service.RegisterService.register") as mock_register:
-                mock_register.return_value = mock_new_account
-                with (
-                    patch("services.account_service.TenantService.check_member_permission") as mock_check_permission,
-                    patch("services.account_service.TenantService.create_tenant_member") as mock_create_member,
-                    patch("services.account_service.TenantService.switch_tenant") as mock_switch_tenant,
-                    patch("services.account_service.RegisterService.generate_invite_token") as mock_generate_token,
-                ):
-                    mock_generate_token.return_value = "invite-token-abc"
-
-                    RegisterService.invite_new_member(
-                        tenant=mock_tenant,
-                        email=mixed_email,
-                        language="en-US",
-                        role="normal",
-                        inviter=mock_inviter,
-                    )
-
-                    mock_register.assert_called_once_with(
-                        email="invitee@example.com",
-                        name="invitee",
-                        language="en-US",
-                        status=AccountStatus.PENDING,
-                        is_setup=True,
-                    )
-                    mock_lookup.assert_called_once_with(mixed_email, session=mock_session)
-                    mock_check_permission.assert_called_once_with(mock_tenant, mock_inviter, None, "add")
-                    mock_create_member.assert_called_once_with(mock_tenant, mock_new_account, "normal")
-                    mock_switch_tenant.assert_called_once_with(mock_new_account, mock_tenant.id)
-                    mock_generate_token.assert_called_once_with(mock_tenant, mock_new_account)
+                    mock_create_member.assert_called_once_with(
+                        mock_tenant, mock_new_account, "normal")
+                    mock_switch_tenant.assert_called_once_with(
+                        mock_new_account, mock_tenant.id)
+                    mock_generate_token.assert_called_once_with(
+                        mock_tenant, mock_new_account)
                     mock_task_dependencies.delay.assert_called_once()
 
     def test_invite_new_member_existing_account(
@@ -1498,7 +1539,8 @@ class TestRegisterService:
         mock_tenant = MagicMock()
         mock_tenant.id = "tenant-456"
         mock_tenant.name = "Test Workspace"
-        mock_inviter = TestAccountAssociatedDataFactory.create_account_mock(account_id="inviter-123", name="Inviter")
+        mock_inviter = TestAccountAssociatedDataFactory.create_account_mock(
+            account_id="inviter-123", name="Inviter")
         mock_existing_account = TestAccountAssociatedDataFactory.create_account_mock(
             account_id="existing-user-456", email="existing@example.com", status="pending"
         )
@@ -1539,8 +1581,10 @@ class TestRegisterService:
 
                 # Verify results
                 assert result == "invite-token-123"
-                mock_create_member.assert_called_once_with(mock_tenant, mock_existing_account, "normal")
-                mock_generate_token.assert_called_once_with(mock_tenant, mock_existing_account)
+                mock_create_member.assert_called_once_with(
+                    mock_tenant, mock_existing_account, "normal")
+                mock_generate_token.assert_called_once_with(
+                    mock_tenant, mock_existing_account)
                 mock_task_dependencies.delay.assert_called_once()
                 mock_lookup.assert_called_once_with("existing@example.com", session=mock_session)
 
@@ -1549,7 +1593,8 @@ class TestRegisterService:
         # Setup test data
         mock_tenant = MagicMock()
         mock_tenant.id = "tenant-456"
-        mock_inviter = TestAccountAssociatedDataFactory.create_account_mock(account_id="inviter-123", name="Inviter")
+        mock_inviter = TestAccountAssociatedDataFactory.create_account_mock(
+            account_id="inviter-123", name="Inviter")
         mock_existing_account = TestAccountAssociatedDataFactory.create_account_mock(
             account_id="existing-user-456", email="existing@example.com", status="active"
         )
@@ -1562,7 +1607,8 @@ class TestRegisterService:
                 "tenant-456",
             ): TestAccountAssociatedDataFactory.create_tenant_join_mock(),
         }
-        ServiceDbTestHelper.setup_db_query_filter_by_mock(mock_db_dependencies["db"], query_results)
+        ServiceDbTestHelper.setup_db_query_filter_by_mock(
+            mock_db_dependencies["db"], query_results)
 
         # Mock TenantService methods
         with (
@@ -1614,7 +1660,8 @@ class TestRegisterService:
             mock_uuid.return_value = "test-uuid-123"
 
             # Execute test
-            result = RegisterService.generate_invite_token(mock_tenant, mock_account)
+            result = RegisterService.generate_invite_token(
+                mock_tenant, mock_account)
 
             # Verify results
             assert result == "test-uuid-123"
@@ -1638,7 +1685,8 @@ class TestRegisterService:
 
         # Verify results
         assert result is True
-        mock_redis_dependencies.get.assert_called_once_with("member_invite:token:valid-token")
+        mock_redis_dependencies.get.assert_called_once_with(
+            "member_invite:token:valid-token")
 
     def test_is_valid_invite_token_invalid(self, mock_redis_dependencies):
         """Test checking invalid invite token."""
@@ -1650,12 +1698,14 @@ class TestRegisterService:
 
         # Verify results
         assert result is False
-        mock_redis_dependencies.get.assert_called_once_with("member_invite:token:invalid-token")
+        mock_redis_dependencies.get.assert_called_once_with(
+            "member_invite:token:invalid-token")
 
     def test_revoke_token_with_workspace_and_email(self, mock_redis_dependencies):
         """Test revoking token with workspace ID and email."""
         # Execute test
-        RegisterService.revoke_token("workspace-123", "test@example.com", "token-123")
+        RegisterService.revoke_token(
+            "workspace-123", "test@example.com", "token-123")
 
         # Verify results
         mock_redis_dependencies.delete.assert_called_once()
@@ -1670,7 +1720,8 @@ class TestRegisterService:
         RegisterService.revoke_token("", "", "token-123")
 
         # Verify results
-        mock_redis_dependencies.delete.assert_called_once_with("member_invite:token:token-123")
+        mock_redis_dependencies.delete.assert_called_once_with(
+            "member_invite:token:token-123")
 
     # ==================== Invitation Validation Tests ====================
 
@@ -1698,12 +1749,15 @@ class TestRegisterService:
             mock_query1.where.return_value.first.return_value = mock_tenant
 
             mock_query2 = MagicMock()
-            mock_query2.join.return_value.where.return_value.first.return_value = (mock_account, "normal")
+            mock_query2.join.return_value.where.return_value.first.return_value = (
+                mock_account, "normal")
 
-            mock_db_dependencies["db"].session.query.side_effect = [mock_query1, mock_query2]
+            mock_db_dependencies["db"].session.query.side_effect = [
+                mock_query1, mock_query2]
 
             # Execute test
-            result = RegisterService.get_invitation_if_token_valid("tenant-456", "test@example.com", "token-123")
+            result = RegisterService.get_invitation_if_token_valid(
+                "tenant-456", "test@example.com", "token-123")
 
             # Verify results
             assert result is not None
@@ -1717,7 +1771,8 @@ class TestRegisterService:
         mock_redis_dependencies.get.return_value = None
 
         # Execute test
-        result = RegisterService.get_invitation_if_token_valid("tenant-456", "test@example.com", "token-123")
+        result = RegisterService.get_invitation_if_token_valid(
+            "tenant-456", "test@example.com", "token-123")
 
         # Verify results
         assert result is None
@@ -1730,7 +1785,8 @@ class TestRegisterService:
             "email": "test@example.com",
             "workspace_id": "tenant-456",
         }
-        mock_redis_dependencies.get.return_value = json.dumps(invitation_data).encode()
+        mock_redis_dependencies.get.return_value = json.dumps(
+            invitation_data).encode()
 
         # Mock database queries - no tenant found
         mock_query = MagicMock()
@@ -1738,7 +1794,8 @@ class TestRegisterService:
         mock_db_dependencies["db"].session.query.return_value = mock_query
 
         # Execute test
-        result = RegisterService.get_invitation_if_token_valid("tenant-456", "test@example.com", "token-123")
+        result = RegisterService.get_invitation_if_token_valid(
+            "tenant-456", "test@example.com", "token-123")
 
         # Verify results
         assert result is None
@@ -1756,19 +1813,23 @@ class TestRegisterService:
             "email": "test@example.com",
             "workspace_id": "tenant-456",
         }
-        mock_redis_dependencies.get.return_value = json.dumps(invitation_data).encode()
+        mock_redis_dependencies.get.return_value = json.dumps(
+            invitation_data).encode()
 
         # Mock database queries
         mock_query1 = MagicMock()
         mock_query1.filter.return_value.first.return_value = mock_tenant
 
         mock_query2 = MagicMock()
-        mock_query2.join.return_value.where.return_value.first.return_value = None  # No account found
+        # No account found
+        mock_query2.join.return_value.where.return_value.first.return_value = None
 
-        mock_db_dependencies["db"].session.query.side_effect = [mock_query1, mock_query2]
+        mock_db_dependencies["db"].session.query.side_effect = [
+            mock_query1, mock_query2]
 
         # Execute test
-        result = RegisterService.get_invitation_if_token_valid("tenant-456", "test@example.com", "token-123")
+        result = RegisterService.get_invitation_if_token_valid(
+            "tenant-456", "test@example.com", "token-123")
 
         # Verify results
         assert result is None
@@ -1789,19 +1850,23 @@ class TestRegisterService:
             "email": "test@example.com",
             "workspace_id": "tenant-456",
         }
-        mock_redis_dependencies.get.return_value = json.dumps(invitation_data).encode()
+        mock_redis_dependencies.get.return_value = json.dumps(
+            invitation_data).encode()
 
         # Mock database queries
         mock_query1 = MagicMock()
         mock_query1.filter.return_value.first.return_value = mock_tenant
 
         mock_query2 = MagicMock()
-        mock_query2.join.return_value.where.return_value.first.return_value = (mock_account, "normal")
+        mock_query2.join.return_value.where.return_value.first.return_value = (
+            mock_account, "normal")
 
-        mock_db_dependencies["db"].session.query.side_effect = [mock_query1, mock_query2]
+        mock_db_dependencies["db"].session.query.side_effect = [
+            mock_query1, mock_query2]
 
         # Execute test
-        result = RegisterService.get_invitation_if_token_valid("tenant-456", "test@example.com", "token-123")
+        result = RegisterService.get_invitation_if_token_valid(
+            "tenant-456", "test@example.com", "token-123")
 
         # Verify results
         assert result is None
@@ -1846,7 +1911,8 @@ class TestRegisterService:
         mock_redis_dependencies.get.return_value = b"user-123"
 
         # Execute test
-        result = RegisterService.get_invitation_by_token("token-123", "workspace-456", "test@example.com")
+        result = RegisterService.get_invitation_by_token(
+            "token-123", "workspace-456", "test@example.com")
 
         # Verify results
         assert result is not None
@@ -1862,7 +1928,8 @@ class TestRegisterService:
             "email": "test@example.com",
             "workspace_id": "tenant-456",
         }
-        mock_redis_dependencies.get.return_value = json.dumps(invitation_data).encode()
+        mock_redis_dependencies.get.return_value = json.dumps(
+            invitation_data).encode()
 
         # Execute test
         result = RegisterService.get_invitation_by_token("token-123")
