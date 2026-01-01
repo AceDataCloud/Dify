@@ -1,9 +1,18 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-kubectl apply -f "${SCRIPT_DIR}/production/secret"
+if [ "${APPLY_SECRETS:-false}" = "true" ]; then
+  kubectl apply -f "${SCRIPT_DIR}/production/secret"
+fi
+
+if ! kubectl -n acedatacloud get secret dify >/dev/null 2>&1; then
+  echo "Missing required secret: dify (namespace: acedatacloud)"
+  echo "Create it manually, or set APPLY_SECRETS=true after replacing placeholders in deploy/production/secret/dify.yml"
+  exit 1
+fi
+
 kubectl apply -f "${SCRIPT_DIR}/production/configmap"
 kubectl apply -f "${SCRIPT_DIR}/production/service"
 kubectl apply -f "${SCRIPT_DIR}/production/pvc"

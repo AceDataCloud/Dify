@@ -29,8 +29,8 @@ spec:
         - name: API_KEY
           valueFrom:
             secretKeyRef:
-              name: platform-service-dify-app
-              key: SANDBOX_API_KEY
+              name: dify
+              key: SECRET_KEY
         - name: GIN_MODE
           value: release
         - name: WORKER_TIMEOUT

@@ -49,15 +49,15 @@ spec:
         - name: SECRET_KEY
           valueFrom:
             secretKeyRef:
-              name: platform-service-dify-app
+              name: dify
               key: SECRET_KEY
         - name: PLUGIN_DAEMON_URL
           value: http://platform-service-dify-plugin-daemon:5002
         - name: INNER_API_KEY_FOR_PLUGIN
           valueFrom:
             secretKeyRef:
-              name: platform-service-dify-app
-              key: INNER_API_KEY_FOR_PLUGIN
+              name: dify
+              key: SECRET_KEY
         - name: DB_TYPE
           value: postgresql
         - name: DB_USERNAME

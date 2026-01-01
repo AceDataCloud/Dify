@@ -55,15 +55,15 @@ spec:
             - name: SERVER_KEY
               valueFrom:
                 secretKeyRef:
-                  name: platform-service-dify-plugin-daemon
-                  key: SERVER_KEY
+                  name: dify
+                  key: SECRET_KEY
             - name: DIFY_INNER_API_URL
               value: http://platform-service-dify-api:5001
             - name: DIFY_INNER_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: platform-service-dify-app
-                  key: INNER_API_KEY_FOR_PLUGIN
+                  name: dify
+                  key: SECRET_KEY
             - name: PLUGIN_STORAGE_TYPE
               value: local
             - name: PLUGIN_STORAGE_LOCAL_ROOT

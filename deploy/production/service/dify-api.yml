@@ -4,7 +4,7 @@ metadata:
   name: platform-service-dify-api
   namespace: acedatacloud
 spec:
-  clusterIP: None
+  type: ClusterIP
   selector:
     app: platform-service-dify-api
   ports:
