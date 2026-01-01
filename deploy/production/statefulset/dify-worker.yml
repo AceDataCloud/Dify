@@ -79,6 +79,11 @@ spec:
               key: SECRET_KEY
         - name: PLUGIN_DAEMON_URL
           value: http://dify-plugin-daemon:5002
+        - name: PLUGIN_DAEMON_KEY
+          valueFrom:
+            secretKeyRef:
+              name: dify
+              key: SECRET_KEY
         - name: INNER_API_KEY_FOR_PLUGIN
           valueFrom:
             secretKeyRef:
