@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: platform-service-dify-plugin-daemon
+  namespace: acedatacloud
+spec:
+  type: ClusterIP
+  selector:
+    app: platform-service-dify-plugin-daemon
+  ports:
+    - name: http
+      port: 5002
+      targetPort: 5002

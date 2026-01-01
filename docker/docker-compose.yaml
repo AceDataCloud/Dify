@@ -701,7 +701,7 @@ services:
 
   # API service
   api:
-    image: ghcr.io/acedatacloud/platform-service-api:1.11.2
+    image: ghcr.io/acedatacloud/platform-service-dify-api:${BUILD_NUMBER:-latest}
     build: '../api/.'
     restart: always
     environment:
@@ -744,7 +744,7 @@ services:
   # worker service
   # The Celery worker for processing all queues (dataset, workflow, mail, etc.)
   worker:
-    image: ghcr.io/acedatacloud/platform-service-api:1.11.2
+    image: ghcr.io/acedatacloud/platform-service-dify-api:${BUILD_NUMBER:-latest}
     build: '../api/.'
     restart: always
     environment:
@@ -784,7 +784,7 @@ services:
   # worker_beat service
   # Celery beat for scheduling periodic tasks.
   worker_beat:
-    image: ghcr.io/acedatacloud/platform-service-api:1.11.2
+    image: ghcr.io/acedatacloud/platform-service-dify-api:${BUILD_NUMBER:-latest}
     build: '../api/.'
     restart: always
     environment:
@@ -815,7 +815,7 @@ services:
 
   # Frontend web application.
   web:
-    image: ghcr.io/acedatacloud/platform-service-web:1.11.2
+    image: ghcr.io/acedatacloud/platform-service-dify-web:${BUILD_NUMBER:-latest}
     build: '../web/.'
     restart: always
     environment:

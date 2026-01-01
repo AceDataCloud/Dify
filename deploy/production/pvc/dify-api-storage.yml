@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: platform-service-dify-api-storage
+  namespace: acedatacloud
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: cbs-ssd
+  volumeMode: Filesystem
+  volumeName: platform-service-dify
+
