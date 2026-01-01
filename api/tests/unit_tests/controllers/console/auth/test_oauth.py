@@ -185,7 +185,7 @@ class TestOAuthCallback:
     ):
         mock_config.CONSOLE_WEB_URL = "http://localhost:3000"
         mock_get_providers.return_value = {"github": oauth_setup["provider"]}
-        mock_generate_account.return_value = oauth_setup["account"]
+        mock_generate_account.return_value = (oauth_setup["account"], True)
         mock_account_service.login.return_value = oauth_setup["token_pair"]
 
         with app.test_request_context("/auth/oauth/github/callback?code=test_code&state=test_nonce"):
@@ -194,7 +194,7 @@ class TestOAuthCallback:
 
         oauth_setup["provider"].get_access_token.assert_called_once_with("test_code")
         oauth_setup["provider"].get_user_info.assert_called_once_with("access_token")
-        mock_redirect.assert_called_once_with("http://localhost:3000")
+        mock_redirect.assert_called_once_with("http://localhost:3000?oauth_new_user=true")
 
     @pytest.mark.parametrize(
         ("exception", "expected_error"),
@@ -239,7 +239,7 @@ class TestOAuthCallback:
             # This documents actual behavior. See test_defensive_check_for_closed_account_status for details
             (
                 AccountStatus.CLOSED.value,
-                "http://localhost:3000",
+                "http://localhost:3000?oauth_new_user=false",
             ),
         ],
     )
@@ -276,7 +276,7 @@ class TestOAuthCallback:
         account = MagicMock()
         account.status = account_status
         account.id = "123"
-        mock_generate_account.return_value = account
+        mock_generate_account.return_value = (account, False)
 
         # Mock login for CLOSED status
         mock_token_pair = MagicMock()
@@ -313,7 +313,7 @@ class TestOAuthCallback:
 
         mock_account = MagicMock()
         mock_account.status = AccountStatus.PENDING
-        mock_generate_account.return_value = mock_account
+        mock_generate_account.return_value = (mock_account, False)
 
         mock_token_pair = MagicMock()
         mock_token_pair.access_token = "jwt_access_token"
@@ -378,7 +378,7 @@ class TestOAuthCallback:
         closed_account.status = AccountStatus.CLOSED
         closed_account.id = "123"
         closed_account.name = "Closed Account"
-        mock_generate_account.return_value = closed_account
+        mock_generate_account.return_value = (closed_account, False)
 
         # Mock successful login (current behavior)
         mock_token_pair = MagicMock()
@@ -393,7 +393,7 @@ class TestOAuthCallback:
             resource.get("github")
 
         # Verify current behavior: login succeeds (this is NOT ideal)
-        mock_redirect.assert_called_once_with("http://localhost:3000")
+        mock_redirect.assert_called_once_with("http://localhost:3000?oauth_new_user=false")
         mock_account_service.login.assert_called_once()
 
         # Document expected behavior in comments:
@@ -484,11 +484,13 @@ class TestAccountGeneration:
                     with pytest.raises(AccountRegisterError):
                         _generate_account(provider, user_info)
                 else:
-                    result = _generate_account(provider, user_info)
+                    result, oauth_new_user = _generate_account(provider, user_info)
                     assert result == mock_account
+                    assert oauth_new_user is True
             else:
-                result = _generate_account(provider, user_info)
+                result, oauth_new_user = _generate_account(provider, user_info)
                 assert result == mock_account
+                assert oauth_new_user == should_create
 
         if should_create:
             mock_register_service.register.assert_called_once_with(
@@ -519,9 +521,10 @@ class TestAccountGeneration:
         mock_tenant_service.create_tenant.return_value = mock_new_tenant
 
         with app.test_request_context(headers={"Accept-Language": "en-US,en;q=0.9"}):
-            result = _generate_account("github", user_info)
+            result, oauth_new_user = _generate_account("github", user_info)
 
             assert result == mock_account
+            assert oauth_new_user is False
             mock_tenant_service.create_tenant.assert_called_once_with("Test User's Workspace")
             mock_tenant_service.create_tenant_member.assert_called_once_with(
                 mock_new_tenant, mock_account, role="owner"
