@@ -188,7 +188,10 @@ class OAuthCallback(Resource):
             db.session.commit()
 
         try:
-            TenantService.create_owner_tenant_if_not_exist(account)
+            if provider == ACEDATACLOUD_PROVIDER and dify_config.ACEDATACLOUD_AUTH_AUTO_REGISTER:
+                TenantService.create_owner_tenant_if_not_exist(account, is_setup=True)
+            else:
+                TenantService.create_owner_tenant_if_not_exist(account)
         except Unauthorized:
             return redirect(f"{dify_config.CONSOLE_WEB_URL}/signin?message=Workspace not found.")
         except WorkSpaceNotAllowedCreateError:
@@ -274,10 +277,17 @@ def _generate_account(provider: str, user_info: OAuthUserInfo):
     if account:
         tenants = TenantService.get_join_tenants(account)
         if not tenants:
-            if not FeatureService.get_system_features().is_allow_create_workspace:
+            allow_create_workspace = FeatureService.get_system_features().is_allow_create_workspace
+            if provider == ACEDATACLOUD_PROVIDER and dify_config.ACEDATACLOUD_AUTH_AUTO_REGISTER:
+                allow_create_workspace = True
+
+            if not allow_create_workspace:
                 raise WorkSpaceNotAllowedCreateError()
             else:
-                new_tenant = TenantService.create_tenant(f"{account.name}'s Workspace")
+                new_tenant = TenantService.create_tenant(
+                    f"{account.name}'s Workspace",
+                    is_setup=(provider == ACEDATACLOUD_PROVIDER and dify_config.ACEDATACLOUD_AUTH_AUTO_REGISTER),
+                )
                 TenantService.create_tenant_member(new_tenant, account, role="owner")
                 account.current_tenant = new_tenant
                 tenant_was_created.send(new_tenant)
