@@ -41,7 +41,10 @@ spec:
           name: dify-storage
           subPath: api-storage
       containers:
-      - env:
+      - envFrom:
+        - configMapRef:
+            name: dify-env
+        env:
         - name: MODE
           value: api
         - name: LOG_LEVEL
@@ -51,11 +54,6 @@ spec:
             secretKeyRef:
               name: dify
               key: SECRET_KEY
-        - name: CONSOLE_WEB_URL
-        - name: CONSOLE_API_URL
-        - name: SERVICE_API_URL
-        - name: APP_WEB_URL
-        - name: FILES_URL
         - name: MIGRATION_ENABLED
           value: "true"
         - name: PLUGIN_DAEMON_URL
@@ -194,7 +192,7 @@ spec:
           value: "1000"
         - name: INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH
           value: "1000"
-        image: ghcr.io/acedatacloud/platform-service-dify-api:latest
+        image: ghcr.io/acedatacloud/dify-api:latest
         imagePullPolicy: IfNotPresent
         name: dify-api
         ports:

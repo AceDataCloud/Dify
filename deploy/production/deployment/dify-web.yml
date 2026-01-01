@@ -25,11 +25,10 @@ spec:
     spec:
       automountServiceAccountToken: false
       containers:
-      - env:
-        - name: CONSOLE_API_URL
-        - name: APP_API_URL
-        - name: APP_WEB_URL
-        image: ghcr.io/acedatacloud/platform-service-dify-web:latest
+      - envFrom:
+        - configMapRef:
+            name: dify-env
+        image: ghcr.io/acedatacloud/dify-web:latest
         imagePullPolicy: IfNotPresent
         name: dify-web
         ports:

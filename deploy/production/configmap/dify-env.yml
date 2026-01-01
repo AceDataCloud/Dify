@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dify-env
+  namespace: acedatacloud
+data:
+  # Leave empty to use same-origin relative paths (recommended behind `dify-nginx`).
+  CONSOLE_API_URL: ""
+  APP_API_URL: ""
+  CONSOLE_WEB_URL: ""
+  APP_WEB_URL: ""
+  SERVICE_API_URL: ""
+  FILES_URL: ""
+

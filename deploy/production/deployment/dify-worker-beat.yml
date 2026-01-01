@@ -19,7 +19,10 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: dify-worker-beat
-          image: ghcr.io/acedatacloud/platform-service-dify-api:latest
+          envFrom:
+            - configMapRef:
+                name: dify-env
+          image: ghcr.io/acedatacloud/dify-api:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: MODE
