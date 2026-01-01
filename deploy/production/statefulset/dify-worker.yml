@@ -9,7 +9,7 @@ metadata:
   namespace: acedatacloud
 spec:
   podManagementPolicy: OrderedReady
-  replicas: 1
+  replicas: 2
   revisionHistoryLimit: 10
   selector:
     matchLabels:
