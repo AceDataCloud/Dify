@@ -1,0 +1,34 @@
+identity:
+  name: "nano-banana"
+  author: "acedatacloud"
+  label:
+    en_US: "nano-banana"
+    zh_Hans: "nano-banana"
+    pt_BR: "nano-banana"
+    ja_JP: "nano-banana"
+description:
+  human:
+    en_US: "Nano Banana"
+    zh_Hans: "Nano Banana"
+    pt_BR: "Nano Banana"
+    ja_JP: "Nano Banana"
+  llm: "Nano Banana"
+parameters:
+  - name: query
+    type: string
+    required: true
+    label:
+      en_US: Query string
+      zh_Hans: 查询语句
+      pt_BR: Query string
+      ja_JP: クエリ文字列
+    human_description:
+      en_US: "Nano Banana"
+      zh_Hans: "Nano Banana"
+      pt_BR: "Nano Banana"
+      ja_JP: "Nano Banana"
+    llm_description: "Nano Banana"
+    form: llm
+extra:
+  python:
+    source: tools/nano-banana.py
