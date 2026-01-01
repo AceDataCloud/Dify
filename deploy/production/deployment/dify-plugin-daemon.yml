@@ -16,7 +16,6 @@ spec:
       labels:
         app: platform-service-dify-plugin-daemon
     spec:
-      automountServiceAccountToken: false
       containers:
         - name: platform-service-dify-plugin-daemon
           image: langgenius/dify-plugin-daemon:0.5.2-local
@@ -84,7 +83,8 @@ spec:
             privileged: false
           volumeMounts:
             - mountPath: /app/storage
-              name: platform-service-dify-plugin-daemon-storage
+              name: platform-service-dify-storage
+              subPath: plugin-daemon-storage
       imagePullSecrets:
         - name: docker-registry
       restartPolicy: Always
@@ -92,6 +92,6 @@ spec:
         kubernetes.io/os: linux
       terminationGracePeriodSeconds: 30
       volumes:
-        - name: platform-service-dify-plugin-daemon-storage
+        - name: platform-service-dify-storage
           persistentVolumeClaim:
-            claimName: platform-service-dify-plugin-daemon-storage
+            claimName: platform-service-dify-storage

@@ -38,7 +38,8 @@ spec:
             echo "Permissions initialized. Exiting."
         volumeMounts:
         - mountPath: /app/api/storage
-          name: platform-service-dify-api-storage
+          name: platform-service-dify-storage
+          subPath: api-storage
       containers:
       - env:
         - name: CONSOLE_WEB_URL
@@ -166,7 +167,8 @@ spec:
         terminationMessagePolicy: File
         volumeMounts:
         - mountPath: /app/api/storage
-          name: platform-service-dify-api-storage
+          name: platform-service-dify-storage
+          subPath: api-storage
       dnsPolicy: ClusterFirst
       imagePullSecrets:
       - name: docker-registry
@@ -175,9 +177,9 @@ spec:
       securityContext: {}
       terminationGracePeriodSeconds: 30
       volumes:
-      - name: platform-service-dify-api-storage
+      - name: platform-service-dify-storage
         persistentVolumeClaim:
-          claimName: platform-service-dify-api-storage
+          claimName: platform-service-dify-storage
   updateStrategy:
     rollingUpdate:
       partition: 0
