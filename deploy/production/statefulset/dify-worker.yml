@@ -9,7 +9,7 @@ metadata:
   namespace: acedatacloud
 spec:
   podManagementPolicy: OrderedReady
-  replicas: 2
+  replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
@@ -183,11 +183,11 @@ spec:
         name: dify-worker
         resources:
           limits:
-            cpu: 200m
+            cpu: 500m
             memory: 1Gi
           requests:
-            cpu: 100m
-            memory: 256Mi
+            cpu: 300m
+            memory: 512Mi
         securityContext:
           privileged: false
         terminationMessagePath: /dev/termination-log

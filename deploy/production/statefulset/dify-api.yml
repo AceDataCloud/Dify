@@ -9,7 +9,7 @@ metadata:
 spec:
   minReadySeconds: 10
   podManagementPolicy: OrderedReady
-  replicas: 2
+  replicas: 1
   revisionHistoryLimit: 1
   selector:
     matchLabels:
@@ -225,11 +225,11 @@ spec:
           failureThreshold: 20
         resources:
           limits:
-            cpu: 200m
+            cpu: 500m
             memory: 1Gi
           requests:
-            cpu: 100m
-            memory: 256Mi
+            cpu: 300m
+            memory: 512Mi
         securityContext:
           privileged: false
         volumeMounts:
