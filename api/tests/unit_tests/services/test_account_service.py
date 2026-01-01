@@ -1028,8 +1028,8 @@ class TestRegisterService:
                 mock_link_account.assert_called_once_with("google", "oauth123", mock_account)
                 self._assert_database_operations_called(mock_db_dependencies["db"])
 
-    def test_register_with_acedata_oauth_auto_register(self, mock_db_dependencies, mock_external_service_dependencies):
-        """AceData OAuth should auto-provision even when registration is disabled."""
+    def test_register_with_acedatacloud_oauth_auto_register(self, mock_db_dependencies, mock_external_service_dependencies):
+        """AceDataCloud OAuth should auto-provision even when registration is disabled."""
         mock_external_service_dependencies["feature_service"].get_system_features.return_value.is_allow_register = False
         mock_external_service_dependencies[
             "feature_service"
@@ -1042,7 +1042,7 @@ class TestRegisterService:
             patch("services.account_service.AccountService.link_account_integrate") as mock_link_account,
             patch("services.account_service.dify_config") as mock_config,
         ):
-            mock_config.ACEDATA_AUTH_AUTO_REGISTER = True
+            mock_config.ACEDATACLOUD_AUTH_AUTO_REGISTER = True
             mock_create_account.return_value = mock_account
 
             result = RegisterService.register(
@@ -1050,7 +1050,7 @@ class TestRegisterService:
                 name="Test User",
                 password=None,
                 open_id="oauth123",
-                provider="acedata",
+                provider="acedatacloud",
                 language="en-US",
                 create_workspace_required=False,
             )
@@ -1058,7 +1058,7 @@ class TestRegisterService:
             assert result == mock_account
             mock_create_account.assert_called_once()
             assert mock_create_account.call_args.kwargs.get("is_setup") is True
-            mock_link_account.assert_called_once_with("acedata", "oauth123", mock_account)
+            mock_link_account.assert_called_once_with("acedatacloud", "oauth123", mock_account)
 
     def test_register_with_pending_status(self, mock_db_dependencies, mock_external_service_dependencies):
         """Test account registration with pending status."""

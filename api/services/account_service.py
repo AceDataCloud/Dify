@@ -1320,8 +1320,8 @@ class RegisterService:
         """Register account"""
         try:
             effective_is_setup = is_setup
-            if provider == "acedata" and dify_config.ACEDATA_AUTH_AUTO_REGISTER:
-                # Allow AceData OAuth to auto-provision Dify accounts even when registration is disabled.
+            if provider == "acedatacloud" and dify_config.ACEDATACLOUD_AUTH_AUTO_REGISTER:
+                # Allow AceDataCloud OAuth to auto-provision Dify accounts even when registration is disabled.
                 effective_is_setup = True
 
             account = AccountService.create_account(
