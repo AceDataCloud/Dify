@@ -17,6 +17,21 @@ spec:
         app: dify-worker-beat
     spec:
       automountServiceAccountToken: false
+      initContainers:
+        - name: wait-for-api
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              for i in $(seq 1 120); do
+                if wget -qO- --timeout=2 http://dify-api:5001/health >/dev/null 2>&1; then
+                  exit 0
+                fi
+                sleep 5
+              done
+              echo "dify-api /health not ready after 10 minutes"
+              exit 1
       containers:
         - name: dify-worker-beat
           envFrom:
@@ -84,6 +99,8 @@ spec:
               value: "false"
             - name: REDIS_DB
               value: "1"
+            - name: REDIS_SERIALIZATION_PROTOCOL
+              value: "2"
             - name: CELERY_BROKER_URL
               value: redis://:$(REDIS_PASSWORD)@$(REDIS_HOST):$(REDIS_PORT)/1
             - name: WEB_API_CORS_ALLOW_ORIGINS

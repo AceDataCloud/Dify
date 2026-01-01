@@ -11,3 +11,6 @@ spec:
     - name: http
       port: 5002
       targetPort: 5002
+    - name: remote-install
+      port: 5003
+      targetPort: 5003

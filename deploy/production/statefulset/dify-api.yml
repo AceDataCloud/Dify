@@ -113,6 +113,8 @@ spec:
           value: "false"
         - name: REDIS_DB
           value: "1"
+        - name: REDIS_SERIALIZATION_PROTOCOL
+          value: "2"
         - name: CELERY_BROKER_URL
           value: redis://:$(REDIS_PASSWORD)@$(REDIS_HOST):$(REDIS_PORT)/1
         - name: WEB_API_CORS_ALLOW_ORIGINS
@@ -206,6 +208,13 @@ spec:
           periodSeconds: 10
           timeoutSeconds: 3
           failureThreshold: 6
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 5001
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 60
         livenessProbe:
           httpGet:
             path: /health

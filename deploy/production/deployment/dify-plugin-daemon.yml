@@ -49,6 +49,30 @@ spec:
                   optional: false
             - name: DB_DATABASE
               value: acedatacloud_dify
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: REDIS_HOST
+                  name: redis-qcloud
+                  optional: false
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: REDIS_PORT
+                  name: redis-qcloud
+                  optional: false
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: REDIS_PASSWORD
+                  name: redis-qcloud
+                  optional: false
+            - name: REDIS_USE_SSL
+              value: "false"
+            - name: REDIS_DB
+              value: "1"
+            - name: REDIS_SERIALIZATION_PROTOCOL
+              value: "2"
             - name: SERVER_PORT
               value: "5002"
             - name: SERVER_KEY
@@ -63,6 +87,10 @@ spec:
                 secretKeyRef:
                   name: dify
                   key: SECRET_KEY
+            - name: PLUGIN_REMOTE_INSTALLING_HOST
+              value: 0.0.0.0
+            - name: PLUGIN_REMOTE_INSTALLING_PORT
+              value: "5003"
             - name: PLUGIN_STORAGE_TYPE
               value: local
             - name: PLUGIN_STORAGE_LOCAL_ROOT
@@ -71,6 +99,8 @@ spec:
               value: /app/storage/cwd
           ports:
             - containerPort: 5002
+              protocol: TCP
+            - containerPort: 5003
               protocol: TCP
           resources:
             limits:
