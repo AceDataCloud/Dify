@@ -16,7 +16,7 @@ class PipelineTemplateRetrievalFactory:
                 return CustomizedPipelineTemplateRetrieval
             case PipelineTemplateType.DATABASE:
                 return DatabasePipelineTemplateRetrieval
-            case PipelineTemplateType.BUILT_IN:
+            case PipelineTemplateType.BUILTIN:
                 return BuiltInPipelineTemplateRetrieval
             case _:
                 raise ValueError(f"invalid fetch recommended apps mode: {mode}")
