@@ -10,7 +10,9 @@ from tools.acedata_client import AceDataNanoBananaClient
 
 
 class NanoBananaGenerateImageTool(Tool):
-    def _invoke(self, tool_parameters: dict[str, Any]) -> Generator[ToolInvokeMessage, None, None]:
+    def _invoke(
+        self, tool_parameters: dict[str, Any]
+    ) -> Generator[ToolInvokeMessage, None, None]:
         prompt = tool_parameters.get("prompt")
         if not isinstance(prompt, str) or not prompt.strip():
             raise ValueError("`prompt` is required.")
@@ -19,15 +21,29 @@ class NanoBananaGenerateImageTool(Tool):
         model = model.strip() if isinstance(model, str) and model.strip() else None
 
         aspect_ratio = tool_parameters.get("aspect_ratio")
-        aspect_ratio = aspect_ratio.strip() if isinstance(aspect_ratio, str) and aspect_ratio.strip() else None
+        aspect_ratio = (
+            aspect_ratio.strip()
+            if isinstance(aspect_ratio, str) and aspect_ratio.strip()
+            else None
+        )
 
         resolution = tool_parameters.get("resolution")
-        resolution = resolution.strip() if isinstance(resolution, str) and resolution.strip() else None
+        resolution = (
+            resolution.strip()
+            if isinstance(resolution, str) and resolution.strip()
+            else None
+        )
 
         callback_url = tool_parameters.get("callback_url")
-        callback_url = callback_url.strip() if isinstance(callback_url, str) and callback_url.strip() else None
+        callback_url = (
+            callback_url.strip()
+            if isinstance(callback_url, str) and callback_url.strip()
+            else None
+        )
 
-        client = AceDataNanoBananaClient(bearer_token=str(self.runtime.credentials["acedata_bearer_token"]))
+        client = AceDataNanoBananaClient(
+            bearer_token=str(self.runtime.credentials["acedata_bearer_token"])
+        )
         result = client.generate(
             prompt=prompt.strip(),
             model=model,
@@ -50,4 +66,3 @@ class NanoBananaGenerateImageTool(Tool):
                 "image_urls": result.image_urls,
             }
         )
-

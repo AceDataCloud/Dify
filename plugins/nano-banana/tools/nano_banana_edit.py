@@ -10,7 +10,9 @@ from tools.acedata_client import AceDataNanoBananaClient, parse_image_urls
 
 
 class NanoBananaEditImageTool(Tool):
-    def _invoke(self, tool_parameters: dict[str, Any]) -> Generator[ToolInvokeMessage, None, None]:
+    def _invoke(
+        self, tool_parameters: dict[str, Any]
+    ) -> Generator[ToolInvokeMessage, None, None]:
         prompt = tool_parameters.get("prompt")
         if not isinstance(prompt, str) or not prompt.strip():
             raise ValueError("`prompt` is required.")
@@ -23,9 +25,15 @@ class NanoBananaEditImageTool(Tool):
         model = model.strip() if isinstance(model, str) and model.strip() else None
 
         callback_url = tool_parameters.get("callback_url")
-        callback_url = callback_url.strip() if isinstance(callback_url, str) and callback_url.strip() else None
+        callback_url = (
+            callback_url.strip()
+            if isinstance(callback_url, str) and callback_url.strip()
+            else None
+        )
 
-        client = AceDataNanoBananaClient(bearer_token=str(self.runtime.credentials["acedata_bearer_token"]))
+        client = AceDataNanoBananaClient(
+            bearer_token=str(self.runtime.credentials["acedata_bearer_token"])
+        )
         result = client.edit(
             prompt=prompt.strip(),
             image_urls=image_urls,
@@ -47,4 +55,3 @@ class NanoBananaEditImageTool(Tool):
                 "image_urls": result.image_urls,
             }
         )
-

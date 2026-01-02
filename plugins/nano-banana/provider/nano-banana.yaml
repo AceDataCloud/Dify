@@ -11,8 +11,8 @@ identity:
     zh_Hans: "Nano Banana"
     pt_BR: "Nano Banana"
     ja_JP: "Nano Banana"
-  icon: "icon.svg"
-  icon_dark: "icon-dark.svg"
+  icon: "_assets/icon.svg"
+  icon_dark: "_assets/icon-dark.svg"
   tags:
     - image
 

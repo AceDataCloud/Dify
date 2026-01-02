@@ -35,7 +35,9 @@ def _normalize_token(raw_token: str) -> str:
 
 
 class AceDataNanoBananaClient:
-    def __init__(self, bearer_token: str, base_url: str = "https://api.acedata.cloud") -> None:
+    def __init__(
+        self, bearer_token: str, base_url: str = "https://api.acedata.cloud"
+    ) -> None:
         token = _normalize_token(bearer_token)
         if not token:
             raise AceDataNanoBananaError("Empty bearer token.")
@@ -73,14 +75,20 @@ class AceDataNanoBananaClient:
         callback_url: str | None = None,
         timeout_s: int = 120,
     ) -> AceDataNanoBananaResult:
-        payload: dict[str, Any] = {"action": "edit", "prompt": prompt, "image_urls": image_urls}
+        payload: dict[str, Any] = {
+            "action": "edit",
+            "prompt": prompt,
+            "image_urls": image_urls,
+        }
         if model:
             payload["model"] = model
         if callback_url:
             payload["callback_url"] = callback_url
         return self._post_images(payload=payload, timeout_s=timeout_s)
 
-    def _post_images(self, *, payload: dict[str, Any], timeout_s: int) -> AceDataNanoBananaResult:
+    def _post_images(
+        self, *, payload: dict[str, Any], timeout_s: int
+    ) -> AceDataNanoBananaResult:
         url = f"{self._base_url}/nano-banana/images"
         headers = {
             "authorization": f"Bearer {self._token}",
@@ -102,31 +110,47 @@ class AceDataNanoBananaClient:
             ) from e
 
         if not isinstance(body, dict):
-            raise AceDataNanoBananaError(f"Invalid response payload: {type(body).__name__}")
+            raise AceDataNanoBananaError(
+                f"Invalid response payload: {type(body).__name__}"
+            )
 
         if resp.status_code >= 400:
-            trace_id = body.get("trace_id") if isinstance(body.get("trace_id"), str) else None
+            trace_id = (
+                body.get("trace_id") if isinstance(body.get("trace_id"), str) else None
+            )
             error = body.get("error") if isinstance(body.get("error"), dict) else {}
             code = error.get("code") if isinstance(error.get("code"), str) else None
-            message = error.get("message") if isinstance(error.get("message"), str) else None
+            message = (
+                error.get("message") if isinstance(error.get("message"), str) else None
+            )
             trace_suffix = f" (trace_id={trace_id})" if trace_id else ""
             raise AceDataNanoBananaError(
                 f"HTTP {resp.status_code}: {code or 'error'}: {message or body}{trace_suffix}"
             )
 
         if body.get("success") is not True:
-            trace_id = body.get("trace_id") if isinstance(body.get("trace_id"), str) else None
+            trace_id = (
+                body.get("trace_id") if isinstance(body.get("trace_id"), str) else None
+            )
             error = body.get("error") if isinstance(body.get("error"), dict) else {}
             code = error.get("code") if isinstance(error.get("code"), str) else None
-            message = error.get("message") if isinstance(error.get("message"), str) else None
+            message = (
+                error.get("message") if isinstance(error.get("message"), str) else None
+            )
             trace_suffix = f" (trace_id={trace_id})" if trace_id else ""
-            raise AceDataNanoBananaError(f"{code or 'api_error'}: {message or body}{trace_suffix}")
+            raise AceDataNanoBananaError(
+                f"{code or 'api_error'}: {message or body}{trace_suffix}"
+            )
 
         data = body.get("data") if isinstance(body.get("data"), list) else []
         return AceDataNanoBananaResult(
             action=str(body.get("action") or payload.get("action") or ""),
-            task_id=body.get("task_id") if isinstance(body.get("task_id"), str) else None,
-            trace_id=body.get("trace_id") if isinstance(body.get("trace_id"), str) else None,
+            task_id=body.get("task_id")
+            if isinstance(body.get("task_id"), str)
+            else None,
+            trace_id=body.get("trace_id")
+            if isinstance(body.get("trace_id"), str)
+            else None,
             data=data,
         )
 
@@ -149,8 +173,12 @@ def parse_image_urls(value: Any) -> list[str]:
 
             loaded = json.loads(text)
             if not isinstance(loaded, list):
-                raise ValueError("`image_urls` must be a JSON array or a list of strings.")
+                raise ValueError(
+                    "`image_urls` must be a JSON array or a list of strings."
+                )
             return [str(item).strip() for item in loaded if str(item).strip()]
         return [line.strip() for line in text.splitlines() if line.strip()]
 
-    raise ValueError("`image_urls` must be an array of strings or a string (one URL per line).")
+    raise ValueError(
+        "`image_urls` must be an array of strings or a string (one URL per line)."
+    )
