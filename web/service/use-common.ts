@@ -222,9 +222,8 @@ export const useIsLogin = () => {
           silent: true,
         })
       }
-      catch (e: any) {
-        if (e?.status === 401)
-          return { logged_in: false }
+      catch {
+        // Any error (401, network, timeout, server error) means not logged in
         return { logged_in: false }
       }
       return { logged_in: true }
