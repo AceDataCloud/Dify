@@ -16,7 +16,7 @@ class BuiltInPipelineTemplateRetrieval(PipelineTemplateRetrievalBase):
     builtin_data: dict | None = None
 
     def get_type(self) -> str:
-        return PipelineTemplateType.BUILTIN
+        return PipelineTemplateType.BUILT_IN
 
     def get_pipeline_templates(self, language: str) -> dict:
         result = self.fetch_pipeline_templates_from_builtin(language)

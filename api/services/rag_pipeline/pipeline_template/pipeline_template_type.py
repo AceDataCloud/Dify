@@ -5,4 +5,4 @@ class PipelineTemplateType(StrEnum):
     REMOTE = "remote"
     DATABASE = "database"
     CUSTOMIZED = "customized"
-    BUILTIN = "builtin"
+    BUILT_IN = "builtin"
