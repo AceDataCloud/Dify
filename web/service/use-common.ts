@@ -22,9 +22,8 @@ import type {
   UserProfileResponse,
 } from '@/models/common'
 import type { RETRIEVE_METHOD } from '@/types/app'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { IS_DEV } from '@/config'
-import { clearAceDataCloudOAuthSession } from './acedatacloud-oauth'
 import { get, post } from './base'
 import { useInvalid } from './use-base'
 
@@ -222,7 +221,11 @@ export const useIsLogin = () => {
         await get('/account/profile', {}, {
           silent: true,
         })
-        return { logged_in: true }
+      }
+      catch {
+        // If we can't reliably confirm login status (network error / token refresh issues),
+        // treat it as logged out to avoid redirect loops between `/signin` and authenticated pages.
+        return { logged_in: false }
       }
       catch {
         // Any error (401, 500, network error, etc.) means not logged in
@@ -233,11 +236,22 @@ export const useIsLogin = () => {
 }
 
 export const useLogout = () => {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationKey: [NAME_SPACE, 'logout'],
-    mutationFn: () => post('/logout'),
+    mutationFn: async () => {
+      try {
+        await post('/logout')
+      }
+      catch {
+        // Logout is best-effort; even if the request fails, the UI should still proceed as logged out.
+      }
+    },
     onSettled: () => {
-      clearAceDataCloudOAuthSession()
+      queryClient.setQueryData(commonQueryKeys.isLogin, { logged_in: false })
+      queryClient.removeQueries({ queryKey: commonQueryKeys.userProfile })
+      queryClient.removeQueries({ queryKey: commonQueryKeys.currentWorkspace })
+      queryClient.removeQueries({ queryKey: commonQueryKeys.workspaces })
     },
   })
 }
