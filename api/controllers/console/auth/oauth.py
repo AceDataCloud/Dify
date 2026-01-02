@@ -103,7 +103,10 @@ class OAuthLogin(Resource):
             redirect_override = f"{request.host_url.rstrip('/')}{dify_config.OAUTH_REDIRECT_PATH}/{provider}"
 
         auth_url = oauth_provider.get_authorization_url(state=nonce, redirect_override=redirect_override)
-        return redirect(auth_url)
+        response = redirect(auth_url)
+        if provider == ACEDATACLOUD_PROVIDER:
+            response.delete_cookie("no_acedatacloud_oauth", path="/")
+        return response
 
 
 @console_ns.route("/oauth/authorize/<provider>")
@@ -236,9 +239,7 @@ class AceDataCloudOAuthSession(Resource):
         account, current_tenant_id = current_account_with_tenant()
 
         account_integrate: AccountIntegrate | None = (
-            db.session.query(AccountIntegrate)
-            .filter_by(account_id=account.id, provider=ACEDATACLOUD_PROVIDER)
-            .first()
+            db.session.query(AccountIntegrate).filter_by(account_id=account.id, provider=ACEDATACLOUD_PROVIDER).first()
         )
         token_file = (account_integrate.encrypted_token if account_integrate else "") or ""
         if not token_file:

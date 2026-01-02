@@ -36,6 +36,7 @@ from libs.token import (
     clear_csrf_token_from_cookie,
     clear_refresh_token_from_cookie,
     extract_refresh_token,
+    is_secure,
     set_access_token_to_cookie,
     set_csrf_token_to_cookie,
     set_refresh_token_to_cookie,
@@ -158,6 +159,17 @@ class LogoutApi(Resource):
         clear_access_token_from_cookie(response)
         clear_refresh_token_from_cookie(response)
         clear_csrf_token_from_cookie(response)
+
+        # Avoid immediately auto-redirecting back into AceDataCloud SSO after logout.
+        # The Next.js /signin and /signup pages will honor this short-lived cookie.
+        response.set_cookie(
+            "no_acedatacloud_oauth",
+            "1",
+            max_age=300,
+            path="/",
+            secure=is_secure(),
+            samesite="Lax",
+        )
 
         return response
 

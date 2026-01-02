@@ -23,7 +23,7 @@ import type {
 } from '@/models/common'
 import type { RETRIEVE_METHOD } from '@/types/app'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { IS_DEV } from '@/config'
+import { ACEDATACLOUD_OAUTH_SESSION_LOCAL_STORAGE_NAME, IS_DEV } from '@/config'
 import { get, post } from './base'
 import { useInvalid } from './use-base'
 
@@ -235,7 +235,16 @@ export const useIsLogin = () => {
 export const useLogout = () => {
   return useMutation({
     mutationKey: [NAME_SPACE, 'logout'],
-    mutationFn: () => post('/logout'),
+    mutationFn: async () => {
+      const res = await post('/logout')
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.removeItem(ACEDATACLOUD_OAUTH_SESSION_LOCAL_STORAGE_NAME)
+        }
+        catch {}
+      }
+      return res
+    },
   })
 }
 
