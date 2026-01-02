@@ -420,7 +420,10 @@ class TestLogoutApi:
         mock_logout_user.assert_called_once()
         assert response.json["result"] == "success"
         set_cookie_headers = response.headers.getlist("Set-Cookie")
-        assert any(h.startswith("no_acedatacloud_oauth=1;") for h in set_cookie_headers)
+        assert response.headers.get("Clear-Site-Data") == '"cookies", "storage"'
+        assert any(("access_token=" in h or "__Host-access_token=" in h) for h in set_cookie_headers)
+        assert any(("refresh_token=" in h or "__Host-refresh_token=" in h) for h in set_cookie_headers)
+        assert any(("csrf_token=" in h or "__Host-csrf_token=" in h) for h in set_cookie_headers)
 
     @patch("controllers.console.wraps.db")
     @patch("controllers.console.auth.login.current_account_with_tenant")
@@ -450,4 +453,7 @@ class TestLogoutApi:
         # Assert
         assert response.json["result"] == "success"
         set_cookie_headers = response.headers.getlist("Set-Cookie")
-        assert any(h.startswith("no_acedatacloud_oauth=1;") for h in set_cookie_headers)
+        assert response.headers.get("Clear-Site-Data") == '"cookies", "storage"'
+        assert any(("access_token=" in h or "__Host-access_token=" in h) for h in set_cookie_headers)
+        assert any(("refresh_token=" in h or "__Host-refresh_token=" in h) for h in set_cookie_headers)
+        assert any(("csrf_token=" in h or "__Host-csrf_token=" in h) for h in set_cookie_headers)

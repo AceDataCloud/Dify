@@ -1,5 +1,5 @@
 import flask_login
-from flask import abort, make_response, request
+from flask import make_response, request
 from flask_restx import Resource
 from pydantic import BaseModel, Field
 
@@ -36,7 +36,6 @@ from libs.token import (
     clear_csrf_token_from_cookie,
     clear_refresh_token_from_cookie,
     extract_refresh_token,
-    is_secure,
     set_access_token_to_cookie,
     set_csrf_token_to_cookie,
     set_refresh_token_to_cookie,
@@ -159,6 +158,10 @@ class LogoutApi(Resource):
         clear_access_token_from_cookie(response)
         clear_refresh_token_from_cookie(response)
         clear_csrf_token_from_cookie(response)
+
+        # Make logout deterministic even if cookie domain/name changed across deployments.
+        # This prevents residual auth cookies/localStorage from causing redirect loops.
+        response.headers["Clear-Site-Data"] = '"cookies", "storage"'
 
         return response
 
