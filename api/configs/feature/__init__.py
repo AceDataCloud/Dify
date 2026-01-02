@@ -835,6 +835,11 @@ class AuthConfig(BaseSettings):
         default=True,
     )
 
+    ENABLE_ACEDATACLOUD_OAUTH_LOGIN: bool = Field(
+        description="When enabled, only allow AceDataCloud OAuth login for the console.",
+        default=False,
+    )
+
     GITHUB_CLIENT_ID: str | None = Field(
         description="GitHub OAuth client ID",
         default=None,
