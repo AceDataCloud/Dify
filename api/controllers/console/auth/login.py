@@ -1,5 +1,5 @@
 import flask_login
-from flask import make_response, request
+from flask import abort, make_response, request
 from flask_restx import Resource
 from pydantic import BaseModel, Field
 
@@ -206,6 +206,8 @@ class EmailCodeLoginSendEmailApi(Resource):
     @setup_required
     @console_ns.expect(console_ns.models[EmailPayload.__name__])
     def post(self):
+        if dify_config.ENABLE_ACEDATACLOUD_OAUTH_LOGIN:
+            abort(403)
         args = EmailPayload.model_validate(console_ns.payload)
 
         ip_address = extract_remote_ip(request)
@@ -238,6 +240,8 @@ class EmailCodeLoginApi(Resource):
     @console_ns.expect(console_ns.models[EmailCodeLoginPayload.__name__])
     @decrypt_code_field
     def post(self):
+        if dify_config.ENABLE_ACEDATACLOUD_OAUTH_LOGIN:
+            abort(403)
         args = EmailCodeLoginPayload.model_validate(console_ns.payload)
 
         user_email = args.email

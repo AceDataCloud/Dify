@@ -86,6 +86,8 @@ class OAuthLogin(Resource):
     @console_ns.response(400, "Invalid provider")
     def get(self, provider: str):
         invite_token = request.args.get("invite_token") or None
+        if dify_config.ENABLE_ACEDATACLOUD_OAUTH_LOGIN and provider != ACEDATACLOUD_PROVIDER:
+            return {"error": "Invalid provider"}, 400
         OAUTH_PROVIDERS = get_oauth_providers()
         with current_app.app_context():
             oauth_provider = OAUTH_PROVIDERS.get(provider)

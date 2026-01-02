@@ -109,7 +109,7 @@
   "webapp.noLoginMethod": "Authentication method not configured for web app",
   "webapp.noLoginMethodTip": "Please contact the system admin to add an authentication method.",
   "welcome": "👋 Welcome! Please log in to get started.",
-  "withAceDataCloud": "Continue with AceData Cloud",
+  "withAceDataCloud": "Continue with Ace Data Cloud",
   "withGitHub": "Continue with GitHub",
   "withGoogle": "Continue with Google",
   "withSSO": "Continue with SSO"

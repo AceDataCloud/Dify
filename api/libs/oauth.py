@@ -197,6 +197,6 @@ class AceDataCloudOAuth(OAuth):
         user_id = raw_info.get("id") or raw_info.get("username")
         if not user_id:
             raise ValueError("Invalid user info: missing id")
-        name = raw_info.get("username") or "AceDataCloud User"
+        name = raw_info.get("username") or "Ace Data Cloud User"
         email = raw_info.get("email") or f"{user_id}@acedata.cloud"
         return OAuthUserInfo(id=str(user_id), name=name, email=email)
