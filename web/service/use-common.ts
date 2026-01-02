@@ -24,7 +24,6 @@ import type {
 import type { RETRIEVE_METHOD } from '@/types/app'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { IS_DEV } from '@/config'
-import { clearAceDataCloudOAuthSession } from './acedatacloud-oauth'
 import { get, post } from './base'
 import { useInvalid } from './use-base'
 
@@ -246,7 +245,6 @@ export const useLogout = () => {
       }
     },
     onSettled: () => {
-      clearAceDataCloudOAuthSession()
       queryClient.setQueryData(commonQueryKeys.isLogin, { logged_in: false })
       queryClient.removeQueries({ queryKey: commonQueryKeys.userProfile })
       queryClient.removeQueries({ queryKey: commonQueryKeys.currentWorkspace })
