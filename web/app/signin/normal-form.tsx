@@ -24,12 +24,12 @@ const NormalForm = () => {
   const { t } = useTranslation()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { isLoading: isCheckLoading, data: loginData } = useIsLogin()
+  const { isLoading: isCheckLoading, isFetching, data: loginData } = useIsLogin()
   const isLoggedIn = loginData?.logged_in
   const message = decodeURIComponent(searchParams.get('message') || '')
   const invite_token = decodeURIComponent(searchParams.get('invite_token') || '')
   const [isInitCheckLoading, setInitCheckLoading] = useState(true)
-  const isLoading = isCheckLoading || isInitCheckLoading
+  const isLoading = isCheckLoading || isFetching || isInitCheckLoading
   const { systemFeatures } = useGlobalPublicStore()
   const [authType, updateAuthType] = useState<'code' | 'password'>('password')
   const [showORLine, setShowORLine] = useState(false)
@@ -42,10 +42,8 @@ const NormalForm = () => {
     try {
       if (isLoggedIn) {
         const redirectUrl = resolvePostLoginRedirect(searchParams)
-        if (redirectUrl) {
-          router.replace(redirectUrl)
-          return
-        }
+        router.replace(redirectUrl || '/apps')
+        return
       }
 
       if (message) {

@@ -22,7 +22,7 @@ import type {
   UserProfileResponse,
 } from '@/models/common'
 import type { RETRIEVE_METHOD } from '@/types/app'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { IS_DEV } from '@/config'
 import { get, post } from './base'
 import { useInvalid } from './use-base'
@@ -223,9 +223,9 @@ export const useIsLogin = () => {
         })
       }
       catch (e: any) {
-        if (e.status === 401)
+        if (e?.status === 401)
           return { logged_in: false }
-        return { logged_in: true }
+        return { logged_in: false }
       }
       return { logged_in: true }
     },
@@ -233,9 +233,17 @@ export const useIsLogin = () => {
 }
 
 export const useLogout = () => {
+  const queryClient = useQueryClient()
   return useMutation({
     mutationKey: [NAME_SPACE, 'logout'],
     mutationFn: () => post('/logout'),
+    onSuccess: () => {
+      // Invalidate all authentication-related queries to prevent stale data
+      queryClient.invalidateQueries({ queryKey: commonQueryKeys.isLogin })
+      queryClient.invalidateQueries({ queryKey: commonQueryKeys.userProfile })
+      queryClient.invalidateQueries({ queryKey: commonQueryKeys.currentWorkspace })
+      queryClient.invalidateQueries({ queryKey: commonQueryKeys.workspaces })
+    },
   })
 }
 
