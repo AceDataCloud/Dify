@@ -51,9 +51,9 @@ export default function AppSelector() {
   const { isEducationAccount } = useProviderContext()
   const { setShowAccountSettingModal } = useModalContext()
 
-  const { mutateAsync: logout } = useLogout()
-  const handleLogout = async () => {
-    await logout()
+  const { mutate: logout } = useLogout()
+  const handleLogout = () => {
+    logout()
     resetUser()
     localStorage.removeItem('setup_status')
     // Tokens are now stored in cookies and cleared by backend

@@ -160,17 +160,6 @@ class LogoutApi(Resource):
         clear_refresh_token_from_cookie(response)
         clear_csrf_token_from_cookie(response)
 
-        # Avoid immediately auto-redirecting back into AceDataCloud SSO after logout.
-        # The Next.js /signin and /signup pages will honor this short-lived cookie.
-        response.set_cookie(
-            "no_acedatacloud_oauth",
-            "1",
-            max_age=300,
-            path="/",
-            secure=is_secure(),
-            samesite="Lax",
-        )
-
         return response
 
 
@@ -206,8 +195,6 @@ class EmailCodeLoginSendEmailApi(Resource):
     @setup_required
     @console_ns.expect(console_ns.models[EmailPayload.__name__])
     def post(self):
-        if dify_config.ENABLE_ACEDATACLOUD_OAUTH_LOGIN:
-            abort(403)
         args = EmailPayload.model_validate(console_ns.payload)
 
         ip_address = extract_remote_ip(request)
@@ -240,8 +227,6 @@ class EmailCodeLoginApi(Resource):
     @console_ns.expect(console_ns.models[EmailCodeLoginPayload.__name__])
     @decrypt_code_field
     def post(self):
-        if dify_config.ENABLE_ACEDATACLOUD_OAUTH_LOGIN:
-            abort(403)
         args = EmailCodeLoginPayload.model_validate(console_ns.payload)
 
         user_email = args.email

@@ -3,7 +3,7 @@ import type { IOtherOptions } from './base'
 import Cookies from 'js-cookie'
 import ky from 'ky'
 import Toast from '@/app/components/base/toast'
-import { API_PREFIX, APP_VERSION, CSRF_COOKIE_NAME, CSRF_HEADER_NAME, IS_MARKETPLACE, MARKETPLACE_API_PREFIX, PASSPORT_HEADER_NAME, PUBLIC_API_PREFIX, WEB_APP_SHARE_CODE_HEADER_NAME } from '@/config'
+import { API_PREFIX, APP_VERSION, CSRF_HEADER_NAME, IS_MARKETPLACE, MARKETPLACE_API_PREFIX, PASSPORT_HEADER_NAME, PUBLIC_API_PREFIX, WEB_APP_SHARE_CODE_HEADER_NAME } from '@/config'
 import { getWebAppAccessToken, getWebAppPassport } from './webapp-auth'
 
 const TIME_OUT = 100000
@@ -154,7 +154,7 @@ async function base<T>(url: string, options: FetchOptionType = {}, otherOptions:
 
   const fetchPathname = base + (url.startsWith('/') ? url : `/${url}`)
   if (!isMarketplaceAPI)
-    (headers as any).set(CSRF_HEADER_NAME, Cookies.get(CSRF_COOKIE_NAME()) || '')
+    (headers as any).set(CSRF_HEADER_NAME, Cookies.get('__Host-csrf_token') || Cookies.get('csrf_token') || '')
 
   if (deleteContentType)
     (headers as any).delete('Content-Type')

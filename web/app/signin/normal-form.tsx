@@ -24,12 +24,12 @@ const NormalForm = () => {
   const { t } = useTranslation()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { isLoading: isCheckLoading, isFetching: isCheckFetching, data: loginData } = useIsLogin()
+  const { isLoading: isCheckLoading, data: loginData } = useIsLogin()
   const isLoggedIn = loginData?.logged_in
   const message = decodeURIComponent(searchParams.get('message') || '')
   const invite_token = decodeURIComponent(searchParams.get('invite_token') || '')
   const [isInitCheckLoading, setInitCheckLoading] = useState(true)
-  const isLoading = isCheckLoading || isCheckFetching || isInitCheckLoading
+  const isLoading = isCheckLoading || isInitCheckLoading
   const { systemFeatures } = useGlobalPublicStore()
   const [authType, updateAuthType] = useState<'code' | 'password'>('password')
   const [showORLine, setShowORLine] = useState(false)
@@ -42,8 +42,10 @@ const NormalForm = () => {
     try {
       if (isLoggedIn) {
         const redirectUrl = resolvePostLoginRedirect(searchParams)
-        router.replace(redirectUrl || '/apps')
-        return
+        if (redirectUrl) {
+          router.replace(redirectUrl)
+          return
+        }
       }
 
       if (message) {
@@ -81,12 +83,8 @@ const NormalForm = () => {
     finally { setInitCheckLoading(false) }
   }, [isLoggedIn, message, router, invite_token, isInviteLink, systemFeatures, searchParams])
   useEffect(() => {
-    // Avoid redirecting based on stale cached `logged_in` data.
-    // Wait for the login check query to finish refetching after mount.
-    if (isCheckLoading || isCheckFetching)
-      return
     init()
-  }, [init, isCheckLoading, isCheckFetching])
+  }, [init])
   if (isLoading) {
     return (
       <div className={
