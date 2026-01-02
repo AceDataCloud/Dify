@@ -1,6 +1,7 @@
 import type { SearchParams } from '@/utils/search-params'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { isTruthyEnv } from '@/utils/env'
 import { firstSearchParam, searchParamsToString } from '@/utils/search-params'
 import SignupClient from './signup-client'
 
@@ -22,7 +23,8 @@ const shouldAutoRedirectToAceDataCloudOAuth = (cookieStore: CookieStore, searchP
 const Signup = async ({ searchParams }: { searchParams?: SearchParams }) => {
   const safeSearchParams = searchParams || {}
   const cookieStore = await cookies()
-  if (shouldAutoRedirectToAceDataCloudOAuth(cookieStore, safeSearchParams)) {
+  const enableAceDataCloudOAuthLogin = isTruthyEnv(process.env.ENABLE_ACEDATACLOUD_OAUTH_LOGIN)
+  if (enableAceDataCloudOAuthLogin && shouldAutoRedirectToAceDataCloudOAuth(cookieStore, safeSearchParams)) {
     const query = searchParamsToString(safeSearchParams)
     redirect(`/console/api/oauth/login/acedatacloud${query}`)
   }
