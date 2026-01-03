@@ -23,9 +23,9 @@ output_schema:
           type: string
       additionalProperties: true
     task_id:
-      type: [string, "null"]
+      type: string
     trace_id:
-      type: [string, "null"]
+      type: string
     data:
       type: array
       items:
