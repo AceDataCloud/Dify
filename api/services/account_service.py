@@ -52,7 +52,6 @@ from services.errors.account import (
 )
 from services.errors.workspace import WorkSpaceNotAllowedCreateError, WorkspacesLimitExceededError
 from services.feature_service import FeatureService
-from services.plugin.plugin_service import PluginService
 from tasks.delete_account_task import delete_account_task
 from tasks.mail_account_deletion_task import send_account_deletion_verification_code
 from tasks.mail_change_mail_task import (
@@ -418,80 +417,6 @@ class AccountService:
         AccountService._store_refresh_token(refresh_token, account.id)
 
         logger.info("Account logged in. account_id=%s", account.id)
-        if dify_config.PLUGIN_SYNC_GITHUB_LATEST_RELEASE_ON_LOGIN_ENABLED:
-            logger.info("Login plugin sync: enabled. account_id=%s", account.id)
-            try:
-                repos = dify_config.DEFAULT_TENANT_GITHUB_RELEASE_REPOS
-                logger.info("Login plugin sync: repo config loaded. account_id=%s repos=%s", account.id, repos)
-
-                current_ta = (
-                    db.session.query(TenantAccountJoin)
-                    .filter_by(account_id=account.id, current=True)
-                    .order_by(TenantAccountJoin.id.asc())
-                    .first()
-                )
-                if current_ta:
-                    logger.info(
-                        "Login plugin sync: found current tenant join. account_id=%s tenant_id=%s",
-                        account.id,
-                        current_ta.tenant_id,
-                    )
-                if not current_ta:
-                    logger.info(
-                        "Login plugin sync: missing current tenant join, fallback to first join. account_id=%s",
-                        account.id,
-                    )
-                    current_ta = (
-                        db.session.query(TenantAccountJoin)
-                        .filter_by(account_id=account.id)
-                        .order_by(TenantAccountJoin.id.asc())
-                        .first()
-                    )
-                    if current_ta:
-                        logger.info(
-                            "Login plugin sync: selected first tenant join. account_id=%s tenant_id=%s",
-                            account.id,
-                            current_ta.tenant_id,
-                        )
-                    else:
-                        logger.info("Login plugin sync: no tenant join found. account_id=%s", account.id)
-
-                if not repos:
-                    logger.info("Login plugin sync: repo config empty, skip. account_id=%s", account.id)
-                elif not current_ta:
-                    logger.info("Login plugin sync: no tenant found, skip. account_id=%s", account.id)
-                else:
-                    tenant_id = str(current_ta.tenant_id)
-                    logger.info(
-                        "Login plugin sync: start. account_id=%s tenant_id=%s repos=%s",
-                        account.id,
-                        tenant_id,
-                        len(repos),
-                    )
-                    for repo in repos:
-                        logger.info(
-                            "Login plugin sync: syncing repo start. account_id=%s tenant_id=%s repo=%s",
-                            account.id,
-                            tenant_id,
-                            repo,
-                        )
-                        try:
-                            PluginService.sync_latest_release_plugins_for_tenant(tenant_id=tenant_id, repo=repo)
-                            logger.info(
-                                "Login plugin sync: syncing repo done. account_id=%s tenant_id=%s repo=%s",
-                                account.id,
-                                tenant_id,
-                                repo,
-                            )
-                        except Exception:
-                            logger.exception(
-                                "Login plugin sync: syncing repo failed. account_id=%s tenant_id=%s repo=%s",
-                                account.id,
-                                tenant_id,
-                                repo,
-                            )
-            except Exception:
-                logger.exception("Login plugin sync failed. account_id=%s", account.id)
 
         return TokenPair(access_token=access_token, refresh_token=refresh_token, csrf_token=csrf_token)
 

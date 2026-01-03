@@ -299,14 +299,6 @@ class PluginConfig(BaseSettings):
         default_factory=list,
     )
 
-    PLUGIN_SYNC_GITHUB_LATEST_RELEASE_ON_LOGIN_ENABLED: bool = Field(
-        description=(
-            "When enabled, each console login will check GitHub latest (non-prerelease) releases for "
-            "`DEFAULT_TENANT_GITHUB_RELEASE_REPOS` and auto-install missing/newer plugins for the current tenant."
-        ),
-        default=False,
-    )
-
 
 class MarketplaceConfig(BaseSettings):
     """
