@@ -53,6 +53,11 @@ jobs:
           git fetch --tags --force
 
           DATE="$(date -u +'%Y.%m.%d')"
+          YEAR="$(date -u +'%Y')"
+          MMDD_INT="$(date -u +'%m%d' | sed -E 's/^0+//')"
+          if [[ -z "${MMDD_INT}" ]]; then
+            MMDD_INT="0"
+          fi
           DATE_ESCAPED="${DATE//./\\.}"
 
           if [[ "${GITHUB_REF_NAME}" == "main" ]]; then
@@ -60,19 +65,22 @@ jobs:
             latest="$(git tag -l "v${DATE}.*" | grep -v -- '-dev$' | sed -E "s/^v${DATE_ESCAPED}\\.([0-9]+)$/\\1/" | sort -n | tail -n 1 || true)"
             next="${latest:-0}"
             next="$((next + 1))"
-            VERSION="${DATE}.${next}"
-            TAG="v${VERSION}"
+            TAG_VERSION="${DATE}.${next}"
+            MANIFEST_VERSION="${YEAR}.${MMDD_INT}.${next}"
+            TAG="v${TAG_VERSION}"
             PRERELEASE="false"
           else
             # Dev tags: vYYYY.MM.DD.N-dev
             latest="$(git tag -l "v${DATE}.*-dev" | sed -E "s/^v${DATE_ESCAPED}\\.([0-9]+)-dev$/\\1/" | sort -n | tail -n 1 || true)"
             next="${latest:-0}"
             next="$((next + 1))"
-            VERSION="${DATE}.${next}-dev"
-            TAG="v${VERSION}"
+            TAG_VERSION="${DATE}.${next}-dev"
+            MANIFEST_VERSION="${YEAR}.${MMDD_INT}.${next}-dev"
+            TAG="v${TAG_VERSION}"
             PRERELEASE="true"
           fi
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "manifest_version=${MANIFEST_VERSION}" >> "$GITHUB_OUTPUT"
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "prerelease=${PRERELEASE}" >> "$GITHUB_OUTPUT"
 
@@ -104,6 +112,7 @@ jobs:
         run: |
           set -euo pipefail
           VERSION="${{ steps.version.outputs.version }}"
+          MANIFEST_VERSION="${{ steps.version.outputs.manifest_version }}"
           OUT_DIR="$RUNNER_TEMP/difypkgs"
           mkdir -p "$OUT_DIR"
 
@@ -115,7 +124,7 @@ jobs:
             mkdir -p "$tmp_dir"
             rsync -a --delete "$plugin_dir/" "$tmp_dir/"
 
-            python3 scripts/release_plugins.py "$VERSION" "$tmp_dir/manifest.yaml"
+            python3 scripts/release_plugins.py "$MANIFEST_VERSION" "$tmp_dir/manifest.yaml"
 
             out_pkg="${OUT_DIR}/${plugin_name}-${VERSION}.difypkg"
             "$RUNNER_TEMP/bin/dify-plugin" plugin package "$tmp_dir" -o "$out_pkg"
