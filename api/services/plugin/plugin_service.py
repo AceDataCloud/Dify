@@ -2,6 +2,7 @@ import logging
 from collections.abc import Mapping, Sequence
 from mimetypes import guess_type
 
+from packaging.version import InvalidVersion, Version
 from pydantic import BaseModel
 from yarl import URL
 
@@ -56,6 +57,7 @@ class PluginService:
     REDIS_TTL = 60 * 5  # 5 minutes
     GITHUB_RELEASE_CACHE_PREFIX = "plugin_service:github_latest_release:"
     GITHUB_RELEASE_TTL = 60 * 5  # 5 minutes
+    GITHUB_RELEASE_SYNC_TAG_PREFIX = "plugin_service:github_latest_release_synced_tag:"
 
     @staticmethod
     def _is_github_repo_allowlisted_for_signature_bypass(repo: str) -> bool:
@@ -260,6 +262,115 @@ class PluginService:
             len(decoded_list),
         )
         return decoded_list
+
+    @staticmethod
+    def should_install_decoded_plugin(*, installed: Sequence[PluginEntity], decoded: PluginDecodeResponse) -> bool:
+        """
+        Return True if the decoded plugin should be installed/upgraded.
+        """
+        installed_identifiers = {p.plugin_unique_identifier for p in installed}
+        if decoded.unique_identifier in installed_identifiers:
+            return False
+
+        target_author = decoded.manifest.author
+        target_name = decoded.manifest.name
+        target_version = decoded.manifest.version
+
+        for p in installed:
+            if p.declaration.author != target_author or p.declaration.name != target_name:
+                continue
+            try:
+                if Version(p.version) >= Version(target_version):
+                    return False
+            except InvalidVersion:
+                if p.version == target_version:
+                    return False
+
+        return True
+
+    @staticmethod
+    def sync_latest_release_plugins_for_tenant(*, tenant_id: str, repo: str) -> None:
+        """
+        Sync repo latest (non-prerelease) release plugins to the tenant, best-effort.
+        Only runs when a new release tag is detected (or previous sync failed).
+        """
+        PluginService._check_marketplace_only_permission()
+
+        repo = repo.strip()
+        if not repo:
+            logger.info("GitHub latest release sync: repo empty, skip. tenant_id=%s", tenant_id)
+            return
+
+        release = PluginService.fetch_latest_github_release(repo)
+        if release.prerelease or "-dev" in release.tag_name:
+            logger.info(
+                "Skip GitHub latest release sync (prerelease/dev). tenant_id=%s repo=%s tag=%s",
+                tenant_id,
+                repo,
+                release.tag_name,
+            )
+            return
+
+        tag_key = f"{PluginService.GITHUB_RELEASE_SYNC_TAG_PREFIX}{tenant_id}:{repo.lower()}"
+        sync_ttl_s = 60 * 10
+        last_tag = redis_client.get(tag_key)
+        if last_tag and last_tag.decode("utf-8") == release.tag_name:
+            logger.info(
+                "Skip GitHub latest release sync (already synced). tenant_id=%s repo=%s tag=%s",
+                tenant_id,
+                repo,
+                release.tag_name,
+            )
+            return
+        logger.info(
+            "GitHub latest release sync: new tag detected. tenant_id=%s repo=%s last_tag=%s new_tag=%s",
+            tenant_id,
+            repo,
+            last_tag.decode("utf-8") if last_tag else None,
+            release.tag_name,
+        )
+
+        manager = PluginInstaller()
+        try:
+            installed = manager.list_plugins(tenant_id)
+        except Exception:
+            logger.exception("Failed to list installed plugins for sync. tenant_id=%s repo=%s", tenant_id, repo)
+            installed = []
+
+        decoded_list = PluginService.upload_pkgs_from_github_latest_release(tenant_id=tenant_id, repo=repo)
+        if not decoded_list:
+            logger.info(
+                "GitHub latest release sync: no difypkg assets uploaded, skip. tenant_id=%s repo=%s tag=%s",
+                tenant_id,
+                repo,
+                release.tag_name,
+            )
+            return
+
+        to_install = [
+            d.unique_identifier
+            for d in decoded_list
+            if PluginService.should_install_decoded_plugin(installed=installed, decoded=d)
+        ]
+        if not to_install:
+            logger.info(
+                "GitHub latest release sync: nothing to install. tenant_id=%s repo=%s tag=%s",
+                tenant_id,
+                repo,
+                release.tag_name,
+            )
+            redis_client.setex(tag_key, sync_ttl_s, release.tag_name)
+            return
+
+        logger.info(
+            "GitHub latest release sync: installing. tenant_id=%s repo=%s tag=%s count=%s",
+            tenant_id,
+            repo,
+            release.tag_name,
+            len(to_install),
+        )
+        PluginService.install_from_local_pkg(tenant_id, to_install)
+        redis_client.setex(tag_key, sync_ttl_s, release.tag_name)
 
     @staticmethod
     def _check_marketplace_only_permission():

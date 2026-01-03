@@ -52,6 +52,7 @@ from services.errors.account import (
 )
 from services.errors.workspace import WorkSpaceNotAllowedCreateError, WorkspacesLimitExceededError
 from services.feature_service import FeatureService
+from services.plugin.plugin_service import PluginService
 from tasks.delete_account_task import delete_account_task
 from tasks.mail_account_deletion_task import send_account_deletion_verification_code
 from tasks.mail_change_mail_task import (
@@ -415,6 +416,82 @@ class AccountService:
         csrf_token = generate_csrf_token(account.id)
 
         AccountService._store_refresh_token(refresh_token, account.id)
+
+        logger.info("Account logged in. account_id=%s", account.id)
+        if dify_config.PLUGIN_SYNC_GITHUB_LATEST_RELEASE_ON_LOGIN_ENABLED:
+            logger.info("Login plugin sync: enabled. account_id=%s", account.id)
+            try:
+                repos = dify_config.DEFAULT_TENANT_GITHUB_RELEASE_REPOS
+                logger.info("Login plugin sync: repo config loaded. account_id=%s repos=%s", account.id, repos)
+
+                current_ta = (
+                    db.session.query(TenantAccountJoin)
+                    .filter_by(account_id=account.id, current=True)
+                    .order_by(TenantAccountJoin.id.asc())
+                    .first()
+                )
+                if current_ta:
+                    logger.info(
+                        "Login plugin sync: found current tenant join. account_id=%s tenant_id=%s",
+                        account.id,
+                        current_ta.tenant_id,
+                    )
+                if not current_ta:
+                    logger.info(
+                        "Login plugin sync: missing current tenant join, fallback to first join. account_id=%s",
+                        account.id,
+                    )
+                    current_ta = (
+                        db.session.query(TenantAccountJoin)
+                        .filter_by(account_id=account.id)
+                        .order_by(TenantAccountJoin.id.asc())
+                        .first()
+                    )
+                    if current_ta:
+                        logger.info(
+                            "Login plugin sync: selected first tenant join. account_id=%s tenant_id=%s",
+                            account.id,
+                            current_ta.tenant_id,
+                        )
+                    else:
+                        logger.info("Login plugin sync: no tenant join found. account_id=%s", account.id)
+
+                if not repos:
+                    logger.info("Login plugin sync: repo config empty, skip. account_id=%s", account.id)
+                elif not current_ta:
+                    logger.info("Login plugin sync: no tenant found, skip. account_id=%s", account.id)
+                else:
+                    tenant_id = str(current_ta.tenant_id)
+                    logger.info(
+                        "Login plugin sync: start. account_id=%s tenant_id=%s repos=%s",
+                        account.id,
+                        tenant_id,
+                        len(repos),
+                    )
+                    for repo in repos:
+                        logger.info(
+                            "Login plugin sync: syncing repo start. account_id=%s tenant_id=%s repo=%s",
+                            account.id,
+                            tenant_id,
+                            repo,
+                        )
+                        try:
+                            PluginService.sync_latest_release_plugins_for_tenant(tenant_id=tenant_id, repo=repo)
+                            logger.info(
+                                "Login plugin sync: syncing repo done. account_id=%s tenant_id=%s repo=%s",
+                                account.id,
+                                tenant_id,
+                                repo,
+                            )
+                        except Exception:
+                            logger.exception(
+                                "Login plugin sync: syncing repo failed. account_id=%s tenant_id=%s repo=%s",
+                                account.id,
+                                tenant_id,
+                                repo,
+                            )
+            except Exception:
+                logger.exception("Login plugin sync failed. account_id=%s", account.id)
 
         return TokenPair(access_token=access_token, refresh_token=refresh_token, csrf_token=csrf_token)
 
@@ -980,6 +1057,13 @@ class TenantService:
     @staticmethod
     def create_tenant(name: str, is_setup: bool | None = False, is_from_dashboard: bool | None = False) -> Tenant:
         """Create tenant"""
+        logger.info(
+            "Creating tenant. name=%s is_setup=%s is_from_dashboard=%s allow_create_workspace=%s",
+            name,
+            is_setup,
+            is_from_dashboard,
+            FeatureService.get_system_features().is_allow_create_workspace,
+        )
         if (
             not FeatureService.get_system_features().is_allow_create_workspace
             and not is_setup
@@ -1009,6 +1093,7 @@ class TenantService:
 
         from services.plugin.plugin_bootstrap_service import PluginBootstrapService
 
+        logger.info("Triggering default plugin auto-install for new tenant. tenant_id=%s", tenant.id)
         PluginBootstrapService.install_default_plugins(str(tenant.id))
         return tenant
 
@@ -1327,6 +1412,7 @@ class RegisterService:
             if provider == "acedatacloud" and dify_config.ACEDATACLOUD_AUTH_AUTO_REGISTER:
                 # Allow AceDataCloud OAuth to auto-provision Dify accounts even when registration is disabled.
                 effective_is_setup = True
+                logger.info("AceDataCloud auto-register enabled. email=%s", email)
 
             account = AccountService.create_account(
                 email=email,
@@ -1341,15 +1427,34 @@ class RegisterService:
             if open_id is not None and provider is not None:
                 AccountService.link_account_integrate(provider, open_id, account)
 
+            allow_create_workspace = FeatureService.get_system_features().is_allow_create_workspace
+            if provider == "acedatacloud" and dify_config.ACEDATACLOUD_AUTH_AUTO_REGISTER:
+                allow_create_workspace = True
+
             if (
-                FeatureService.get_system_features().is_allow_create_workspace
+                allow_create_workspace
                 and create_workspace_required
                 and FeatureService.get_system_features().license.workspaces.is_available()
             ):
+                logger.info(
+                    "Auto-creating workspace for new account. account_id=%s provider=%s",
+                    account.id,
+                    provider,
+                )
                 tenant = TenantService.create_tenant(f"{account.name}'s Workspace")
                 TenantService.create_tenant_member(tenant, account, role="owner")
                 account.current_tenant = tenant
                 tenant_was_created.send(tenant)
+            else:
+                logger.info(
+                    "Skip auto-creating workspace for new account. account_id=%s provider=%s "
+                    "allow_create_workspace=%s create_workspace_required=%s workspaces_available=%s",
+                    account.id,
+                    provider,
+                    allow_create_workspace,
+                    create_workspace_required,
+                    FeatureService.get_system_features().license.workspaces.is_available(),
+                )
 
             db.session.commit()
         except WorkSpaceNotAllowedCreateError:
