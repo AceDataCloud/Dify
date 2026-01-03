@@ -239,6 +239,22 @@ class PluginConfig(BaseSettings):
         default=15728640,
     )
 
+    PLUGIN_GITHUB_SIGNATURE_BYPASS_ENABLED: bool = Field(
+        description=(
+            "When enabled, GitHub plugin installation will enforce signature verification for non-allowlisted repos, "
+            "but bypass signature verification for allowlisted repos."
+        ),
+        default=False,
+    )
+
+    PLUGIN_GITHUB_SIGNATURE_BYPASS_REPOS: list[str] = Field(
+        description=(
+            "GitHub repo allowlist for signature bypass. "
+            "Each item can be: 'Org', 'Org/*', or 'Org/Repo'. Case-insensitive."
+        ),
+        default_factory=list,
+    )
+
     PLUGIN_MAX_BUNDLE_SIZE: PositiveInt = Field(
         description="Maximum allowed size for plugin bundles in bytes",
         default=15728640 * 12,
