@@ -173,26 +173,9 @@ class PluginBootstrapService:
         for repo in github_release_repos:
             try:
                 logger.info("Auto-install GitHub latest release plugins start. tenant_id=%s repo=%s", tenant_id, repo)
-                decoded_list = PluginService.upload_pkgs_from_github_latest_release(
-                    tenant_id=tenant_id,
-                    repo=repo,
-                )
-                for decoded in decoded_list:
-                    if decoded.unique_identifier in installed_identifiers:
-                        continue
-                    PluginService.install_from_local_pkg(tenant_id, [decoded.unique_identifier])
-                    installed_identifiers.add(decoded.unique_identifier)
-                    logger.info(
-                        "Auto-install GitHub latest release plugin done. tenant_id=%s repo=%s identifier=%s",
-                        tenant_id,
-                        repo,
-                        decoded.unique_identifier,
-                    )
+                PluginService.sync_latest_release_plugins_for_tenant(tenant_id=tenant_id, repo=repo)
                 logger.info(
-                    "Auto-install GitHub latest release plugins finished. tenant_id=%s repo=%s count=%s",
-                    tenant_id,
-                    repo,
-                    len(decoded_list),
+                    "Auto-install GitHub latest release plugins finished. tenant_id=%s repo=%s", tenant_id, repo
                 )
             except Exception:
                 logger.exception(

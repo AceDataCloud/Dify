@@ -104,6 +104,27 @@ class PluginService:
         return not PluginService._is_github_repo_allowlisted_for_signature_bypass(repo)
 
     @staticmethod
+    def _is_supported_github_release(release: "PluginService.GithubRelease") -> bool:
+        return (not release.prerelease) and ("-dev" not in release.tag_name)
+
+    @staticmethod
+    def _upload_pkg_bytes_and_check(
+        *,
+        manager: PluginInstaller,
+        tenant_id: str,
+        pkg: bytes,
+        verify_signature: bool,
+    ) -> PluginDecodeResponse:
+        features = FeatureService.get_system_features()
+        response = manager.upload_pkg(
+            tenant_id,
+            pkg,
+            verify_signature=features.plugin_installation_permission.restrict_to_marketplace_only or verify_signature,
+        )
+        PluginService._check_plugin_installation_scope(response.verification)
+        return response
+
+    @staticmethod
     def fetch_latest_plugin_version(plugin_ids: Sequence[str]) -> Mapping[str, LatestPluginCache | None]:
         """
         Fetch the latest plugin version
@@ -196,30 +217,18 @@ class PluginService:
         return release
 
     @staticmethod
-    def upload_pkgs_from_github_latest_release(tenant_id: str, repo: str) -> list[PluginDecodeResponse]:
+    def _upload_pkgs_from_github_release_assets(
+        *, tenant_id: str, repo: str, release: "PluginService.GithubRelease"
+    ) -> list[PluginDecodeResponse]:
         """
-        Download and upload all .difypkg assets from repo's latest (non-prerelease) release.
-        Returns decoded plugin identifiers for later installation.
+        Download and upload all .difypkg assets from a supported GitHub release.
         """
-        PluginService._check_marketplace_only_permission()
-
-        release = PluginService.fetch_latest_github_release(repo)
-        if release.prerelease or "-dev" in release.tag_name:
-            logger.info(
-                "Skip GitHub latest release auto-install because it's prerelease/dev. tenant_id=%s repo=%s tag=%s",
-                tenant_id,
-                repo,
-                release.tag_name,
-            )
-            return []
-
-        features = FeatureService.get_system_features()
         verify_signature = PluginService._should_verify_signature_for_github_repo(repo)
 
         manager = PluginInstaller()
         decoded_list: list[PluginDecodeResponse] = []
         logger.info(
-            "Uploading GitHub latest release .difypkg assets. tenant_id=%s repo=%s tag=%s verify_signature=%s",
+            "Uploading GitHub release .difypkg assets. tenant_id=%s repo=%s tag=%s verify_signature=%s",
             tenant_id,
             repo,
             release.tag_name,
@@ -237,13 +246,12 @@ class PluginService:
                 asset.name,
             )
             pkg = download_with_size_limit(asset.browser_download_url, dify_config.PLUGIN_MAX_PACKAGE_SIZE)
-            response = manager.upload_pkg(
-                tenant_id,
-                pkg,
-                verify_signature=features.plugin_installation_permission.restrict_to_marketplace_only
-                or verify_signature,
+            response = PluginService._upload_pkg_bytes_and_check(
+                manager=manager,
+                tenant_id=tenant_id,
+                pkg=pkg,
+                verify_signature=verify_signature,
             )
-            PluginService._check_plugin_installation_scope(response.verification)
             decoded_list.append(response)
             logger.info(
                 "Uploaded GitHub release asset. tenant_id=%s repo=%s tag=%s asset=%s identifier=%s",
@@ -255,7 +263,7 @@ class PluginService:
             )
 
         logger.info(
-            "Uploaded GitHub latest release assets done. tenant_id=%s repo=%s tag=%s plugins=%s",
+            "Uploaded GitHub release assets done. tenant_id=%s repo=%s tag=%s plugins=%s",
             tenant_id,
             repo,
             release.tag_name,
@@ -302,7 +310,7 @@ class PluginService:
             return
 
         release = PluginService.fetch_latest_github_release(repo)
-        if release.prerelease or "-dev" in release.tag_name:
+        if not PluginService._is_supported_github_release(release):
             logger.info(
                 "Skip GitHub latest release sync (prerelease/dev). tenant_id=%s repo=%s tag=%s",
                 tenant_id,
@@ -337,7 +345,11 @@ class PluginService:
             logger.exception("Failed to list installed plugins for sync. tenant_id=%s repo=%s", tenant_id, repo)
             installed = []
 
-        decoded_list = PluginService.upload_pkgs_from_github_latest_release(tenant_id=tenant_id, repo=repo)
+        decoded_list = PluginService._upload_pkgs_from_github_release_assets(
+            tenant_id=tenant_id,
+            repo=repo,
+            release=release,
+        )
         if not decoded_list:
             logger.info(
                 "GitHub latest release sync: no difypkg assets uploaded, skip. tenant_id=%s repo=%s tag=%s",
