@@ -108,8 +108,8 @@ def init_app(app: DifyApp) -> Celery:
     imports = [
         "tasks.async_workflow_tasks",  # trigger workers
         "tasks.trigger_processing_tasks",  # async trigger processing
-        "tasks.generate_summary_index_task",  # summary index generation
-        "tasks.regenerate_summary_index_task",  # summary index regeneration
+        "tasks.provision_acedatacloud_plugin_credentials_task",  # AceDataCloud OAuth auto-provision credentials
+        "tasks.sync_github_latest_release_plugins_on_login_task",  # async GitHub release sync on login
     ]
     day = dify_config.CELERY_BEAT_SCHEDULER_TIME
 
