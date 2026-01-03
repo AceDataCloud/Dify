@@ -159,10 +159,6 @@ class LogoutApi(Resource):
         clear_refresh_token_from_cookie(response)
         clear_csrf_token_from_cookie(response)
 
-        # Make logout deterministic even if cookie domain/name changed across deployments.
-        # This prevents residual auth cookies/localStorage from causing redirect loops.
-        response.headers["Clear-Site-Data"] = '"cookies", "storage"'
-
         return response
 
 
