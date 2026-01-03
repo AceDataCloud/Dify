@@ -1039,10 +1039,9 @@ class TenantService:
         tenant.encrypt_public_key = generate_key_pair(tenant.id)
         db.session.commit()
 
-        from services.credit_pool_service import CreditPoolService
+        from services.plugin.plugin_bootstrap_service import PluginBootstrapService
 
-        CreditPoolService.create_default_pool(tenant.id)
-
+        PluginBootstrapService.install_default_plugins(str(tenant.id))
         return tenant
 
     @staticmethod
