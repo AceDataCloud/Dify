@@ -20,7 +20,8 @@ class PluginBootstrapService:
         """
         identifiers = dify_config.DEFAULT_TENANT_PLUGIN_UNIQUE_IDENTIFIERS
         github_plugins = dify_config.DEFAULT_TENANT_GITHUB_PLUGINS
-        if not identifiers and not github_plugins:
+        github_release_repos = dify_config.DEFAULT_TENANT_GITHUB_RELEASE_REPOS
+        if not identifiers and not github_plugins and not github_release_repos:
             return
 
         features = FeatureService.get_system_features()
@@ -97,7 +98,7 @@ class PluginBootstrapService:
                 )
 
         if not github_plugins:
-            return
+            github_plugins = []
 
         for item in github_plugins:
             try:
@@ -133,4 +134,25 @@ class PluginBootstrapService:
                     item.repo,
                     item.version,
                     item.package,
+                )
+
+        if not github_release_repos:
+            return
+
+        for repo in github_release_repos:
+            try:
+                decoded_list = PluginService.upload_pkgs_from_github_latest_release(
+                    tenant_id=tenant_id,
+                    repo=repo,
+                )
+                for decoded in decoded_list:
+                    if decoded.unique_identifier in installed_identifiers:
+                        continue
+                    PluginService.install_from_local_pkg(tenant_id, [decoded.unique_identifier])
+                    installed_identifiers.add(decoded.unique_identifier)
+            except Exception:
+                logger.exception(
+                    "Failed to auto-install default GitHub latest-release plugins. tenant_id=%s repo=%s",
+                    tenant_id,
+                    repo,
                 )

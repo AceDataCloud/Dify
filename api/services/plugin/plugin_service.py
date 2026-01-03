@@ -9,6 +9,7 @@ from configs import dify_config
 from core.helper import marketplace
 from core.helper.download import download_with_size_limit
 from core.helper.marketplace import download_plugin_pkg
+from core.helper.ssrf_proxy import get as ssrf_get
 from core.plugin.entities.bundle import PluginBundleDependency
 from core.plugin.entities.plugin import (
     PluginDeclaration,
@@ -34,6 +35,15 @@ logger = logging.getLogger(__name__)
 
 
 class PluginService:
+    class GithubReleaseAsset(BaseModel):
+        name: str
+        browser_download_url: str
+
+    class GithubRelease(BaseModel):
+        tag_name: str
+        prerelease: bool = False
+        assets: list["PluginService.GithubReleaseAsset"] = []
+
     class LatestPluginCache(BaseModel):
         plugin_id: str
         version: str
@@ -44,6 +54,8 @@ class PluginService:
 
     REDIS_KEY_PREFIX = "plugin_service:latest_plugin:"
     REDIS_TTL = 60 * 5  # 5 minutes
+    GITHUB_RELEASE_CACHE_PREFIX = "plugin_service:github_latest_release:"
+    GITHUB_RELEASE_TTL = 60 * 5  # 5 minutes
 
     @staticmethod
     def _is_github_repo_allowlisted_for_signature_bypass(repo: str) -> bool:
@@ -142,6 +154,68 @@ class PluginService:
         except Exception:
             logger.exception("failed to fetch latest plugin version")
             return result
+
+    @staticmethod
+    def fetch_latest_github_release(repo: str) -> "PluginService.GithubRelease":
+        """
+        Fetch latest (non-prerelease) GitHub release metadata.
+        """
+        repo = repo.strip()
+        if not repo:
+            raise ValueError("repo is required")
+
+        cache_key = f"{PluginService.GITHUB_RELEASE_CACHE_PREFIX}{repo.lower()}"
+        cached = redis_client.get(cache_key)
+        if cached:
+            return PluginService.GithubRelease.model_validate_json(cached)
+
+        url = f"https://api.github.com/repos/{repo}/releases/latest"
+        resp = ssrf_get(
+            url,
+            follow_redirects=True,
+            headers={
+                "Accept": "application/vnd.github+json",
+                "User-Agent": "Dify",
+            },
+        )
+        resp.raise_for_status()
+        release = PluginService.GithubRelease.model_validate(resp.json())
+
+        redis_client.setex(cache_key, PluginService.GITHUB_RELEASE_TTL, release.model_dump_json())
+        return release
+
+    @staticmethod
+    def upload_pkgs_from_github_latest_release(tenant_id: str, repo: str) -> list[PluginDecodeResponse]:
+        """
+        Download and upload all .difypkg assets from repo's latest (non-prerelease) release.
+        Returns decoded plugin identifiers for later installation.
+        """
+        PluginService._check_marketplace_only_permission()
+
+        release = PluginService.fetch_latest_github_release(repo)
+        if release.prerelease or "-dev" in release.tag_name:
+            return []
+
+        features = FeatureService.get_system_features()
+        verify_signature = PluginService._should_verify_signature_for_github_repo(repo)
+
+        manager = PluginInstaller()
+        decoded_list: list[PluginDecodeResponse] = []
+        for asset in release.assets:
+            if not asset.name.endswith(".difypkg"):
+                continue
+
+            pkg = download_with_size_limit(asset.browser_download_url, dify_config.PLUGIN_MAX_PACKAGE_SIZE)
+            response = manager.upload_pkg(
+                tenant_id,
+                pkg,
+                verify_signature=features.plugin_installation_permission.restrict_to_marketplace_only
+                or verify_signature,
+            )
+            PluginService._check_plugin_installation_scope(response.verification)
+            decoded_list.append(response)
+
+        return decoded_list
 
     @staticmethod
     def _check_marketplace_only_permission():
