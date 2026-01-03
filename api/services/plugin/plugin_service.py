@@ -167,8 +167,10 @@ class PluginService:
         cache_key = f"{PluginService.GITHUB_RELEASE_CACHE_PREFIX}{repo.lower()}"
         cached = redis_client.get(cache_key)
         if cached:
+            logger.info("GitHub latest release cache hit. repo=%s", repo)
             return PluginService.GithubRelease.model_validate_json(cached)
 
+        logger.info("Fetching GitHub latest release metadata. repo=%s", repo)
         url = f"https://api.github.com/repos/{repo}/releases/latest"
         resp = ssrf_get(
             url,
@@ -181,6 +183,13 @@ class PluginService:
         resp.raise_for_status()
         release = PluginService.GithubRelease.model_validate(resp.json())
 
+        logger.info(
+            "Fetched GitHub latest release metadata. repo=%s tag=%s prerelease=%s assets=%s",
+            repo,
+            release.tag_name,
+            release.prerelease,
+            len(release.assets),
+        )
         redis_client.setex(cache_key, PluginService.GITHUB_RELEASE_TTL, release.model_dump_json())
         return release
 
@@ -194,6 +203,12 @@ class PluginService:
 
         release = PluginService.fetch_latest_github_release(repo)
         if release.prerelease or "-dev" in release.tag_name:
+            logger.info(
+                "Skip GitHub latest release auto-install because it's prerelease/dev. tenant_id=%s repo=%s tag=%s",
+                tenant_id,
+                repo,
+                release.tag_name,
+            )
             return []
 
         features = FeatureService.get_system_features()
@@ -201,10 +216,24 @@ class PluginService:
 
         manager = PluginInstaller()
         decoded_list: list[PluginDecodeResponse] = []
+        logger.info(
+            "Uploading GitHub latest release .difypkg assets. tenant_id=%s repo=%s tag=%s verify_signature=%s",
+            tenant_id,
+            repo,
+            release.tag_name,
+            verify_signature,
+        )
         for asset in release.assets:
             if not asset.name.endswith(".difypkg"):
                 continue
 
+            logger.info(
+                "Downloading GitHub release asset. tenant_id=%s repo=%s tag=%s asset=%s",
+                tenant_id,
+                repo,
+                release.tag_name,
+                asset.name,
+            )
             pkg = download_with_size_limit(asset.browser_download_url, dify_config.PLUGIN_MAX_PACKAGE_SIZE)
             response = manager.upload_pkg(
                 tenant_id,
@@ -214,7 +243,22 @@ class PluginService:
             )
             PluginService._check_plugin_installation_scope(response.verification)
             decoded_list.append(response)
+            logger.info(
+                "Uploaded GitHub release asset. tenant_id=%s repo=%s tag=%s asset=%s identifier=%s",
+                tenant_id,
+                repo,
+                release.tag_name,
+                asset.name,
+                response.unique_identifier,
+            )
 
+        logger.info(
+            "Uploaded GitHub latest release assets done. tenant_id=%s repo=%s tag=%s plugins=%s",
+            tenant_id,
+            repo,
+            release.tag_name,
+            len(decoded_list),
+        )
         return decoded_list
 
     @staticmethod
