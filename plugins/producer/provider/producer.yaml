@@ -11,8 +11,8 @@ identity:
     zh_Hans: "通过 Ace Data Cloud Producer API 生成音乐及相关素材。"
     pt_BR: "Gere músicas e assets via Ace Data Cloud Producer APIs."
     ja_JP: "Ace Data Cloud Producer API を使って音楽・関連素材を生成します。"
-  icon: "icon.jpg"
-  icon_dark: "icon.jpg"
+  icon: "icon.png"
+  icon_dark: "icon.png"
   tags:
     - audio
 
