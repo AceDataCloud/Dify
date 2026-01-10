@@ -34,10 +34,7 @@ credentials_for_provider:
 tools:
   - tools/flux_generate.yaml
   - tools/flux_edit.yaml
-  - tools/flux_task_retrieve.yaml
-  - tools/flux_task_retrieve_batch.yaml
 
 extra:
   python:
     source: provider/flux.py
-

@@ -92,20 +92,6 @@ class AceDataFluxClient:
             payload["callback_url"] = callback_url
         return self._post_images(payload=payload, timeout_s=timeout_s)
 
-    def retrieve_task(self, *, task_id: str, timeout_s: int = 60) -> dict[str, Any]:
-        return self._post_json(
-            path="/flux/tasks",
-            payload={"id": task_id, "action": "retrieve"},
-            timeout_s=timeout_s,
-        )
-
-    def retrieve_tasks(self, *, task_ids: list[str], timeout_s: int = 60) -> dict[str, Any]:
-        return self._post_json(
-            path="/flux/tasks",
-            payload={"ids": task_ids, "action": "retrieve_batch"},
-            timeout_s=timeout_s,
-        )
-
     def _post_images(self, *, payload: dict[str, Any], timeout_s: int) -> AceDataFluxImagesResult:
         body = self._post_json(path="/flux/images", payload=payload, timeout_s=timeout_s)
         data = body.get("data") if isinstance(body.get("data"), list) else []
@@ -171,29 +157,3 @@ class AceDataFluxClient:
             )
 
         return body
-
-
-def parse_task_ids(value: Any) -> list[str]:
-    if value is None:
-        return []
-    if isinstance(value, list):
-        ids: list[str] = []
-        for item in value:
-            if isinstance(item, str) and item.strip():
-                ids.append(item.strip())
-        return ids
-    if isinstance(value, str):
-        text = value.strip()
-        if not text:
-            return []
-        if text.startswith("["):
-            import json
-
-            loaded = json.loads(text)
-            if not isinstance(loaded, list):
-                raise ValueError("`task_ids` must be a JSON array or a list of strings.")
-            return [str(item).strip() for item in loaded if str(item).strip()]
-        return [line.strip() for line in text.splitlines() if line.strip()]
-
-    raise ValueError("`task_ids` must be an array of strings or a string (one ID per line).")
-
