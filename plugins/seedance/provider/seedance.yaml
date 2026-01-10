@@ -2,15 +2,15 @@ identity:
   author: "acedatacloud"
   name: "seedance"
   label:
-    en_US: "Seedance"
-    zh_Hans: "Seedance"
-    pt_BR: "Seedance"
-    ja_JP: "Seedance"
+    en_US: "SeeDance"
+    zh_Hans: "SeeDance"
+    pt_BR: "SeeDance"
+    ja_JP: "SeeDance"
   description:
-    en_US: "Generate videos via Ace Data Cloud Seedance Videos API."
-    zh_Hans: "通过 Ace Data Cloud Seedance Videos API 生成视频。"
-    pt_BR: "Gere vídeos via Ace Data Cloud Seedance Videos API."
-    ja_JP: "Ace Data Cloud Seedance Videos API を使って動画生成を行います。"
+    en_US: "Generate videos via Ace Data Cloud SeeDance Videos API."
+    zh_Hans: "通过 Ace Data Cloud SeeDance Videos API 生成视频。"
+    pt_BR: "Gere vídeos via Ace Data Cloud SeeDance Videos API."
+    ja_JP: "Ace Data Cloud SeeDance Videos API を使って動画生成を行います。"
   icon: "icon.jpg"
   icon_dark: "icon.jpg"
   tags:

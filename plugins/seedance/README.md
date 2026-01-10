@@ -1,4 +1,4 @@
-## Seedance
+## SeeDance
 
 **Author:** acedatacloud  
 **Type:** tool provider plugin  
@@ -6,7 +6,7 @@
 
 ### What it does
 
-This plugin integrates **Ace Data Cloud Seedance Videos API** as Dify tools for:
+This plugin integrates **Ace Data Cloud SeeDance Videos API** as Dify tools for:
 
 - Generating videos from a prompt (optionally with reference images)
 
