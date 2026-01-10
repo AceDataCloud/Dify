@@ -66,7 +66,7 @@ parameters:
     human_description:
       en_US: Optional output aspect ratio (e.g. 16:9).
       zh_Hans: 可选输出比例（如 16:9）。
-    llm_description: Optional. Example: 16:9.
+    llm_description: "Optional. Example: 16:9."
     form: form
   - name: start_image_url
     type: string
@@ -159,4 +159,3 @@ parameters:
 extra:
   python:
     source: tools/luma_generate.py
-
