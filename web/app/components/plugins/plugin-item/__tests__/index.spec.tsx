@@ -309,7 +309,7 @@ describe('PluginItem', () => {
       render(<PluginItem plugin={plugin} />)
 
       // Assert
-      expect(screen.getByTestId('org-info')).toHaveAttribute('data-org', '')
+      expect(screen.getByTestId('org-info')).toHaveAttribute('data-org', 'local-author')
     })
   })
 
@@ -515,6 +515,19 @@ describe('PluginItem', () => {
 
       // Assert
       expect(screen.queryByTestId('verified-badge')).not.toBeInTheDocument()
+    })
+
+    it('should show verified badge for acedatacloud plugin', () => {
+      // Arrange
+      const plugin = createPluginDetail({
+        declaration: createPluginDeclaration({ verified: false, author: 'acedatacloud' }),
+      })
+
+      // Act
+      render(<PluginItem plugin={plugin} />)
+
+      // Assert
+      expect(screen.getByTestId('verified-badge')).toBeInTheDocument()
     })
   })
 
@@ -793,7 +806,7 @@ describe('PluginItem', () => {
       expect(screen.getByTestId('org-info')).toHaveAttribute('data-org', 'github-author')
 
       rerender(<PluginItem plugin={localPlugin} />)
-      expect(screen.getByTestId('org-info')).toHaveAttribute('data-org', '')
+      expect(screen.getByTestId('org-info')).toHaveAttribute('data-org', 'local-author')
     })
 
     it('should memoize isDeprecated based on status and deprecated_reason', () => {
