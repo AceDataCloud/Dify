@@ -1,0 +1,45 @@
+identity:
+  name: flux_task_retrieve
+  author: acedatacloud
+  label:
+    en_US: Flux Retrieve Task
+    zh_Hans: Flux 查询任务
+description:
+  human:
+    en_US: Retrieve a single Flux task by task_id.
+    zh_Hans: 通过 task_id 查询单个 Flux 任务详情。
+  llm: Retrieve a single Flux task status by task_id via Ace Data Cloud Flux Tasks API.
+output_schema:
+  type: object
+  properties:
+    success:
+      type: boolean
+    error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      additionalProperties: true
+    trace_id:
+      type: string
+    data:
+      type: object
+      additionalProperties: true
+parameters:
+  - name: task_id
+    type: string
+    required: true
+    label:
+      en_US: Task ID
+      zh_Hans: 任务ID
+    human_description:
+      en_US: The task_id returned by /flux/images.
+      zh_Hans: /flux/images 返回的 task_id。
+    llm_description: Provide the task_id you want to query.
+    form: form
+extra:
+  python:
+    source: tools/flux_task_retrieve.py
+
