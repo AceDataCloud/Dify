@@ -77,7 +77,7 @@ class RuleGenerateApi(Resource):
         except ModelCurrentlyNotSupportError:
             raise ProviderModelCurrentlyNotSupportError()
         except InvokeError as e:
-            raise CompletionRequestError(e.description)
+            raise CompletionRequestError(e.description, error_code=e.error_code)
 
         return rules
 
@@ -109,7 +109,7 @@ class RuleCodeGenerateApi(Resource):
         except ModelCurrentlyNotSupportError:
             raise ProviderModelCurrentlyNotSupportError()
         except InvokeError as e:
-            raise CompletionRequestError(e.description)
+            raise CompletionRequestError(e.description, error_code=e.error_code)
 
         return code_result
 
@@ -141,7 +141,7 @@ class RuleStructuredOutputGenerateApi(Resource):
         except ModelCurrentlyNotSupportError:
             raise ProviderModelCurrentlyNotSupportError()
         except InvokeError as e:
-            raise CompletionRequestError(e.description)
+            raise CompletionRequestError(e.description, error_code=e.error_code)
 
         return structured_output
 
@@ -237,7 +237,7 @@ class InstructionGenerateApi(Resource):
         except ModelCurrentlyNotSupportError:
             raise ProviderModelCurrentlyNotSupportError()
         except InvokeError as e:
-            raise CompletionRequestError(e.description)
+            raise CompletionRequestError(e.description, error_code=e.error_code)
 
 
 @console_ns.route("/instruction-generate/template")
