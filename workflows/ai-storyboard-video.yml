@@ -1,9 +1,9 @@
 app:
-  description: 输入一句话概念（如"左宗棠的一生"），AI 自动生成分镜脚本、为每个场景生成图片、再将图片转为视频片段
+  description: Enter a one-line concept, such as "The life of Zuo Zongtang", and let AI generate a storyboard script, create images for each scene, and then turn those images into video clips.
   icon: 🎬
   icon_background: '#FFE4DE'
   mode: workflow
-  name: AI 分镜故事视频
+  name: AI Storyboard Video
   use_icon_as_answer_icon: false
 dependencies:
 - type: marketplace
@@ -182,23 +182,23 @@ workflow:
     - data:
         desc: ''
         selected: false
-        title: 开始
+        title: Start
         type: start
         variables:
-        - label: 故事主题
+        - label: Story Topic
           max_length: 2000
           options: []
           required: true
           type: text-input
           variable: story_concept
-        - label: 视觉风格
+        - label: Visual Style
           max_length: 200
           options:
-          - 电影写实
-          - 中国水墨
-          - 动漫风格
-          - 油画风格
-          - 赛博朋克
+          - Cinematic Realism
+          - Chinese Ink Painting
+          - Anime Style
+          - Oil Painting Style
+          - Cyberpunk
           required: false
           type: select
           variable: visual_style
@@ -216,8 +216,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 根据故事主题生成4个分镜场景
-        title: 分镜编剧
+        desc: Generate four storyboard scenes from the story topic
+        title: Storyboard Writer
         type: llm
         model:
           provider: openai
@@ -319,8 +319,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 生成第1个场景图片
-        title: 场景1 图片
+        desc: Generate the image for scene 1
+        title: Scene 1 Image
         type: tool
         provider_id: acedatacloud/flux
         provider_type: plugin
@@ -352,8 +352,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 生成第2个场景图片
-        title: 场景2 图片
+        desc: Generate the image for scene 2
+        title: Scene 2 Image
         type: tool
         provider_id: acedatacloud/flux
         provider_type: plugin
@@ -385,8 +385,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 生成第3个场景图片
-        title: 场景3 图片
+        desc: Generate the image for scene 3
+        title: Scene 3 Image
         type: tool
         provider_id: acedatacloud/flux
         provider_type: plugin
@@ -418,8 +418,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 生成第4个场景图片
-        title: 场景4 图片
+        desc: Generate the image for scene 4
+        title: Scene 4 Image
         type: tool
         provider_id: acedatacloud/flux
         provider_type: plugin
@@ -451,8 +451,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 从图片生成结果中提取 URL 和视频提示词
-        title: 提取图片URL
+        desc: Extract URLs and video prompts from the generated image results
+        title: Extract Image URLs
         type: llm
         model:
           provider: openai
@@ -545,8 +545,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 场景1 图生视频
-        title: 场景1 视频
+        desc: Scene 1 Image-to-Video
+        title: Scene 1 Video
         type: tool
         provider_id: acedatacloud/kling
         provider_type: plugin
@@ -578,8 +578,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 场景2 图生视频
-        title: 场景2 视频
+        desc: Scene 2 Image-to-Video
+        title: Scene 2 Video
         type: tool
         provider_id: acedatacloud/kling
         provider_type: plugin
@@ -611,8 +611,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 场景3 图生视频
-        title: 场景3 视频
+        desc: Scene 3 Image-to-Video
+        title: Scene 3 Video
         type: tool
         provider_id: acedatacloud/kling
         provider_type: plugin
@@ -644,8 +644,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 场景4 图生视频
-        title: 场景4 视频
+        desc: Scene 4 Image-to-Video
+        title: Scene 4 Video
         type: tool
         provider_id: acedatacloud/kling
         provider_type: plugin
@@ -677,8 +677,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 汇总所有成果
-        title: 成果汇总
+        desc: Summarize all generated results
+        title: Result Summary
         type: llm
         model:
           provider: openai
@@ -704,26 +704,26 @@ workflow:
 
             '
         - role: user
-          text: '故事概念: {{#start_node.story_concept#}}
+          text: 'Story concept: {{#start_node.story_concept#}}
 
 
-            分镜脚本:
+            Storyboard script:
 
             {{#storyboard_llm.text#}}
 
 
-            提取的URL和提示词:
+            Extracted URLs and prompts:
 
             {{#extract_urls_llm.text#}}
 
 
-            视频1结果: {{#video1_luma.text#}}
+            Video 1 result: {{#video1_luma.text#}}
 
-            视频2结果: {{#video2_luma.text#}}
+            Video 2 result: {{#video2_luma.text#}}
 
-            视频3结果: {{#video3_luma.text#}}
+            Video 3 result: {{#video3_luma.text#}}
 
-            视频4结果: {{#video4_luma.text#}}
+            Video 4 result: {{#video4_luma.text#}}
 
             '
         vision:
@@ -775,7 +775,7 @@ workflow:
           value_type: string
           variable: storyboard
         selected: false
-        title: 结束
+        title: End
         type: end
       height: 90
       id: end_node

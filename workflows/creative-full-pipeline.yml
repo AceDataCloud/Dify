@@ -1,9 +1,9 @@
 app:
-  description: 输入一个创意概念，AI 同时生成配图、配乐和文案，一站式内容创作
+  description: Enter a creative concept and let AI generate imagery, music, and copy together for one-stop content creation.
   icon: 🚀
   icon_background: '#FFF3CD'
   mode: workflow
-  name: 全能创意工坊
+  name: Creative Studio
   use_icon_as_answer_icon: false
 dependencies:
 - type: marketplace
@@ -98,23 +98,23 @@ workflow:
     - data:
         desc: ''
         selected: false
-        title: 开始
+        title: Start
         type: start
         variables:
-        - label: 创意概念
+        - label: Creative Concept
           max_length: 2000
           options: []
           required: true
           type: text-input
           variable: concept
-        - label: 用途
+        - label: Purpose
           max_length: 200
           options:
-          - 社交媒体推广
-          - 品牌宣传
-          - 产品发布
-          - 活动海报
-          - 个人创作
+          - Social Media Promotion
+          - Brand Promotion
+          - Product Launch
+          - Event Poster
+          - Personal Project
           required: false
           type: select
           variable: purpose
@@ -132,8 +132,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 规划图片提示词、音乐风格和文案方向
-        title: 创意总监
+        desc: Plan the image prompt, music style, and copy direction
+        title: Creative Director
         type: llm
         model:
           provider: openai
@@ -163,9 +163,9 @@ workflow:
 
             '
         - role: user
-          text: '创意概念: {{#start_node.concept#}}
+          text: 'Creative concept: {{#start_node.concept#}}
 
-            用途: {{#start_node.purpose#}}
+            Purpose: {{#start_node.purpose#}}
 
             '
         vision:
@@ -204,8 +204,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: Midjourney 生成配图
-        title: 配图生成
+        desc: Generate supporting image with Midjourney
+        title: Image Generation
         type: tool
         provider_id: acedatacloud/midjourney
         provider_type: plugin
@@ -240,8 +240,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: Suno 生成配乐
-        title: 配乐生成
+        desc: Generate soundtrack with Suno
+        title: Soundtrack Generation
         type: tool
         provider_id: acedatacloud/suno
         provider_type: plugin
@@ -273,8 +273,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 根据配图和配乐生成文案
-        title: 文案写手
+        desc: Generate copy based on the image and soundtrack
+        title: Copywriter
         type: llm
         model:
           provider: openai
@@ -282,18 +282,18 @@ workflow:
           mode: chat
         prompt_template:
         - role: system
-          text: 'You are an expert copywriter. Based on the creative concept, generated image, and music, write compelling copy in Chinese.
+          text: 'You are an expert copywriter. Based on the creative concept, generated image, and music, write compelling copy in English.
 
 
             Produce:
 
-            1. **主标题** — A powerful headline (< 20 chars)
+            1. **Main Headline** — A powerful headline (< 20 chars)
 
-            2. **副标题** — A supporting tagline
+            2. **Subtitle** — A supporting tagline
 
-            3. **正文** — 2-3 paragraphs of engaging copy
+            3. **Body Copy** — 2-3 paragraphs of engaging copy
 
-            4. **社交媒体版本** — Short version for social media (< 140 chars)
+            4. **Social Media Version** — Short version for social media (< 140 chars)
 
             5. **Hashtags** — 5 relevant hashtags
 
@@ -309,15 +309,15 @@ workflow:
 
             '
         - role: user
-          text: '创意概念: {{#start_node.concept#}}
+          text: 'Creative concept: {{#start_node.concept#}}
 
-            用途: {{#start_node.purpose#}}
+            Purpose: {{#start_node.purpose#}}
 
-            创意规划: {{#creative_planner.text#}}
+            Creative plan: {{#creative_planner.text#}}
 
-            配图结果: {{#midjourney_image.text#}}
+            Image result: {{#midjourney_image.text#}}
 
-            配乐结果: {{#suno_music.text#}}
+            Music result: {{#suno_music.text#}}
 
             '
         vision:
@@ -364,7 +364,7 @@ workflow:
           value_type: string
           variable: creative_package
         selected: false
-        title: 结束
+        title: End
         type: end
       height: 90
       id: end_node

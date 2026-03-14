@@ -1,9 +1,9 @@
 app:
-  description: 输入一个热点话题，AI 搜索最新信息，生成配图和短视频，自动生成图文+视频自媒体内容
+  description: Enter a trending topic, let AI search the latest information, generate images and a short video, and automatically produce article-plus-video creator content.
   icon: 📱
   icon_background: '#FFF3CD'
   mode: workflow
-  name: 自媒体一键创作
+  name: One-Click Creator Studio
   use_icon_as_answer_icon: false
 dependencies:
 - type: marketplace
@@ -128,22 +128,22 @@ workflow:
     - data:
         desc: ''
         selected: false
-        title: 开始
+        title: Start
         type: start
         variables:
-        - label: 话题/热点
+        - label: Topic / Trend
           max_length: 500
           options: []
           required: true
           type: text-input
           variable: topic
-        - label: 平台
+        - label: Platform
           max_length: 200
           options:
-          - 微信公众号
-          - 小红书
-          - 抖音
-          - B站
+          - WeChat Official Account
+          - Xiaohongshu
+          - Douyin
+          - Bilibili
           - Twitter/X
           required: false
           type: select
@@ -162,8 +162,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 搜索最新资讯
-        title: 热点搜索
+        desc: Search the latest updates
+        title: Trending Topic Search
         type: tool
         provider_id: acedatacloud/serp
         provider_type: plugin
@@ -195,8 +195,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 根据搜索结果写文章
-        title: 文章创作
+        desc: Write the article based on search results
+        title: Article Writing
         type: llm
         model:
           provider: openai
@@ -225,11 +225,11 @@ workflow:
 
             '
         - role: user
-          text: '话题: {{#start_node.topic#}}
+          text: 'Topic: {{#start_node.topic#}}
 
-            平台: {{#start_node.platform#}}
+            Platform: {{#start_node.platform#}}
 
-            搜索结果: {{#serp_research.text#}}
+            Search results: {{#serp_research.text#}}
 
             '
         vision:
@@ -268,8 +268,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: Flux 生成封面大图
-        title: 封面大图
+        desc: Generate cover image with Flux
+        title: Cover Image
         type: tool
         provider_id: acedatacloud/flux
         provider_type: plugin
@@ -301,8 +301,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: NanoBanana 生成缩略图
-        title: 社交缩略图
+        desc: Generate thumbnail with NanoBanana
+        title: Social Thumbnail
         type: tool
         provider_id: acedatacloud/nano-banana
         provider_type: plugin
@@ -331,8 +331,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: Veo 生成短视频
-        title: 短视频
+        desc: Generate short video with Veo
+        title: Short Video
         type: tool
         provider_id: acedatacloud/veo
         provider_type: plugin
@@ -361,8 +361,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 整合所有内容
-        title: 内容打包
+        desc: Assemble all generated content
+        title: Content Packaging
         type: llm
         model:
           provider: openai
@@ -370,18 +370,36 @@ workflow:
           mode: chat
         prompt_template:
         - role: system
-          text: "Assemble all generated content into a ready-to-publish self-media package in Chinese markdown.\n\nInclude:\n## \U0001F4F1 自媒体内容包\n### 文章标题 & 正文\n### 封面图 (URL)\n### 缩略图 (URL) \n### 短视频 (URL/ID)\n\
-            ### Hashtags\n### 发布建议 (针对指定平台的最佳实践)\n"
+          text: 'Assemble all generated content into a ready-to-publish creator content package in English markdown.
+
+
+            Include:
+
+            ## 📱 Creator Content Package
+
+            ### Article Title & Body
+
+            ### Cover Image (URL)
+
+            ### Thumbnail (URL)
+
+            ### Short Video (URL/ID)
+
+            ### Hashtags
+
+            ### Publishing Suggestions (best practices for the selected platform)
+
+            '
         - role: user
-          text: '平台: {{#start_node.platform#}}
+          text: 'Platform: {{#start_node.platform#}}
 
-            文章内容: {{#article_writer.text#}}
+            Article content: {{#article_writer.text#}}
 
-            封面结果: {{#flux_cover.text#}}
+            Cover result: {{#flux_cover.text#}}
 
-            缩略图结果: {{#nano_thumbnail.text#}}
+            Thumbnail result: {{#nano_thumbnail.text#}}
 
-            视频结果: {{#veo_short_video.text#}}
+            Video result: {{#veo_short_video.text#}}
 
             '
         vision:
@@ -428,7 +446,7 @@ workflow:
           value_type: string
           variable: content_package
         selected: false
-        title: 结束
+        title: End
         type: end
       height: 90
       id: end_node

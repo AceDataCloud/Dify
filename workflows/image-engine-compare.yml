@@ -1,9 +1,9 @@
 app:
-  description: 输入描述让 AI 同时用 Flux、Midjourney、Seedream、NanoBanana 四大引擎生图，对比选择最佳效果
+  description: Enter a description and let AI generate images with Flux, Midjourney, Seedream, and NanoBanana at the same time so you can compare and pick the best result.
   icon: 🏆
   icon_background: '#D5F5F6'
   mode: workflow
-  name: 四引擎图片PK
+  name: Four-Engine Image Comparison
   use_icon_as_answer_icon: false
 dependencies:
 - type: marketplace
@@ -128,10 +128,10 @@ workflow:
     - data:
         desc: ''
         selected: false
-        title: 开始
+        title: Start
         type: start
         variables:
-        - label: 图片描述
+        - label: Image Description
           max_length: 2000
           options: []
           required: true
@@ -151,8 +151,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 优化提示词
-        title: 提示词优化
+        desc: Optimize Prompt
+        title: Prompt Optimization
         type: llm
         model:
           provider: openai
@@ -325,8 +325,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 对比四个引擎结果
-        title: 效果对比
+        desc: Compare the results from four image engines
+        title: Result Comparison
         type: llm
         model:
           provider: openai
@@ -344,15 +344,15 @@ workflow:
 
             '
         - role: user
-          text: '提示词: {{#prompt_optimizer.text#}}
+          text: 'Prompt: {{#prompt_optimizer.text#}}
 
-            Flux 结果: {{#flux_gen.text#}}
+            Flux result: {{#flux_gen.text#}}
 
-            Midjourney 结果: {{#mj_gen.text#}}
+            Midjourney result: {{#mj_gen.text#}}
 
-            Seedream 结果: {{#seedream_gen.text#}}
+            Seedream result: {{#seedream_gen.text#}}
 
-            NanoBanana 结果: {{#nano_gen.text#}}
+            NanoBanana result: {{#nano_gen.text#}}
 
             '
         vision:
@@ -399,7 +399,7 @@ workflow:
           value_type: string
           variable: comparison
         selected: false
-        title: 结束
+        title: End
         type: end
       height: 90
       id: end_node

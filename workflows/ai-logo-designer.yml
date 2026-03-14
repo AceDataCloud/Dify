@@ -1,9 +1,9 @@
 app:
-  description: 输入品牌名称和描述，AI 设计多种 Logo 方案
+  description: Enter a brand name and description, and let AI design multiple logo concepts.
   icon: ✏️
   icon_background: '#E8D0FF'
   mode: workflow
-  name: AI Logo 设计师
+  name: AI Logo Designer
   use_icon_as_answer_icon: false
 dependencies:
 - type: marketplace
@@ -107,29 +107,29 @@ workflow:
     - data:
         desc: ''
         selected: false
-        title: 开始
+        title: Start
         type: start
         variables:
-        - label: 品牌名称
+        - label: Brand Name
           max_length: 100
           options: []
           required: true
           type: text-input
           variable: brand_name
-        - label: 品牌描述
+        - label: Brand Description
           max_length: 1000
           options: []
           required: true
           type: text-input
           variable: brand_description
-        - label: 风格偏好
+        - label: Style Preference
           max_length: 200
           options:
-          - 简约现代
-          - 科技感
-          - 复古经典
-          - 可爱卡通
-          - 奢华高端
+          - Minimal Modern
+          - Tech Aesthetic
+          - Vintage Classic
+          - Cute Cartoon
+          - Luxury Premium
           required: false
           type: select
           variable: style_preference
@@ -147,8 +147,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 生成3种不同风格的 Logo 提示词
-        title: Logo 设计师
+        desc: Generate logo prompts in three different styles
+        title: Logo Designer
         type: llm
         model:
           provider: openai
@@ -185,11 +185,11 @@ workflow:
 
             '
         - role: user
-          text: '品牌名称: {{#start_node.brand_name#}}
+          text: 'Brand name: {{#start_node.brand_name#}}
 
-            品牌描述: {{#start_node.brand_description#}}
+            Brand description: {{#start_node.brand_description#}}
 
-            风格偏好: {{#start_node.style_preference#}}
+            Style preference: {{#start_node.style_preference#}}
 
             '
         vision:
@@ -228,8 +228,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: '方案1: 简约现代'
-        title: Logo 方案1
+        desc: 'Concept 1: Minimal Modern'
+        title: Logo Concept 1
         type: tool
         provider_id: acedatacloud/flux
         provider_type: plugin
@@ -261,8 +261,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: '方案2: 图标风格'
-        title: Logo 方案2
+        desc: 'Concept 2: Icon Style'
+        title: Logo Concept 2
         type: tool
         provider_id: acedatacloud/flux
         provider_type: plugin
@@ -294,8 +294,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: '方案3: 创意艺术'
-        title: Logo 方案3
+        desc: 'Concept 3: Creative Art'
+        title: Logo Concept 3
         type: tool
         provider_id: acedatacloud/flux
         provider_type: plugin
@@ -327,8 +327,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 汇总3个方案
-        title: 方案汇总
+        desc: Summarize the three concepts
+        title: Concept Summary
         type: llm
         model:
           provider: openai
@@ -348,15 +348,15 @@ workflow:
 
             '
         - role: user
-          text: '品牌: {{#start_node.brand_name#}}
+          text: 'Brand: {{#start_node.brand_name#}}
 
-            设计提示词: {{#designer_llm.text#}}
+            Design prompts: {{#designer_llm.text#}}
 
-            方案1结果: {{#flux_logo1.text#}}
+            Concept 1 result: {{#flux_logo1.text#}}
 
-            方案2结果: {{#flux_logo2.text#}}
+            Concept 2 result: {{#flux_logo2.text#}}
 
-            方案3结果: {{#flux_logo3.text#}}
+            Concept 3 result: {{#flux_logo3.text#}}
 
             '
         vision:
@@ -403,7 +403,7 @@ workflow:
           value_type: string
           variable: design_report
         selected: false
-        title: 结束
+        title: End
         type: end
       height: 90
       id: end_node

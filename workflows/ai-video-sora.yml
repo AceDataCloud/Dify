@@ -1,9 +1,9 @@
 app:
-  description: 输入文字描述，同时用 Sora 生成高质量 AI 视频
+  description: Enter a text description and generate a high-quality AI video with Sora.
   icon: 🎥
   icon_background: '#FFEAD5'
   mode: workflow
-  name: AI 视频生成器 (Sora)
+  name: AI Video Generator (Sora)
   use_icon_as_answer_icon: false
 dependencies:
 - type: marketplace
@@ -71,16 +71,16 @@ workflow:
     - data:
         desc: ''
         selected: false
-        title: 开始
+        title: Start
         type: start
         variables:
-        - label: 视频描述
+        - label: Video Description
           max_length: 2000
           options: []
           required: true
           type: text-input
           variable: description
-        - label: 时长
+        - label: Duration
           max_length: 10
           options:
           - '10'
@@ -89,7 +89,7 @@ workflow:
           required: false
           type: select
           variable: duration
-        - label: 画质
+        - label: Quality
           max_length: 10
           options:
           - small
@@ -111,8 +111,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 将描述转化为专业视频生成提示词
-        title: 视频导演
+        desc: Turn the description into a professional video generation prompt
+        title: Video Director
         type: llm
         model:
           provider: openai
@@ -173,8 +173,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 用 Sora 生成视频
-        title: Sora 生成
+        desc: Generate video with Sora
+        title: Sora Generation
         type: tool
         provider_id: acedatacloud/sora
         provider_type: plugin
@@ -222,7 +222,7 @@ workflow:
           value_type: string
           variable: optimized_prompt
         selected: false
-        title: 结束
+        title: End
         type: end
       height: 90
       id: end_node

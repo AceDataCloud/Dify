@@ -1,9 +1,9 @@
 app:
-  description: 输入一个产品/主题概念，AI 自动生成宣传图片+宣传视频+背景音乐的完整营销素材套件
+  description: Enter a product or campaign concept and let AI automatically generate a complete marketing asset package with poster art, promo video, and background music.
   icon: 📢
   icon_background: '#FBE8FF'
   mode: workflow
-  name: AI 营销素材全家桶
+  name: AI Marketing Asset Suite
   use_icon_as_answer_icon: false
 dependencies:
 - type: marketplace
@@ -113,22 +113,22 @@ workflow:
     - data:
         desc: ''
         selected: false
-        title: 开始
+        title: Start
         type: start
         variables:
-        - label: 产品/活动名称
+        - label: Product / Campaign Name
           max_length: 200
           options: []
           required: true
           type: text-input
           variable: product_name
-        - label: 详细描述
+        - label: Detailed Description
           max_length: 2000
           options: []
           required: true
           type: text-input
           variable: product_description
-        - label: 目标受众
+        - label: Target Audience
           max_length: 500
           options: []
           required: false
@@ -148,8 +148,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 营销策略规划
-        title: 营销策略师
+        desc: Marketing Strategy Planning
+        title: Marketing Strategist
         type: llm
         model:
           provider: openai
@@ -176,11 +176,11 @@ workflow:
 
             '
         - role: user
-          text: '产品名称: {{#start_node.product_name#}}
+          text: 'Product name: {{#start_node.product_name#}}
 
-            详细描述: {{#start_node.product_description#}}
+            Detailed description: {{#start_node.product_description#}}
 
-            目标受众: {{#start_node.target_audience#}}
+            Target audience: {{#start_node.target_audience#}}
 
             '
         vision:
@@ -219,8 +219,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: Flux 生成宣传海报
-        title: 宣传海报
+        desc: Generate promotional poster with Flux
+        title: Promotional Poster
         type: tool
         provider_id: acedatacloud/flux
         provider_type: plugin
@@ -252,8 +252,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: Luma 图生宣传视频
-        title: 宣传视频
+        desc: Generate promotional image-to-video with Luma
+        title: Promotional Video
         type: tool
         provider_id: acedatacloud/luma
         provider_type: plugin
@@ -285,8 +285,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: Suno 生成背景音乐
-        title: 背景音乐
+        desc: Generate background music with Suno
+        title: Background Music
         type: tool
         provider_id: acedatacloud/suno
         provider_type: plugin
@@ -321,8 +321,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 整合所有营销素材
-        title: 素材整合
+        desc: Assemble all marketing assets
+        title: Asset Assembly
         type: llm
         model:
           provider: openai
@@ -330,18 +330,56 @@ workflow:
           mode: chat
         prompt_template:
         - role: system
-          text: "You are a marketing package assembler. Present all generated marketing materials in a professional Chinese report.\n\nInclude:\n## \U0001F4E2 营销素材包 - [产品名]\n\n### 1. 品牌文案\n- 主标题\n- 副标题\
-            \  \n- 行动号召\n\n### 2. 宣传海报\n- 展示图片URL\n\n### 3. 宣传视频\n- 展示视频URL/ID\n\n### 4. 背景音乐\n- 展示音乐URL\n\n### 5. 使用建议\n- 各素材的推荐使用场景\n\nExtract actual URLs from the tool results.\n"
+          text: 'You are a marketing package assembler. Present all generated marketing materials in a professional English report.
+
+
+            Include:
+
+            ## 📢 Marketing Asset Package - [Product Name]
+
+
+            ### 1. Brand Copy
+
+            - Main headline
+
+            - Subtitle
+
+            - Call to action
+
+
+            ### 2. Promotional Poster
+
+            - Display image URL
+
+
+            ### 3. Promotional Video
+
+            - Display video URL/ID
+
+
+            ### 4. Background Music
+
+            - Display audio URL
+
+
+            ### 5. Usage Suggestions
+
+            - Recommended scenarios for each asset
+
+
+            Extract actual URLs from the tool results.
+
+            '
         - role: user
-          text: '产品: {{#start_node.product_name#}}
+          text: 'Product: {{#start_node.product_name#}}
 
-            策略: {{#strategist_llm.text#}}
+            Strategy: {{#strategist_llm.text#}}
 
-            海报结果: {{#flux_poster.text#}}
+            Poster result: {{#flux_poster.text#}}
 
-            视频结果: {{#luma_promo_video.text#}}
+            Video result: {{#luma_promo_video.text#}}
 
-            音乐结果: {{#suno_bgm.text#}}
+            Music result: {{#suno_bgm.text#}}
 
             '
         vision:
@@ -388,7 +426,7 @@ workflow:
           value_type: string
           variable: marketing_package
         selected: false
-        title: 结束
+        title: End
         type: end
       height: 90
       id: end_node

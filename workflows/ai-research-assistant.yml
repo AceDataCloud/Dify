@@ -1,9 +1,9 @@
 app:
-  description: 输入问题或主题，AI 自动搜索全网信息并整理成专业研究报告
+  description: Enter a question or topic, and let AI search across the web and compile a professional research report.
   icon: 🔍
   icon_background: '#FBE8FF'
   mode: workflow
-  name: AI 深度研究助手
+  name: AI Deep Research Assistant
   use_icon_as_answer_icon: false
 dependencies:
 - type: marketplace
@@ -95,19 +95,19 @@ workflow:
     - data:
         desc: ''
         selected: false
-        title: 开始
+        title: Start
         type: start
         variables:
-        - label: 研究主题
+        - label: Research Topic
           max_length: 500
           options: []
           required: true
           type: text-input
           variable: topic
-        - label: 语言
+        - label: Language
           max_length: 50
           options:
-          - 中文
+          - Chinese
           - English
           required: false
           type: select
@@ -126,8 +126,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 将用户问题转化为最佳搜索关键词
-        title: 搜索词优化
+        desc: Turn the user request into optimal search queries
+        title: Search Query Optimization
         type: llm
         model:
           provider: openai
@@ -177,8 +177,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: Google 网页搜索
-        title: 网页搜索
+        desc: Google Web Search
+        title: Web Search
         type: tool
         provider_id: acedatacloud/serp
         provider_type: plugin
@@ -210,8 +210,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: Google 新闻搜索
-        title: 新闻搜索
+        desc: Google News Search
+        title: News Search
         type: tool
         provider_id: acedatacloud/serp
         provider_type: plugin
@@ -243,8 +243,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 综合搜索结果生成研究报告
-        title: 报告生成
+        desc: Generate a research report from the combined search results
+        title: Report Generation
         type: llm
         model:
           provider: openai
@@ -271,17 +271,17 @@ workflow:
 
             '
         - role: user
-          text: '研究主题: {{#start_node.topic#}}
+          text: 'Research topic: {{#start_node.topic#}}
 
-            输出语言: {{#start_node.output_language#}}
+            Output language: {{#start_node.output_language#}}
 
 
-            --- 网页搜索结果 ---
+            --- Web search results ---
 
             {{#serp_search.text#}}
 
 
-            --- 新闻搜索结果 ---
+            --- News search results ---
 
             {{#serp_news.text#}}
 
@@ -330,7 +330,7 @@ workflow:
           value_type: string
           variable: report
         selected: false
-        title: 结束
+        title: End
         type: end
       height: 90
       id: end_node

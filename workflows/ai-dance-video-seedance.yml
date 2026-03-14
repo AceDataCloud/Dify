@@ -1,9 +1,9 @@
 app:
-  description: 输入视频主题，AI 编写脚本后用 Seedance 生成舞蹈/动态视频
+  description: Enter a video theme, then let AI write the concept and generate a dance or motion video with Seedance.
   icon: 💃
   icon_background: '#E4FBCC'
   mode: workflow
-  name: AI 舞蹈视频 (Seedance)
+  name: AI Dance Video (Seedance)
   use_icon_as_answer_icon: false
 dependencies:
 - type: marketplace
@@ -71,16 +71,16 @@ workflow:
     - data:
         desc: ''
         selected: false
-        title: 开始
+        title: Start
         type: start
         variables:
-        - label: 视频描述
+        - label: Video Description
           max_length: 2000
           options: []
           required: true
           type: text-input
           variable: description
-        - label: 首帧图片URL (可选)
+        - label: First Frame Image URL (Optional)
           max_length: 2000
           options: []
           required: false
@@ -100,8 +100,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 优化视频分镜提示词
-        title: 动态导演
+        desc: Optimize prompts for animated video shots
+        title: Motion Director
         type: llm
         model:
           provider: openai
@@ -162,8 +162,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: Seedance 生成视频
-        title: Seedance 生成
+        desc: Generate video with Seedance
+        title: Seedance Generation
         type: tool
         provider_id: acedatacloud/seedance
         provider_type: plugin
@@ -205,7 +205,7 @@ workflow:
           value_type: string
           variable: optimized_prompt
         selected: false
-        title: 结束
+        title: End
         type: end
       height: 90
       id: end_node

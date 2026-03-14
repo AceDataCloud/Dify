@@ -1,9 +1,9 @@
 app:
-  description: 输入创意描述，AI 优化提示词后用 Midjourney 生成高质量图片
+  description: Enter a creative description, let AI refine the prompt, and generate high-quality images with Midjourney.
   icon: 🎨
   icon_background: '#E4FBCC'
   mode: workflow
-  name: AI 图片生成器
+  name: AI Image Generator
   use_icon_as_answer_icon: false
 dependencies:
 - type: marketplace
@@ -71,24 +71,24 @@ workflow:
     - data:
         desc: ''
         selected: false
-        title: 开始
+        title: Start
         type: start
         variables:
-        - label: 创意描述
+        - label: Creative Description
           max_length: 2000
           options: []
           required: true
           type: text-input
           variable: description
-        - label: 风格
+        - label: Style
           max_length: 200
           options:
-          - 写实摄影
-          - 动漫插画
-          - 油画风格
-          - 赛博朋克
-          - 水彩风格
-          - 3D渲染
+          - Realistic Photography
+          - Anime Illustration
+          - Oil Painting Style
+          - Cyberpunk
+          - Watercolor Style
+          - 3D Render
           required: false
           type: select
           variable: style
@@ -106,8 +106,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 将用户描述优化为 Midjourney 专业提示词
-        title: 提示词优化
+        desc: Refine the user description into a professional Midjourney prompt
+        title: Prompt Optimization
         type: llm
         model:
           provider: openai
@@ -129,9 +129,9 @@ workflow:
 
             '
         - role: user
-          text: '创意描述: {{#start_node.description#}}
+          text: 'Creative description: {{#start_node.description#}}
 
-            风格偏好: {{#start_node.style#}}
+            Style preference: {{#start_node.style#}}
 
             '
         vision:
@@ -170,8 +170,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 调用 Midjourney 生成图片
-        title: Midjourney 生成
+        desc: Generate images with Midjourney
+        title: Midjourney Generation
         type: tool
         provider_id: acedatacloud/midjourney
         provider_type: plugin
@@ -219,7 +219,7 @@ workflow:
           value_type: string
           variable: optimized_prompt
         selected: false
-        title: 结束
+        title: End
         type: end
       height: 90
       id: end_node

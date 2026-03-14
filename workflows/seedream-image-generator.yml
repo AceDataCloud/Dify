@@ -1,9 +1,9 @@
 app:
-  description: 输入文字描述，用 Seedream 生成高质量中国风/写实图片
+  description: Enter a text description and use Seedream to generate high-quality Chinese-style or realistic images.
   icon: 🖼️
   icon_background: '#D5F5F6'
   mode: workflow
-  name: Seedream 图片生成
+  name: Seedream Image Generator
   use_icon_as_answer_icon: false
 dependencies:
 - type: marketplace
@@ -71,16 +71,16 @@ workflow:
     - data:
         desc: ''
         selected: false
-        title: 开始
+        title: Start
         type: start
         variables:
-        - label: 图片描述
+        - label: Image Description
           max_length: 2000
           options: []
           required: true
           type: text-input
           variable: description
-        - label: 画质
+        - label: Quality
           max_length: 10
           options:
           - 1K
@@ -103,8 +103,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 优化提示词
-        title: 提示词优化
+        desc: Optimize Prompt
+        title: Prompt Optimization
         type: llm
         model:
           provider: openai
@@ -154,8 +154,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: Seedream 生成图片
-        title: Seedream 生成
+        desc: Generate images with Seedream
+        title: Seedream Generation
         type: tool
         provider_id: acedatacloud/seedream
         provider_type: plugin
@@ -197,7 +197,7 @@ workflow:
           value_type: string
           variable: optimized_prompt
         selected: false
-        title: 结束
+        title: End
         type: end
       height: 90
       id: end_node

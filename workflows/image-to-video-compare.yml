@@ -1,9 +1,9 @@
 app:
-  description: 提供图片URL，一键用多个引擎（Luma/Kling/Hailuo）同时生成视频，对比选择最佳效果
+  description: Provide an image URL and generate videos with multiple engines (Luma, Kling, Hailuo) in one click to compare and choose the best result.
   icon: 📹
   icon_background: '#FFE4DE'
   mode: workflow
-  name: 图生视频对比器
+  name: Image-to-Video Comparator
   use_icon_as_answer_icon: false
 dependencies:
 - type: marketplace
@@ -101,16 +101,16 @@ workflow:
     - data:
         desc: ''
         selected: false
-        title: 开始
+        title: Start
         type: start
         variables:
-        - label: 图片URL
+        - label: Image URL
           max_length: 2000
           options: []
           required: true
           type: text-input
           variable: image_url
-        - label: 运动描述
+        - label: Motion Description
           max_length: 500
           options: []
           required: false
@@ -130,8 +130,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: Luma Dream Machine 图生视频
-        title: Luma 视频
+        desc: Luma Dream Machine Image-to-Video
+        title: Luma Video
         type: tool
         provider_id: acedatacloud/luma
         provider_type: plugin
@@ -166,8 +166,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: Kling 图生视频
-        title: Kling 视频
+        desc: Kling Image-to-Video
+        title: Kling Video
         type: tool
         provider_id: acedatacloud/kling
         provider_type: plugin
@@ -199,8 +199,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: Hailuo 图生视频
-        title: Hailuo 视频
+        desc: Hailuo Image-to-Video
+        title: Hailuo Video
         type: tool
         provider_id: acedatacloud/hailuo
         provider_type: plugin
@@ -235,8 +235,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 对比三个视频引擎的结果
-        title: 效果对比
+        desc: Compare the results from three video engines
+        title: Result Comparison
         type: llm
         model:
           provider: openai
@@ -262,16 +262,16 @@ workflow:
 
             '
         - role: user
-          text: '运动描述: {{#start_node.motion_prompt#}}
+          text: 'Motion description: {{#start_node.motion_prompt#}}
 
-            图片: {{#start_node.image_url#}}
+            Image: {{#start_node.image_url#}}
 
 
-            Luma 结果: {{#luma_video.text#}}
+            Luma result: {{#luma_video.text#}}
 
-            Kling 结果: {{#kling_video.text#}}
+            Kling result: {{#kling_video.text#}}
 
-            Hailuo 结果: {{#hailuo_video.text#}}
+            Hailuo result: {{#hailuo_video.text#}}
 
             '
         vision:
@@ -318,7 +318,7 @@ workflow:
           value_type: string
           variable: comparison_report
         selected: false
-        title: 结束
+        title: End
         type: end
       height: 90
       id: end_node

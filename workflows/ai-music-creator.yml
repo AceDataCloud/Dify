@@ -1,9 +1,9 @@
 app:
-  description: 输入音乐主题或心情，AI 自动写词谱曲生成完整歌曲
+  description: Enter a music theme or mood, and let AI write lyrics, compose, and generate a complete song automatically.
   icon: 🎵
   icon_background: '#D5F5F6'
   mode: workflow
-  name: AI 音乐创作
+  name: AI Music Creator
   use_icon_as_answer_icon: false
 dependencies:
 - type: marketplace
@@ -71,36 +71,36 @@ workflow:
     - data:
         desc: ''
         selected: false
-        title: 开始
+        title: Start
         type: start
         variables:
-        - label: 音乐主题
+        - label: Music Theme
           max_length: 1000
           options: []
           required: true
           type: text-input
           variable: theme
-        - label: 音乐风格
+        - label: Music Genre
           max_length: 200
           options:
-          - Pop 流行
-          - Rock 摇滚
+          - Pop
+          - Rock
           - R&B
-          - Hip-Hop 说唱
-          - Jazz 爵士
-          - Electronic 电子
-          - Classical 古典
-          - Folk 民谣
-          - Country 乡村
+          - Hip-Hop
+          - Jazz
+          - Electronic
+          - Classical
+          - Folk
+          - Country
           required: false
           type: select
           variable: genre
-        - label: 语言
+        - label: Language
           max_length: 50
           options:
-          - 中文
+          - Chinese
           - English
-          - 日本語
+          - Japanese
           - 한국어
           required: false
           type: select
@@ -119,8 +119,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: AI 作词 + 确定风格标签
-        title: AI 作词
+        desc: Write lyrics and determine style tags
+        title: AI Lyricist
         type: llm
         model:
           provider: openai
@@ -149,11 +149,11 @@ workflow:
 
             '
         - role: user
-          text: '主题: {{#start_node.theme#}}
+          text: 'Theme: {{#start_node.theme#}}
 
-            风格: {{#start_node.genre#}}
+            Genre: {{#start_node.genre#}}
 
-            语言: {{#start_node.language#}}
+            Language: {{#start_node.language#}}
 
             '
         vision:
@@ -192,8 +192,8 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 调用 Suno 生成音乐
-        title: Suno 生成
+        desc: Generate music with Suno
+        title: Suno Generation
         type: tool
         provider_id: acedatacloud/suno
         provider_type: plugin
@@ -241,7 +241,7 @@ workflow:
           value_type: string
           variable: lyrics_and_style
         selected: false
-        title: 结束
+        title: End
         type: end
       height: 90
       id: end_node
