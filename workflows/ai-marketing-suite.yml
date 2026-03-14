@@ -1,13 +1,22 @@
 app:
-  description: '输入一个产品/主题概念，AI 自动生成宣传图片+宣传视频+背景音乐的完整营销素材套件'
+  description: 输入一个产品/主题概念，AI 自动生成宣传图片+宣传视频+背景音乐的完整营销素材套件
   icon: 📢
   icon_background: '#FBE8FF'
   mode: workflow
   name: AI 营销素材全家桶
   use_icon_as_answer_icon: false
-dependencies: []
+dependencies:
+- type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: acedatacloud/flux
+- type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: acedatacloud/luma
+- type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: acedatacloud/suno
 kind: app
-version: 0.3.1
+version: 0.6.0
 workflow:
   conversation_variables: []
   environment_variables: []
@@ -34,9 +43,9 @@ workflow:
         sourceType: start
         targetType: llm
       id: start-to-strategist
-      source: 'start_node'
+      source: start_node
       sourceHandle: source
-      target: 'strategist_llm'
+      target: strategist_llm
       targetHandle: target
       type: custom
       zIndex: 0
@@ -46,9 +55,9 @@ workflow:
         sourceType: llm
         targetType: tool
       id: strategist-to-flux
-      source: 'strategist_llm'
+      source: strategist_llm
       sourceHandle: source
-      target: 'flux_poster'
+      target: flux_poster
       targetHandle: target
       type: custom
       zIndex: 0
@@ -58,9 +67,9 @@ workflow:
         sourceType: tool
         targetType: tool
       id: flux-to-luma
-      source: 'flux_poster'
+      source: flux_poster
       sourceHandle: source
-      target: 'luma_promo_video'
+      target: luma_promo_video
       targetHandle: target
       type: custom
       zIndex: 0
@@ -70,9 +79,9 @@ workflow:
         sourceType: tool
         targetType: tool
       id: luma-to-suno
-      source: 'luma_promo_video'
+      source: luma_promo_video
       sourceHandle: source
-      target: 'suno_bgm'
+      target: suno_bgm
       targetHandle: target
       type: custom
       zIndex: 0
@@ -82,9 +91,9 @@ workflow:
         sourceType: tool
         targetType: llm
       id: suno-to-assembler
-      source: 'suno_bgm'
+      source: suno_bgm
       sourceHandle: source
-      target: 'assembler_llm'
+      target: assembler_llm
       targetHandle: target
       type: custom
       zIndex: 0
@@ -94,9 +103,9 @@ workflow:
         sourceType: llm
         targetType: end
       id: assembler-to-end
-      source: 'assembler_llm'
+      source: assembler_llm
       sourceHandle: source
-      target: 'end_node'
+      target: end_node
       targetHandle: target
       type: custom
       zIndex: 0
@@ -126,7 +135,7 @@ workflow:
           type: text-input
           variable: target_audience
       height: 90
-      id: 'start_node'
+      id: start_node
       position:
         x: 30
         y: 277
@@ -139,7 +148,7 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: '营销策略规划'
+        desc: 营销策略规划
         title: 营销策略师
         type: llm
         model:
@@ -147,22 +156,33 @@ workflow:
           name: gpt-4o
           mode: chat
         prompt_template:
-          - role: system
-            text: |
-              You are a senior marketing strategist. Based on the product/event info, create a complete marketing material plan.
-              
-              Output EXACTLY:
-              POSTER_PROMPT: <detailed Flux image prompt for a marketing poster, cinematic, professional, 16:9>
-              VIDEO_PROMPT: <motion description for a promotional video based on the poster>
-              BGM_PROMPT: <music description for background music: upbeat/corporate/emotional, genre, tempo>
-              HEADLINE: <catchy headline in Chinese>
-              TAGLINE: <supporting tagline in Chinese>
-              CTA: <call-to-action in Chinese>
-          - role: user
-            text: |
-              产品名称: {{#start_node.product_name#}}
-              详细描述: {{#start_node.product_description#}}
-              目标受众: {{#start_node.target_audience#}}
+        - role: system
+          text: 'You are a senior marketing strategist. Based on the product/event info, create a complete marketing material plan.
+
+
+            Output EXACTLY:
+
+            POSTER_PROMPT: <detailed Flux image prompt for a marketing poster, cinematic, professional, 16:9>
+
+            VIDEO_PROMPT: <motion description for a promotional video based on the poster>
+
+            BGM_PROMPT: <music description for background music: upbeat/corporate/emotional, genre, tempo>
+
+            HEADLINE: <catchy headline in Chinese>
+
+            TAGLINE: <supporting tagline in Chinese>
+
+            CTA: <call-to-action in Chinese>
+
+            '
+        - role: user
+          text: '产品名称: {{#start_node.product_name#}}
+
+            详细描述: {{#start_node.product_description#}}
+
+            目标受众: {{#start_node.target_audience#}}
+
+            '
         vision:
           enabled: false
           configs:
@@ -186,7 +206,7 @@ workflow:
             multiplier: 2
             max_interval: 10000
       height: 90
-      id: 'strategist_llm'
+      id: strategist_llm
       position:
         x: 334
         y: 277
@@ -198,12 +218,11 @@ workflow:
       targetPosition: left
       type: custom
       width: 244
-    # Poster
     - data:
-        desc: 'Flux 生成宣传海报'
+        desc: Flux 生成宣传海报
         title: 宣传海报
         type: tool
-        provider_id: flux
+        provider_id: acedatacloud/flux
         provider_type: plugin
         provider_name: flux
         tool_name: flux_generate_image
@@ -218,9 +237,9 @@ workflow:
             value: flux-pro-1.1
           size:
             type: mixed
-            value: '1920x1080'
+            value: 1920x1080
       height: 90
-      id: 'flux_poster'
+      id: flux_poster
       position:
         x: 638
         y: 177
@@ -232,12 +251,11 @@ workflow:
       targetPosition: left
       type: custom
       width: 244
-    # Promo Video
     - data:
-        desc: 'Luma 图生宣传视频'
+        desc: Luma 图生宣传视频
         title: 宣传视频
         type: tool
-        provider_id: luma
+        provider_id: acedatacloud/luma
         provider_type: plugin
         provider_name: luma
         tool_name: luma_generate_video
@@ -254,7 +272,7 @@ workflow:
             type: mixed
             value: '16:9'
       height: 90
-      id: 'luma_promo_video'
+      id: luma_promo_video
       position:
         x: 638
         y: 327
@@ -266,12 +284,11 @@ workflow:
       targetPosition: left
       type: custom
       width: 244
-    # BGM
     - data:
-        desc: 'Suno 生成背景音乐'
+        desc: Suno 生成背景音乐
         title: 背景音乐
         type: tool
-        provider_id: suno
+        provider_id: acedatacloud/suno
         provider_type: plugin
         provider_name: suno
         tool_name: suno_generate_audios
@@ -291,7 +308,7 @@ workflow:
             type: mixed
             value: 'true'
       height: 90
-      id: 'suno_bgm'
+      id: suno_bgm
       position:
         x: 638
         y: 477
@@ -303,9 +320,8 @@ workflow:
       targetPosition: left
       type: custom
       width: 244
-    # Assemble
     - data:
-        desc: '整合所有营销素材'
+        desc: 整合所有营销素材
         title: 素材整合
         type: llm
         model:
@@ -313,38 +329,21 @@ workflow:
           name: gpt-4o
           mode: chat
         prompt_template:
-          - role: system
-            text: |
-              You are a marketing package assembler. Present all generated marketing materials in a professional Chinese report.
-              
-              Include:
-              ## 📢 营销素材包 - [产品名]
-              
-              ### 1. 品牌文案
-              - 主标题
-              - 副标题  
-              - 行动号召
-              
-              ### 2. 宣传海报
-              - 展示图片URL
-              
-              ### 3. 宣传视频
-              - 展示视频URL/ID
-              
-              ### 4. 背景音乐
-              - 展示音乐URL
-              
-              ### 5. 使用建议
-              - 各素材的推荐使用场景
-              
-              Extract actual URLs from the tool results.
-          - role: user
-            text: |
-              产品: {{#start_node.product_name#}}
-              策略: {{#strategist_llm.text#}}
-              海报结果: {{#flux_poster.text#}}
-              视频结果: {{#luma_promo_video.text#}}
-              音乐结果: {{#suno_bgm.text#}}
+        - role: system
+          text: "You are a marketing package assembler. Present all generated marketing materials in a professional Chinese report.\n\nInclude:\n## \U0001F4E2 营销素材包 - [产品名]\n\n### 1. 品牌文案\n- 主标题\n- 副标题\
+            \  \n- 行动号召\n\n### 2. 宣传海报\n- 展示图片URL\n\n### 3. 宣传视频\n- 展示视频URL/ID\n\n### 4. 背景音乐\n- 展示音乐URL\n\n### 5. 使用建议\n- 各素材的推荐使用场景\n\nExtract actual URLs from the tool results.\n"
+        - role: user
+          text: '产品: {{#start_node.product_name#}}
+
+            策略: {{#strategist_llm.text#}}
+
+            海报结果: {{#flux_poster.text#}}
+
+            视频结果: {{#luma_promo_video.text#}}
+
+            音乐结果: {{#suno_bgm.text#}}
+
+            '
         vision:
           enabled: false
           configs:
@@ -368,7 +367,7 @@ workflow:
             multiplier: 2
             max_interval: 10000
       height: 90
-      id: 'assembler_llm'
+      id: assembler_llm
       position:
         x: 942
         y: 327
@@ -384,7 +383,7 @@ workflow:
         desc: ''
         outputs:
         - value_selector:
-          - 'assembler_llm'
+          - assembler_llm
           - text
           value_type: string
           variable: marketing_package
@@ -392,7 +391,7 @@ workflow:
         title: 结束
         type: end
       height: 90
-      id: 'end_node'
+      id: end_node
       position:
         x: 1246
         y: 327

@@ -1,13 +1,16 @@
 app:
-  description: '输入创意描述，AI 优化提示词后用 Midjourney 生成高质量图片'
+  description: 输入创意描述，AI 优化提示词后用 Midjourney 生成高质量图片
   icon: 🎨
   icon_background: '#E4FBCC'
   mode: workflow
   name: AI 图片生成器
   use_icon_as_answer_icon: false
-dependencies: []
+dependencies:
+- type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: acedatacloud/midjourney
 kind: app
-version: 0.3.1
+version: 0.6.0
 workflow:
   conversation_variables: []
   environment_variables: []
@@ -34,9 +37,9 @@ workflow:
         sourceType: start
         targetType: llm
       id: start-to-llm
-      source: 'start_node'
+      source: start_node
       sourceHandle: source
-      target: 'prompt_optimizer'
+      target: prompt_optimizer
       targetHandle: target
       type: custom
       zIndex: 0
@@ -46,9 +49,9 @@ workflow:
         sourceType: llm
         targetType: tool
       id: llm-to-mj
-      source: 'prompt_optimizer'
+      source: prompt_optimizer
       sourceHandle: source
-      target: 'midjourney_generate'
+      target: midjourney_generate
       targetHandle: target
       type: custom
       zIndex: 0
@@ -58,9 +61,9 @@ workflow:
         sourceType: tool
         targetType: end
       id: mj-to-end
-      source: 'midjourney_generate'
+      source: midjourney_generate
       sourceHandle: source
-      target: 'end_node'
+      target: end_node
       targetHandle: target
       type: custom
       zIndex: 0
@@ -90,7 +93,7 @@ workflow:
           type: select
           variable: style
       height: 90
-      id: 'start_node'
+      id: start_node
       position:
         x: 30
         y: 227
@@ -103,7 +106,7 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: '将用户描述优化为 Midjourney 专业提示词'
+        desc: 将用户描述优化为 Midjourney 专业提示词
         title: 提示词优化
         type: llm
         model:
@@ -111,18 +114,26 @@ workflow:
           name: gpt-4o-mini
           mode: chat
         prompt_template:
-          - role: system
-            text: |
-              You are an expert Midjourney prompt engineer. Convert the user's creative description into an optimized Midjourney prompt in English. Follow these rules:
-              1. Be specific and descriptive about the scene, subjects, lighting, colors, mood
-              2. Include style keywords, camera angles, and technical terms
-              3. Add quality tags like --q 2, --s 750, --ar 16:9 as appropriate
-              4. If a style is specified, incorporate it naturally
-              5. Output ONLY the prompt text, nothing else
-          - role: user
-            text: |
-              创意描述: {{#start_node.description#}}
-              风格偏好: {{#start_node.style#}}
+        - role: system
+          text: 'You are an expert Midjourney prompt engineer. Convert the user''s creative description into an optimized Midjourney prompt in English. Follow these rules:
+
+            1. Be specific and descriptive about the scene, subjects, lighting, colors, mood
+
+            2. Include style keywords, camera angles, and technical terms
+
+            3. Add quality tags like --q 2, --s 750, --ar 16:9 as appropriate
+
+            4. If a style is specified, incorporate it naturally
+
+            5. Output ONLY the prompt text, nothing else
+
+            '
+        - role: user
+          text: '创意描述: {{#start_node.description#}}
+
+            风格偏好: {{#start_node.style#}}
+
+            '
         vision:
           enabled: false
           configs:
@@ -146,7 +157,7 @@ workflow:
             multiplier: 2
             max_interval: 10000
       height: 90
-      id: 'prompt_optimizer'
+      id: prompt_optimizer
       position:
         x: 334
         y: 227
@@ -159,10 +170,10 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: '调用 Midjourney 生成图片'
+        desc: 调用 Midjourney 生成图片
         title: Midjourney 生成
         type: tool
-        provider_id: midjourney
+        provider_id: acedatacloud/midjourney
         provider_type: plugin
         provider_name: midjourney
         tool_name: midjourney_imagine
@@ -182,7 +193,7 @@ workflow:
             type: mixed
             value: 'true'
       height: 90
-      id: 'midjourney_generate'
+      id: midjourney_generate
       position:
         x: 638
         y: 227
@@ -198,12 +209,12 @@ workflow:
         desc: ''
         outputs:
         - value_selector:
-          - 'midjourney_generate'
+          - midjourney_generate
           - data
           value_type: object
           variable: result
         - value_selector:
-          - 'prompt_optimizer'
+          - prompt_optimizer
           - text
           value_type: string
           variable: optimized_prompt
@@ -211,7 +222,7 @@ workflow:
         title: 结束
         type: end
       height: 90
-      id: 'end_node'
+      id: end_node
       position:
         x: 942
         y: 227

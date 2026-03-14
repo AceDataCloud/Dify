@@ -1,13 +1,16 @@
 app:
-  description: '输入文字描述，用 Seedream 生成高质量中国风/写实图片'
+  description: 输入文字描述，用 Seedream 生成高质量中国风/写实图片
   icon: 🖼️
   icon_background: '#D5F5F6'
   mode: workflow
   name: Seedream 图片生成
   use_icon_as_answer_icon: false
-dependencies: []
+dependencies:
+- type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: acedatacloud/seedream
 kind: app
-version: 0.3.1
+version: 0.6.0
 workflow:
   conversation_variables: []
   environment_variables: []
@@ -34,9 +37,9 @@ workflow:
         sourceType: start
         targetType: llm
       id: start-to-optimizer
-      source: 'start_node'
+      source: start_node
       sourceHandle: source
-      target: 'prompt_optimizer'
+      target: prompt_optimizer
       targetHandle: target
       type: custom
       zIndex: 0
@@ -46,9 +49,9 @@ workflow:
         sourceType: llm
         targetType: tool
       id: optimizer-to-seedream
-      source: 'prompt_optimizer'
+      source: prompt_optimizer
       sourceHandle: source
-      target: 'seedream_generate'
+      target: seedream_generate
       targetHandle: target
       type: custom
       zIndex: 0
@@ -58,9 +61,9 @@ workflow:
         sourceType: tool
         targetType: end
       id: seedream-to-end
-      source: 'seedream_generate'
+      source: seedream_generate
       sourceHandle: source
-      target: 'end_node'
+      target: end_node
       targetHandle: target
       type: custom
       zIndex: 0
@@ -87,7 +90,7 @@ workflow:
           type: select
           variable: resolution
       height: 90
-      id: 'start_node'
+      id: start_node
       position:
         x: 30
         y: 227
@@ -100,7 +103,7 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: '优化提示词'
+        desc: 优化提示词
         title: 提示词优化
         type: llm
         model:
@@ -108,11 +111,13 @@ workflow:
           name: gpt-4o-mini
           mode: chat
         prompt_template:
-          - role: system
-            text: |
-              You are an expert prompt engineer for Seedream image generation. Optimize the user's description into a detailed English prompt. Seedream excels at photorealistic, Chinese-style, and high-detail images. Include composition, lighting, mood, color palette, and style details. Output ONLY the prompt.
-          - role: user
-            text: '{{#start_node.description#}}'
+        - role: system
+          text: 'You are an expert prompt engineer for Seedream image generation. Optimize the user''s description into a detailed English prompt. Seedream excels at photorealistic, Chinese-style, and high-detail
+            images. Include composition, lighting, mood, color palette, and style details. Output ONLY the prompt.
+
+            '
+        - role: user
+          text: '{{#start_node.description#}}'
         vision:
           enabled: false
           configs:
@@ -136,7 +141,7 @@ workflow:
             multiplier: 2
             max_interval: 10000
       height: 90
-      id: 'prompt_optimizer'
+      id: prompt_optimizer
       position:
         x: 334
         y: 227
@@ -149,10 +154,10 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 'Seedream 生成图片'
+        desc: Seedream 生成图片
         title: Seedream 生成
         type: tool
-        provider_id: seedream
+        provider_id: acedatacloud/seedream
         provider_type: plugin
         provider_name: seedream
         tool_name: seedream_generate_image
@@ -166,7 +171,7 @@ workflow:
             type: mixed
             value: '{{#start_node.resolution#}}'
       height: 90
-      id: 'seedream_generate'
+      id: seedream_generate
       position:
         x: 638
         y: 227
@@ -182,12 +187,12 @@ workflow:
         desc: ''
         outputs:
         - value_selector:
-          - 'seedream_generate'
+          - seedream_generate
           - data
           value_type: object
           variable: images
         - value_selector:
-          - 'prompt_optimizer'
+          - prompt_optimizer
           - text
           value_type: string
           variable: optimized_prompt
@@ -195,7 +200,7 @@ workflow:
         title: 结束
         type: end
       height: 90
-      id: 'end_node'
+      id: end_node
       position:
         x: 942
         y: 227

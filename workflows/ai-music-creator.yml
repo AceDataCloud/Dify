@@ -1,13 +1,16 @@
 app:
-  description: '输入音乐主题或心情，AI 自动写词谱曲生成完整歌曲'
+  description: 输入音乐主题或心情，AI 自动写词谱曲生成完整歌曲
   icon: 🎵
   icon_background: '#D5F5F6'
   mode: workflow
   name: AI 音乐创作
   use_icon_as_answer_icon: false
-dependencies: []
+dependencies:
+- type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: acedatacloud/suno
 kind: app
-version: 0.3.1
+version: 0.6.0
 workflow:
   conversation_variables: []
   environment_variables: []
@@ -34,9 +37,9 @@ workflow:
         sourceType: start
         targetType: llm
       id: start-to-lyricist
-      source: 'start_node'
+      source: start_node
       sourceHandle: source
-      target: 'lyricist_llm'
+      target: lyricist_llm
       targetHandle: target
       type: custom
       zIndex: 0
@@ -46,9 +49,9 @@ workflow:
         sourceType: llm
         targetType: tool
       id: lyricist-to-suno
-      source: 'lyricist_llm'
+      source: lyricist_llm
       sourceHandle: source
-      target: 'suno_generate'
+      target: suno_generate
       targetHandle: target
       type: custom
       zIndex: 0
@@ -58,9 +61,9 @@ workflow:
         sourceType: tool
         targetType: end
       id: suno-to-end
-      source: 'suno_generate'
+      source: suno_generate
       sourceHandle: source
-      target: 'end_node'
+      target: end_node
       targetHandle: target
       type: custom
       zIndex: 0
@@ -103,7 +106,7 @@ workflow:
           type: select
           variable: language
       height: 90
-      id: 'start_node'
+      id: start_node
       position:
         x: 30
         y: 227
@@ -116,7 +119,7 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 'AI 作词 + 确定风格标签'
+        desc: AI 作词 + 确定风格标签
         title: AI 作词
         type: llm
         model:
@@ -124,23 +127,35 @@ workflow:
           name: gpt-4o-mini
           mode: chat
         prompt_template:
-          - role: system
-            text: |
-              You are a professional songwriter. Given the user's theme/mood and preferences, produce:
-              1. A song title (short, catchy)
-              2. A style tag string for Suno (comma-separated: genre, mood, instruments, tempo)
-              3. Full lyrics in the requested language (default Chinese) using Suno metatags like [Verse], [Chorus], [Bridge], [Outro]
-              
-              Output in this EXACT format (no extra text):
-              TITLE: <title>
-              STYLE: <style tags>
-              LYRICS:
-              <lyrics with metatags>
-          - role: user
-            text: |
-              主题: {{#start_node.theme#}}
-              风格: {{#start_node.genre#}}
-              语言: {{#start_node.language#}}
+        - role: system
+          text: 'You are a professional songwriter. Given the user''s theme/mood and preferences, produce:
+
+            1. A song title (short, catchy)
+
+            2. A style tag string for Suno (comma-separated: genre, mood, instruments, tempo)
+
+            3. Full lyrics in the requested language (default Chinese) using Suno metatags like [Verse], [Chorus], [Bridge], [Outro]
+
+
+            Output in this EXACT format (no extra text):
+
+            TITLE: <title>
+
+            STYLE: <style tags>
+
+            LYRICS:
+
+            <lyrics with metatags>
+
+            '
+        - role: user
+          text: '主题: {{#start_node.theme#}}
+
+            风格: {{#start_node.genre#}}
+
+            语言: {{#start_node.language#}}
+
+            '
         vision:
           enabled: false
           configs:
@@ -164,7 +179,7 @@ workflow:
             multiplier: 2
             max_interval: 10000
       height: 90
-      id: 'lyricist_llm'
+      id: lyricist_llm
       position:
         x: 334
         y: 227
@@ -177,10 +192,10 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: '调用 Suno 生成音乐'
+        desc: 调用 Suno 生成音乐
         title: Suno 生成
         type: tool
-        provider_id: suno
+        provider_id: acedatacloud/suno
         provider_type: plugin
         provider_name: suno
         tool_name: suno_generate_audios
@@ -200,7 +215,7 @@ workflow:
             type: mixed
             value: '{{#start_node.theme#}}'
       height: 90
-      id: 'suno_generate'
+      id: suno_generate
       position:
         x: 638
         y: 227
@@ -216,12 +231,12 @@ workflow:
         desc: ''
         outputs:
         - value_selector:
-          - 'suno_generate'
+          - suno_generate
           - data
           value_type: object
           variable: songs
         - value_selector:
-          - 'lyricist_llm'
+          - lyricist_llm
           - text
           value_type: string
           variable: lyrics_and_style
@@ -229,7 +244,7 @@ workflow:
         title: 结束
         type: end
       height: 90
-      id: 'end_node'
+      id: end_node
       position:
         x: 942
         y: 227

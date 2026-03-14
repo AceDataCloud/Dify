@@ -1,13 +1,25 @@
 app:
-  description: '输入描述让 AI 同时用 Flux、Midjourney、Seedream、NanoBanana 四大引擎生图，对比选择最佳效果'
+  description: 输入描述让 AI 同时用 Flux、Midjourney、Seedream、NanoBanana 四大引擎生图，对比选择最佳效果
   icon: 🏆
   icon_background: '#D5F5F6'
   mode: workflow
   name: 四引擎图片PK
   use_icon_as_answer_icon: false
-dependencies: []
+dependencies:
+- type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: acedatacloud/flux
+- type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: acedatacloud/midjourney
+- type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: acedatacloud/nano-banana
+- type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: acedatacloud/seedream
 kind: app
-version: 0.3.1
+version: 0.6.0
 workflow:
   conversation_variables: []
   environment_variables: []
@@ -34,9 +46,9 @@ workflow:
         sourceType: start
         targetType: llm
       id: start-to-optimizer
-      source: 'start_node'
+      source: start_node
       sourceHandle: source
-      target: 'prompt_optimizer'
+      target: prompt_optimizer
       targetHandle: target
       type: custom
       zIndex: 0
@@ -46,9 +58,9 @@ workflow:
         sourceType: llm
         targetType: tool
       id: optimizer-to-flux
-      source: 'prompt_optimizer'
+      source: prompt_optimizer
       sourceHandle: source
-      target: 'flux_gen'
+      target: flux_gen
       targetHandle: target
       type: custom
       zIndex: 0
@@ -58,9 +70,9 @@ workflow:
         sourceType: tool
         targetType: tool
       id: flux-to-mj
-      source: 'flux_gen'
+      source: flux_gen
       sourceHandle: source
-      target: 'mj_gen'
+      target: mj_gen
       targetHandle: target
       type: custom
       zIndex: 0
@@ -70,9 +82,9 @@ workflow:
         sourceType: tool
         targetType: tool
       id: mj-to-seedream
-      source: 'mj_gen'
+      source: mj_gen
       sourceHandle: source
-      target: 'seedream_gen'
+      target: seedream_gen
       targetHandle: target
       type: custom
       zIndex: 0
@@ -82,9 +94,9 @@ workflow:
         sourceType: tool
         targetType: tool
       id: seedream-to-nano
-      source: 'seedream_gen'
+      source: seedream_gen
       sourceHandle: source
-      target: 'nano_gen'
+      target: nano_gen
       targetHandle: target
       type: custom
       zIndex: 0
@@ -94,9 +106,9 @@ workflow:
         sourceType: tool
         targetType: llm
       id: nano-to-compare
-      source: 'nano_gen'
+      source: nano_gen
       sourceHandle: source
-      target: 'compare_llm'
+      target: compare_llm
       targetHandle: target
       type: custom
       zIndex: 0
@@ -106,9 +118,9 @@ workflow:
         sourceType: llm
         targetType: end
       id: compare-to-end
-      source: 'compare_llm'
+      source: compare_llm
       sourceHandle: source
-      target: 'end_node'
+      target: end_node
       targetHandle: target
       type: custom
       zIndex: 0
@@ -126,7 +138,7 @@ workflow:
           type: text-input
           variable: description
       height: 90
-      id: 'start_node'
+      id: start_node
       position:
         x: 30
         y: 277
@@ -139,7 +151,7 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: '优化提示词'
+        desc: 优化提示词
         title: 提示词优化
         type: llm
         model:
@@ -147,11 +159,13 @@ workflow:
           name: gpt-4o-mini
           mode: chat
         prompt_template:
-          - role: system
-            text: |
-              You are a prompt engineer. Convert the description into a detailed English image generation prompt suitable for multiple AI engines. Be specific about subject, composition, lighting, style, colors, mood. Output ONLY the prompt.
-          - role: user
-            text: '{{#start_node.description#}}'
+        - role: system
+          text: 'You are a prompt engineer. Convert the description into a detailed English image generation prompt suitable for multiple AI engines. Be specific about subject, composition, lighting, style,
+            colors, mood. Output ONLY the prompt.
+
+            '
+        - role: user
+          text: '{{#start_node.description#}}'
         vision:
           enabled: false
           configs:
@@ -175,7 +189,7 @@ workflow:
             multiplier: 2
             max_interval: 10000
       height: 90
-      id: 'prompt_optimizer'
+      id: prompt_optimizer
       position:
         x: 334
         y: 277
@@ -188,10 +202,10 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 'Flux Pro 1.1'
+        desc: Flux Pro 1.1
         title: Flux
         type: tool
-        provider_id: flux
+        provider_id: acedatacloud/flux
         provider_type: plugin
         provider_name: flux
         tool_name: flux_generate_image
@@ -205,7 +219,7 @@ workflow:
             type: mixed
             value: flux-pro-1.1
       height: 90
-      id: 'flux_gen'
+      id: flux_gen
       position:
         x: 638
         y: 127
@@ -218,10 +232,10 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 'Midjourney'
+        desc: Midjourney
         title: Midjourney
         type: tool
-        provider_id: midjourney
+        provider_id: acedatacloud/midjourney
         provider_type: plugin
         provider_name: midjourney
         tool_name: midjourney_imagine
@@ -238,7 +252,7 @@ workflow:
             type: mixed
             value: 'true'
       height: 90
-      id: 'mj_gen'
+      id: mj_gen
       position:
         x: 638
         y: 227
@@ -251,10 +265,10 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 'Seedream'
+        desc: Seedream
         title: Seedream
         type: tool
-        provider_id: seedream
+        provider_id: acedatacloud/seedream
         provider_type: plugin
         provider_name: seedream
         tool_name: seedream_generate_image
@@ -266,9 +280,9 @@ workflow:
             value: '{{#prompt_optimizer.text#}}'
           size:
             type: mixed
-            value: '2K'
+            value: 2K
       height: 90
-      id: 'seedream_gen'
+      id: seedream_gen
       position:
         x: 638
         y: 327
@@ -281,10 +295,10 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 'NanoBanana'
+        desc: NanoBanana
         title: NanoBanana
         type: tool
-        provider_id: nano-banana
+        provider_id: acedatacloud/nano-banana
         provider_type: plugin
         provider_name: nano-banana
         tool_name: nano_banana_generate_image
@@ -298,7 +312,7 @@ workflow:
             type: mixed
             value: '16:9'
       height: 90
-      id: 'nano_gen'
+      id: nano_gen
       position:
         x: 638
         y: 427
@@ -311,7 +325,7 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: '对比四个引擎结果'
+        desc: 对比四个引擎结果
         title: 效果对比
         type: llm
         model:
@@ -319,19 +333,28 @@ workflow:
           name: gpt-4o-mini
           mode: chat
         prompt_template:
-          - role: system
-            text: |
-              Present a comparison of 4 AI image generation engines in Chinese markdown.
-              For each engine, extract the image URL from the result and display it.
-              Create a comparison table with columns: Engine | Image | Strengths | Style.
-              Give a final recommendation based on the results.
-          - role: user
-            text: |
-              提示词: {{#prompt_optimizer.text#}}
-              Flux 结果: {{#flux_gen.text#}}
-              Midjourney 结果: {{#mj_gen.text#}}
-              Seedream 结果: {{#seedream_gen.text#}}
-              NanoBanana 结果: {{#nano_gen.text#}}
+        - role: system
+          text: 'Present a comparison of 4 AI image generation engines in Chinese markdown.
+
+            For each engine, extract the image URL from the result and display it.
+
+            Create a comparison table with columns: Engine | Image | Strengths | Style.
+
+            Give a final recommendation based on the results.
+
+            '
+        - role: user
+          text: '提示词: {{#prompt_optimizer.text#}}
+
+            Flux 结果: {{#flux_gen.text#}}
+
+            Midjourney 结果: {{#mj_gen.text#}}
+
+            Seedream 结果: {{#seedream_gen.text#}}
+
+            NanoBanana 结果: {{#nano_gen.text#}}
+
+            '
         vision:
           enabled: false
           configs:
@@ -355,7 +378,7 @@ workflow:
             multiplier: 2
             max_interval: 10000
       height: 90
-      id: 'compare_llm'
+      id: compare_llm
       position:
         x: 942
         y: 277
@@ -371,7 +394,7 @@ workflow:
         desc: ''
         outputs:
         - value_selector:
-          - 'compare_llm'
+          - compare_llm
           - text
           value_type: string
           variable: comparison
@@ -379,7 +402,7 @@ workflow:
         title: 结束
         type: end
       height: 90
-      id: 'end_node'
+      id: end_node
       position:
         x: 1246
         y: 277

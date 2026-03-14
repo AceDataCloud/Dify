@@ -1,13 +1,16 @@
 app:
-  description: '输入品牌名称和描述，AI 设计多种 Logo 方案'
+  description: 输入品牌名称和描述，AI 设计多种 Logo 方案
   icon: ✏️
   icon_background: '#E8D0FF'
   mode: workflow
   name: AI Logo 设计师
   use_icon_as_answer_icon: false
-dependencies: []
+dependencies:
+- type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: acedatacloud/flux
 kind: app
-version: 0.3.1
+version: 0.6.0
 workflow:
   conversation_variables: []
   environment_variables: []
@@ -34,9 +37,9 @@ workflow:
         sourceType: start
         targetType: llm
       id: start-to-designer
-      source: 'start_node'
+      source: start_node
       sourceHandle: source
-      target: 'designer_llm'
+      target: designer_llm
       targetHandle: target
       type: custom
       zIndex: 0
@@ -46,9 +49,9 @@ workflow:
         sourceType: llm
         targetType: tool
       id: designer-to-flux1
-      source: 'designer_llm'
+      source: designer_llm
       sourceHandle: source
-      target: 'flux_logo1'
+      target: flux_logo1
       targetHandle: target
       type: custom
       zIndex: 0
@@ -58,9 +61,9 @@ workflow:
         sourceType: tool
         targetType: tool
       id: flux1-to-flux2
-      source: 'flux_logo1'
+      source: flux_logo1
       sourceHandle: source
-      target: 'flux_logo2'
+      target: flux_logo2
       targetHandle: target
       type: custom
       zIndex: 0
@@ -70,9 +73,9 @@ workflow:
         sourceType: tool
         targetType: tool
       id: flux2-to-flux3
-      source: 'flux_logo2'
+      source: flux_logo2
       sourceHandle: source
-      target: 'flux_logo3'
+      target: flux_logo3
       targetHandle: target
       type: custom
       zIndex: 0
@@ -82,9 +85,9 @@ workflow:
         sourceType: tool
         targetType: llm
       id: flux3-to-summary
-      source: 'flux_logo3'
+      source: flux_logo3
       sourceHandle: source
-      target: 'summary_llm'
+      target: summary_llm
       targetHandle: target
       type: custom
       zIndex: 0
@@ -94,9 +97,9 @@ workflow:
         sourceType: llm
         targetType: end
       id: summary-to-end
-      source: 'summary_llm'
+      source: summary_llm
       sourceHandle: source
-      target: 'end_node'
+      target: end_node
       targetHandle: target
       type: custom
       zIndex: 0
@@ -131,7 +134,7 @@ workflow:
           type: select
           variable: style_preference
       height: 90
-      id: 'start_node'
+      id: start_node
       position:
         x: 30
         y: 227
@@ -144,7 +147,7 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: '生成3种不同风格的 Logo 提示词'
+        desc: 生成3种不同风格的 Logo 提示词
         title: Logo 设计师
         type: llm
         model:
@@ -152,28 +155,43 @@ workflow:
           name: gpt-4o
           mode: chat
         prompt_template:
-          - role: system
-            text: |
-              You are a professional logo designer. Given a brand name and description, create 3 different logo design prompts optimized for AI image generation.
-              
-              Each prompt should create a distinct style while maintaining brand relevance. Include:
-              - Clean vector-style logo design
-              - White or transparent background
-              - Specific color scheme
-              - Typography style hint
-              - Design element descriptions
-              
-              Output EXACTLY in this format:
-              LOGO1: <prompt for minimalist/modern style>
-              LOGO2: <prompt for iconic/symbolic style>
-              LOGO3: <prompt for creative/artistic style>
-              
-              Style preference to incorporate: the user's chosen style
-          - role: user
-            text: |
-              品牌名称: {{#start_node.brand_name#}}
-              品牌描述: {{#start_node.brand_description#}}
-              风格偏好: {{#start_node.style_preference#}}
+        - role: system
+          text: 'You are a professional logo designer. Given a brand name and description, create 3 different logo design prompts optimized for AI image generation.
+
+
+            Each prompt should create a distinct style while maintaining brand relevance. Include:
+
+            - Clean vector-style logo design
+
+            - White or transparent background
+
+            - Specific color scheme
+
+            - Typography style hint
+
+            - Design element descriptions
+
+
+            Output EXACTLY in this format:
+
+            LOGO1: <prompt for minimalist/modern style>
+
+            LOGO2: <prompt for iconic/symbolic style>
+
+            LOGO3: <prompt for creative/artistic style>
+
+
+            Style preference to incorporate: the user''s chosen style
+
+            '
+        - role: user
+          text: '品牌名称: {{#start_node.brand_name#}}
+
+            品牌描述: {{#start_node.brand_description#}}
+
+            风格偏好: {{#start_node.style_preference#}}
+
+            '
         vision:
           enabled: false
           configs:
@@ -197,7 +215,7 @@ workflow:
             multiplier: 2
             max_interval: 10000
       height: 90
-      id: 'designer_llm'
+      id: designer_llm
       position:
         x: 334
         y: 227
@@ -213,7 +231,7 @@ workflow:
         desc: '方案1: 简约现代'
         title: Logo 方案1
         type: tool
-        provider_id: flux
+        provider_id: acedatacloud/flux
         provider_type: plugin
         provider_name: flux
         tool_name: flux_generate_image
@@ -228,9 +246,9 @@ workflow:
             value: flux-pro-1.1
           size:
             type: mixed
-            value: '1024x1024'
+            value: 1024x1024
       height: 90
-      id: 'flux_logo1'
+      id: flux_logo1
       position:
         x: 638
         y: 127
@@ -246,7 +264,7 @@ workflow:
         desc: '方案2: 图标风格'
         title: Logo 方案2
         type: tool
-        provider_id: flux
+        provider_id: acedatacloud/flux
         provider_type: plugin
         provider_name: flux
         tool_name: flux_generate_image
@@ -261,9 +279,9 @@ workflow:
             value: flux-pro-1.1
           size:
             type: mixed
-            value: '1024x1024'
+            value: 1024x1024
       height: 90
-      id: 'flux_logo2'
+      id: flux_logo2
       position:
         x: 638
         y: 277
@@ -279,7 +297,7 @@ workflow:
         desc: '方案3: 创意艺术'
         title: Logo 方案3
         type: tool
-        provider_id: flux
+        provider_id: acedatacloud/flux
         provider_type: plugin
         provider_name: flux
         tool_name: flux_generate_image
@@ -294,9 +312,9 @@ workflow:
             value: flux-pro-1.1
           size:
             type: mixed
-            value: '1024x1024'
+            value: 1024x1024
       height: 90
-      id: 'flux_logo3'
+      id: flux_logo3
       position:
         x: 638
         y: 427
@@ -309,7 +327,7 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: '汇总3个方案'
+        desc: 汇总3个方案
         title: 方案汇总
         type: llm
         model:
@@ -317,20 +335,30 @@ workflow:
           name: gpt-4o-mini
           mode: chat
         prompt_template:
-          - role: system
-            text: |
-              Present the 3 logo design results in a clean markdown format. For each:
-              1. Show the logo image (extract image_url from the tool result)
-              2. Describe the design concept
-              3. Suggest use cases (business card, website, app icon, etc.)
-              Write in Chinese.
-          - role: user
-            text: |
-              品牌: {{#start_node.brand_name#}}
-              设计提示词: {{#designer_llm.text#}}
-              方案1结果: {{#flux_logo1.text#}}
-              方案2结果: {{#flux_logo2.text#}}
-              方案3结果: {{#flux_logo3.text#}}
+        - role: system
+          text: 'Present the 3 logo design results in a clean markdown format. For each:
+
+            1. Show the logo image (extract image_url from the tool result)
+
+            2. Describe the design concept
+
+            3. Suggest use cases (business card, website, app icon, etc.)
+
+            Write in Chinese.
+
+            '
+        - role: user
+          text: '品牌: {{#start_node.brand_name#}}
+
+            设计提示词: {{#designer_llm.text#}}
+
+            方案1结果: {{#flux_logo1.text#}}
+
+            方案2结果: {{#flux_logo2.text#}}
+
+            方案3结果: {{#flux_logo3.text#}}
+
+            '
         vision:
           enabled: false
           configs:
@@ -354,7 +382,7 @@ workflow:
             multiplier: 2
             max_interval: 10000
       height: 90
-      id: 'summary_llm'
+      id: summary_llm
       position:
         x: 942
         y: 277
@@ -370,7 +398,7 @@ workflow:
         desc: ''
         outputs:
         - value_selector:
-          - 'summary_llm'
+          - summary_llm
           - text
           value_type: string
           variable: design_report
@@ -378,7 +406,7 @@ workflow:
         title: 结束
         type: end
       height: 90
-      id: 'end_node'
+      id: end_node
       position:
         x: 1246
         y: 277

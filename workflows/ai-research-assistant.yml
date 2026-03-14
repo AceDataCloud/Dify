@@ -1,13 +1,16 @@
 app:
-  description: '输入问题或主题，AI 自动搜索全网信息并整理成专业研究报告'
+  description: 输入问题或主题，AI 自动搜索全网信息并整理成专业研究报告
   icon: 🔍
   icon_background: '#FBE8FF'
   mode: workflow
   name: AI 深度研究助手
   use_icon_as_answer_icon: false
-dependencies: []
+dependencies:
+- type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: acedatacloud/serp
 kind: app
-version: 0.3.1
+version: 0.6.0
 workflow:
   conversation_variables: []
   environment_variables: []
@@ -34,9 +37,9 @@ workflow:
         sourceType: start
         targetType: llm
       id: start-to-query-optimizer
-      source: 'start_node'
+      source: start_node
       sourceHandle: source
-      target: 'query_optimizer'
+      target: query_optimizer
       targetHandle: target
       type: custom
       zIndex: 0
@@ -46,9 +49,9 @@ workflow:
         sourceType: llm
         targetType: tool
       id: optimizer-to-serp
-      source: 'query_optimizer'
+      source: query_optimizer
       sourceHandle: source
-      target: 'serp_search'
+      target: serp_search
       targetHandle: target
       type: custom
       zIndex: 0
@@ -58,9 +61,9 @@ workflow:
         sourceType: tool
         targetType: tool
       id: serp-to-news
-      source: 'serp_search'
+      source: serp_search
       sourceHandle: source
-      target: 'serp_news'
+      target: serp_news
       targetHandle: target
       type: custom
       zIndex: 0
@@ -70,9 +73,9 @@ workflow:
         sourceType: tool
         targetType: llm
       id: news-to-analyzer
-      source: 'serp_news'
+      source: serp_news
       sourceHandle: source
-      target: 'report_generator'
+      target: report_generator
       targetHandle: target
       type: custom
       zIndex: 0
@@ -82,9 +85,9 @@ workflow:
         sourceType: llm
         targetType: end
       id: analyzer-to-end
-      source: 'report_generator'
+      source: report_generator
       sourceHandle: source
-      target: 'end_node'
+      target: end_node
       targetHandle: target
       type: custom
       zIndex: 0
@@ -110,7 +113,7 @@ workflow:
           type: select
           variable: output_language
       height: 90
-      id: 'start_node'
+      id: start_node
       position:
         x: 30
         y: 227
@@ -123,7 +126,7 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: '将用户问题转化为最佳搜索关键词'
+        desc: 将用户问题转化为最佳搜索关键词
         title: 搜索词优化
         type: llm
         model:
@@ -131,11 +134,13 @@ workflow:
           name: gpt-4o-mini
           mode: chat
         prompt_template:
-          - role: system
-            text: |
-              You are a search query optimizer. Given a research topic, generate the single best Google search query in English to find comprehensive, authoritative information. Output ONLY the search query, nothing else.
-          - role: user
-            text: '{{#start_node.topic#}}'
+        - role: system
+          text: 'You are a search query optimizer. Given a research topic, generate the single best Google search query in English to find comprehensive, authoritative information. Output ONLY the search
+            query, nothing else.
+
+            '
+        - role: user
+          text: '{{#start_node.topic#}}'
         vision:
           enabled: false
           configs:
@@ -159,7 +164,7 @@ workflow:
             multiplier: 2
             max_interval: 10000
       height: 90
-      id: 'query_optimizer'
+      id: query_optimizer
       position:
         x: 334
         y: 227
@@ -172,10 +177,10 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 'Google 网页搜索'
+        desc: Google 网页搜索
         title: 网页搜索
         type: tool
-        provider_id: serp
+        provider_id: acedatacloud/serp
         provider_type: plugin
         provider_name: serp
         tool_name: serp_google
@@ -192,7 +197,7 @@ workflow:
             type: mixed
             value: '10'
       height: 90
-      id: 'serp_search'
+      id: serp_search
       position:
         x: 638
         y: 127
@@ -205,10 +210,10 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: 'Google 新闻搜索'
+        desc: Google 新闻搜索
         title: 新闻搜索
         type: tool
-        provider_id: serp
+        provider_id: acedatacloud/serp
         provider_type: plugin
         provider_name: serp
         tool_name: serp_google
@@ -225,7 +230,7 @@ workflow:
             type: mixed
             value: '5'
       height: 90
-      id: 'serp_news'
+      id: serp_news
       position:
         x: 638
         y: 327
@@ -238,7 +243,7 @@ workflow:
       type: custom
       width: 244
     - data:
-        desc: '综合搜索结果生成研究报告'
+        desc: 综合搜索结果生成研究报告
         title: 报告生成
         type: llm
         model:
@@ -246,27 +251,41 @@ workflow:
           name: gpt-4o
           mode: chat
         prompt_template:
-          - role: system
-            text: |
-              You are a senior research analyst. Based on the web search results and news provided, write a comprehensive research report. The report should include:
-              1. Executive Summary
-              2. Key Findings (with sources cited)
-              3. Detailed Analysis
-              4. Recent News & Developments
-              5. Conclusion
-              
-              Use markdown formatting. Cite sources with [Source Title](URL).
-              Write in the language specified by the user (default: Chinese).
-          - role: user
-            text: |
-              研究主题: {{#start_node.topic#}}
-              输出语言: {{#start_node.output_language#}}
-              
-              --- 网页搜索结果 ---
-              {{#serp_search.text#}}
-              
-              --- 新闻搜索结果 ---
-              {{#serp_news.text#}}
+        - role: system
+          text: 'You are a senior research analyst. Based on the web search results and news provided, write a comprehensive research report. The report should include:
+
+            1. Executive Summary
+
+            2. Key Findings (with sources cited)
+
+            3. Detailed Analysis
+
+            4. Recent News & Developments
+
+            5. Conclusion
+
+
+            Use markdown formatting. Cite sources with [Source Title](URL).
+
+            Write in the language specified by the user (default: Chinese).
+
+            '
+        - role: user
+          text: '研究主题: {{#start_node.topic#}}
+
+            输出语言: {{#start_node.output_language#}}
+
+
+            --- 网页搜索结果 ---
+
+            {{#serp_search.text#}}
+
+
+            --- 新闻搜索结果 ---
+
+            {{#serp_news.text#}}
+
+            '
         vision:
           enabled: false
           configs:
@@ -290,7 +309,7 @@ workflow:
             multiplier: 2
             max_interval: 10000
       height: 90
-      id: 'report_generator'
+      id: report_generator
       position:
         x: 942
         y: 227
@@ -306,7 +325,7 @@ workflow:
         desc: ''
         outputs:
         - value_selector:
-          - 'report_generator'
+          - report_generator
           - text
           value_type: string
           variable: report
@@ -314,7 +333,7 @@ workflow:
         title: 结束
         type: end
       height: 90
-      id: 'end_node'
+      id: end_node
       position:
         x: 1246
         y: 227
