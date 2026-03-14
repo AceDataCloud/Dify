@@ -1,0 +1,332 @@
+app:
+  description: '输入问题或主题，AI 自动搜索全网信息并整理成专业研究报告'
+  icon: 🔍
+  icon_background: '#FBE8FF'
+  mode: workflow
+  name: AI 深度研究助手
+  use_icon_as_answer_icon: false
+dependencies: []
+kind: app
+version: 0.3.1
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      enabled: false
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: start-to-query-optimizer
+      source: 'start_node'
+      sourceHandle: source
+      target: 'query_optimizer'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: tool
+      id: optimizer-to-serp
+      source: 'query_optimizer'
+      sourceHandle: source
+      target: 'serp_search'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: tool
+      id: serp-to-news
+      source: 'serp_search'
+      sourceHandle: source
+      target: 'serp_news'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: llm
+      id: news-to-analyzer
+      source: 'serp_news'
+      sourceHandle: source
+      target: 'report_generator'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: end
+      id: analyzer-to-end
+      source: 'report_generator'
+      sourceHandle: source
+      target: 'end_node'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 研究主题
+          max_length: 500
+          options: []
+          required: true
+          type: text-input
+          variable: topic
+        - label: 语言
+          max_length: 50
+          options:
+          - 中文
+          - English
+          required: false
+          type: select
+          variable: output_language
+      height: 90
+      id: 'start_node'
+      position:
+        x: 30
+        y: 227
+      positionAbsolute:
+        x: 30
+        y: 227
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: '将用户问题转化为最佳搜索关键词'
+        title: 搜索词优化
+        type: llm
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+        prompt_template:
+          - role: system
+            text: |
+              You are a search query optimizer. Given a research topic, generate the single best Google search query in English to find comprehensive, authoritative information. Output ONLY the search query, nothing else.
+          - role: user
+            text: '{{#start_node.topic#}}'
+        vision:
+          enabled: false
+          configs:
+            variable_selector: []
+        memory:
+          enabled: false
+          window:
+            enabled: false
+            size: 50
+        context:
+          enabled: false
+          variable_selector: []
+        structured_output:
+          enabled: false
+        retry_config:
+          enabled: false
+          max_retries: 1
+          retry_interval: 1000
+          exponential_backoff:
+            enabled: false
+            multiplier: 2
+            max_interval: 10000
+      height: 90
+      id: 'query_optimizer'
+      position:
+        x: 334
+        y: 227
+      positionAbsolute:
+        x: 334
+        y: 227
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: 'Google 网页搜索'
+        title: 网页搜索
+        type: tool
+        provider_id: serp
+        provider_type: plugin
+        provider_name: serp
+        tool_name: serp_google
+        tool_label: Google Search
+        tool_configurations: {}
+        tool_parameters:
+          query:
+            type: mixed
+            value: '{{#query_optimizer.text#}}'
+          type:
+            type: mixed
+            value: search
+          number:
+            type: mixed
+            value: '10'
+      height: 90
+      id: 'serp_search'
+      position:
+        x: 638
+        y: 127
+      positionAbsolute:
+        x: 638
+        y: 127
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: 'Google 新闻搜索'
+        title: 新闻搜索
+        type: tool
+        provider_id: serp
+        provider_type: plugin
+        provider_name: serp
+        tool_name: serp_google
+        tool_label: Google Search
+        tool_configurations: {}
+        tool_parameters:
+          query:
+            type: mixed
+            value: '{{#query_optimizer.text#}}'
+          type:
+            type: mixed
+            value: news
+          number:
+            type: mixed
+            value: '5'
+      height: 90
+      id: 'serp_news'
+      position:
+        x: 638
+        y: 327
+      positionAbsolute:
+        x: 638
+        y: 327
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: '综合搜索结果生成研究报告'
+        title: 报告生成
+        type: llm
+        model:
+          provider: openai
+          name: gpt-4o
+          mode: chat
+        prompt_template:
+          - role: system
+            text: |
+              You are a senior research analyst. Based on the web search results and news provided, write a comprehensive research report. The report should include:
+              1. Executive Summary
+              2. Key Findings (with sources cited)
+              3. Detailed Analysis
+              4. Recent News & Developments
+              5. Conclusion
+              
+              Use markdown formatting. Cite sources with [Source Title](URL).
+              Write in the language specified by the user (default: Chinese).
+          - role: user
+            text: |
+              研究主题: {{#start_node.topic#}}
+              输出语言: {{#start_node.output_language#}}
+              
+              --- 网页搜索结果 ---
+              {{#serp_search.text#}}
+              
+              --- 新闻搜索结果 ---
+              {{#serp_news.text#}}
+        vision:
+          enabled: false
+          configs:
+            variable_selector: []
+        memory:
+          enabled: false
+          window:
+            enabled: false
+            size: 50
+        context:
+          enabled: false
+          variable_selector: []
+        structured_output:
+          enabled: false
+        retry_config:
+          enabled: false
+          max_retries: 1
+          retry_interval: 1000
+          exponential_backoff:
+            enabled: false
+            multiplier: 2
+            max_interval: 10000
+      height: 90
+      id: 'report_generator'
+      position:
+        x: 942
+        y: 227
+      positionAbsolute:
+        x: 942
+        y: 227
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - 'report_generator'
+          - text
+          value_type: string
+          variable: report
+        selected: false
+        title: 结束
+        type: end
+      height: 90
+      id: 'end_node'
+      position:
+        x: 1246
+        y: 227
+      positionAbsolute:
+        x: 1246
+        y: 227
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7

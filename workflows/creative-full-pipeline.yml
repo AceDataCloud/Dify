@@ -1,0 +1,352 @@
+app:
+  description: '输入一个创意概念，AI 同时生成配图、配乐和文案，一站式内容创作'
+  icon: 🚀
+  icon_background: '#FFF3CD'
+  mode: workflow
+  name: 全能创意工坊
+  use_icon_as_answer_icon: false
+dependencies: []
+kind: app
+version: 0.3.1
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      enabled: false
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: start-to-planner
+      source: 'start_node'
+      sourceHandle: source
+      target: 'creative_planner'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: tool
+      id: planner-to-mj
+      source: 'creative_planner'
+      sourceHandle: source
+      target: 'midjourney_image'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: tool
+      id: mj-to-suno
+      source: 'midjourney_image'
+      sourceHandle: source
+      target: 'suno_music'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: llm
+      id: suno-to-copywriter
+      source: 'suno_music'
+      sourceHandle: source
+      target: 'copywriter_llm'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: end
+      id: copywriter-to-end
+      source: 'copywriter_llm'
+      sourceHandle: source
+      target: 'end_node'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 创意概念
+          max_length: 2000
+          options: []
+          required: true
+          type: text-input
+          variable: concept
+        - label: 用途
+          max_length: 200
+          options:
+          - 社交媒体推广
+          - 品牌宣传
+          - 产品发布
+          - 活动海报
+          - 个人创作
+          required: false
+          type: select
+          variable: purpose
+      height: 90
+      id: 'start_node'
+      position:
+        x: 30
+        y: 227
+      positionAbsolute:
+        x: 30
+        y: 227
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: '规划图片提示词、音乐风格和文案方向'
+        title: 创意总监
+        type: llm
+        model:
+          provider: openai
+          name: gpt-4o
+          mode: chat
+        prompt_template:
+          - role: system
+            text: |
+              You are a creative director. Given a concept and purpose, plan three creative outputs:
+              
+              1. IMAGE: A Midjourney image prompt (English, detailed, include style, composition, lighting)
+              2. MUSIC: A music description for Suno (genre, mood, tempo, instruments)
+              3. COPY_DIRECTION: Brief direction for the copywriter (tone, key messages, CTA)
+              
+              Output EXACTLY:
+              IMAGE_PROMPT: <midjourney prompt>
+              MUSIC_PROMPT: <suno music description>
+              MUSIC_STYLE: <comma-separated style tags for Suno>
+              COPY_DIRECTION: <copywriting direction>
+          - role: user
+            text: |
+              创意概念: {{#start_node.concept#}}
+              用途: {{#start_node.purpose#}}
+        vision:
+          enabled: false
+          configs:
+            variable_selector: []
+        memory:
+          enabled: false
+          window:
+            enabled: false
+            size: 50
+        context:
+          enabled: false
+          variable_selector: []
+        structured_output:
+          enabled: false
+        retry_config:
+          enabled: false
+          max_retries: 1
+          retry_interval: 1000
+          exponential_backoff:
+            enabled: false
+            multiplier: 2
+            max_interval: 10000
+      height: 90
+      id: 'creative_planner'
+      position:
+        x: 334
+        y: 227
+      positionAbsolute:
+        x: 334
+        y: 227
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: 'Midjourney 生成配图'
+        title: 配图生成
+        type: tool
+        provider_id: midjourney
+        provider_type: plugin
+        provider_name: midjourney
+        tool_name: midjourney_imagine
+        tool_label: Midjourney Imagine
+        tool_configurations: {}
+        tool_parameters:
+          prompt:
+            type: mixed
+            value: '{{#creative_planner.text#}}'
+          mode:
+            type: mixed
+            value: fast
+          translation:
+            type: mixed
+            value: 'false'
+          split_images:
+            type: mixed
+            value: 'true'
+      height: 90
+      id: 'midjourney_image'
+      position:
+        x: 638
+        y: 127
+      positionAbsolute:
+        x: 638
+        y: 127
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: 'Suno 生成配乐'
+        title: 配乐生成
+        type: tool
+        provider_id: suno
+        provider_type: plugin
+        provider_name: suno
+        tool_name: suno_generate_audios
+        tool_label: Suno Generate Audios
+        tool_configurations: {}
+        tool_parameters:
+          action:
+            type: mixed
+            value: generate
+          prompt:
+            type: mixed
+            value: '{{#creative_planner.text#}}'
+          custom:
+            type: mixed
+            value: 'false'
+      height: 90
+      id: 'suno_music'
+      position:
+        x: 638
+        y: 327
+      positionAbsolute:
+        x: 638
+        y: 327
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: '根据配图和配乐生成文案'
+        title: 文案写手
+        type: llm
+        model:
+          provider: openai
+          name: gpt-4o
+          mode: chat
+        prompt_template:
+          - role: system
+            text: |
+              You are an expert copywriter. Based on the creative concept, generated image, and music, write compelling copy in Chinese.
+              
+              Produce:
+              1. **主标题** — A powerful headline (< 20 chars)
+              2. **副标题** — A supporting tagline
+              3. **正文** — 2-3 paragraphs of engaging copy
+              4. **社交媒体版本** — Short version for social media (< 140 chars)
+              5. **Hashtags** — 5 relevant hashtags
+              
+              Also present the generated assets:
+              - Image URL from Midjourney result
+              - Audio URL from Suno result
+              
+              Format everything in clean markdown.
+          - role: user
+            text: |
+              创意概念: {{#start_node.concept#}}
+              用途: {{#start_node.purpose#}}
+              创意规划: {{#creative_planner.text#}}
+              配图结果: {{#midjourney_image.text#}}
+              配乐结果: {{#suno_music.text#}}
+        vision:
+          enabled: false
+          configs:
+            variable_selector: []
+        memory:
+          enabled: false
+          window:
+            enabled: false
+            size: 50
+        context:
+          enabled: false
+          variable_selector: []
+        structured_output:
+          enabled: false
+        retry_config:
+          enabled: false
+          max_retries: 1
+          retry_interval: 1000
+          exponential_backoff:
+            enabled: false
+            multiplier: 2
+            max_interval: 10000
+      height: 90
+      id: 'copywriter_llm'
+      position:
+        x: 942
+        y: 227
+      positionAbsolute:
+        x: 942
+        y: 227
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - 'copywriter_llm'
+          - text
+          value_type: string
+          variable: creative_package
+        selected: false
+        title: 结束
+        type: end
+      height: 90
+      id: 'end_node'
+      position:
+        x: 1246
+        y: 227
+      positionAbsolute:
+        x: 1246
+        y: 227
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7

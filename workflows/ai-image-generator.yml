@@ -1,0 +1,229 @@
+app:
+  description: '输入创意描述，AI 优化提示词后用 Midjourney 生成高质量图片'
+  icon: 🎨
+  icon_background: '#E4FBCC'
+  mode: workflow
+  name: AI 图片生成器
+  use_icon_as_answer_icon: false
+dependencies: []
+kind: app
+version: 0.3.1
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      enabled: false
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: start-to-llm
+      source: 'start_node'
+      sourceHandle: source
+      target: 'prompt_optimizer'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: tool
+      id: llm-to-mj
+      source: 'prompt_optimizer'
+      sourceHandle: source
+      target: 'midjourney_generate'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: end
+      id: mj-to-end
+      source: 'midjourney_generate'
+      sourceHandle: source
+      target: 'end_node'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 创意描述
+          max_length: 2000
+          options: []
+          required: true
+          type: text-input
+          variable: description
+        - label: 风格
+          max_length: 200
+          options:
+          - 写实摄影
+          - 动漫插画
+          - 油画风格
+          - 赛博朋克
+          - 水彩风格
+          - 3D渲染
+          required: false
+          type: select
+          variable: style
+      height: 90
+      id: 'start_node'
+      position:
+        x: 30
+        y: 227
+      positionAbsolute:
+        x: 30
+        y: 227
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: '将用户描述优化为 Midjourney 专业提示词'
+        title: 提示词优化
+        type: llm
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+        prompt_template:
+          - role: system
+            text: |
+              You are an expert Midjourney prompt engineer. Convert the user's creative description into an optimized Midjourney prompt in English. Follow these rules:
+              1. Be specific and descriptive about the scene, subjects, lighting, colors, mood
+              2. Include style keywords, camera angles, and technical terms
+              3. Add quality tags like --q 2, --s 750, --ar 16:9 as appropriate
+              4. If a style is specified, incorporate it naturally
+              5. Output ONLY the prompt text, nothing else
+          - role: user
+            text: |
+              创意描述: {{#start_node.description#}}
+              风格偏好: {{#start_node.style#}}
+        vision:
+          enabled: false
+          configs:
+            variable_selector: []
+        memory:
+          enabled: false
+          window:
+            enabled: false
+            size: 50
+        context:
+          enabled: false
+          variable_selector: []
+        structured_output:
+          enabled: false
+        retry_config:
+          enabled: false
+          max_retries: 1
+          retry_interval: 1000
+          exponential_backoff:
+            enabled: false
+            multiplier: 2
+            max_interval: 10000
+      height: 90
+      id: 'prompt_optimizer'
+      position:
+        x: 334
+        y: 227
+      positionAbsolute:
+        x: 334
+        y: 227
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: '调用 Midjourney 生成图片'
+        title: Midjourney 生成
+        type: tool
+        provider_id: midjourney
+        provider_type: plugin
+        provider_name: midjourney
+        tool_name: midjourney_imagine
+        tool_label: Midjourney Imagine
+        tool_configurations: {}
+        tool_parameters:
+          prompt:
+            type: mixed
+            value: '{{#prompt_optimizer.text#}}'
+          mode:
+            type: mixed
+            value: fast
+          translation:
+            type: mixed
+            value: 'false'
+          split_images:
+            type: mixed
+            value: 'true'
+      height: 90
+      id: 'midjourney_generate'
+      position:
+        x: 638
+        y: 227
+      positionAbsolute:
+        x: 638
+        y: 227
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - 'midjourney_generate'
+          - data
+          value_type: object
+          variable: result
+        - value_selector:
+          - 'prompt_optimizer'
+          - text
+          value_type: string
+          variable: optimized_prompt
+        selected: false
+        title: 结束
+        type: end
+      height: 90
+      id: 'end_node'
+      position:
+        x: 942
+        y: 227
+      positionAbsolute:
+        x: 942
+        y: 227
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7

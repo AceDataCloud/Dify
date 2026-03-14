@@ -1,0 +1,322 @@
+app:
+  description: '提供图片URL，一键用多个引擎（Luma/Kling/Hailuo）同时生成视频，对比选择最佳效果'
+  icon: 📹
+  icon_background: '#FFE4DE'
+  mode: workflow
+  name: 图生视频对比器
+  use_icon_as_answer_icon: false
+dependencies: []
+kind: app
+version: 0.3.1
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      enabled: false
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: tool
+      id: start-to-luma
+      source: 'start_node'
+      sourceHandle: source
+      target: 'luma_video'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: tool
+      id: luma-to-kling
+      source: 'luma_video'
+      sourceHandle: source
+      target: 'kling_video'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: tool
+      id: kling-to-hailuo
+      source: 'kling_video'
+      sourceHandle: source
+      target: 'hailuo_video'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: llm
+      id: hailuo-to-compare
+      source: 'hailuo_video'
+      sourceHandle: source
+      target: 'compare_llm'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: end
+      id: compare-to-end
+      source: 'compare_llm'
+      sourceHandle: source
+      target: 'end_node'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 图片URL
+          max_length: 2000
+          options: []
+          required: true
+          type: text-input
+          variable: image_url
+        - label: 运动描述
+          max_length: 500
+          options: []
+          required: false
+          type: text-input
+          variable: motion_prompt
+      height: 90
+      id: 'start_node'
+      position:
+        x: 30
+        y: 227
+      positionAbsolute:
+        x: 30
+        y: 227
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    # Luma
+    - data:
+        desc: 'Luma Dream Machine 图生视频'
+        title: Luma 视频
+        type: tool
+        provider_id: luma
+        provider_type: plugin
+        provider_name: luma
+        tool_name: luma_generate_video
+        tool_label: Luma Generate Video
+        tool_configurations: {}
+        tool_parameters:
+          action:
+            type: mixed
+            value: generate
+          prompt:
+            type: mixed
+            value: '{{#start_node.motion_prompt#}}'
+          start_image_url:
+            type: mixed
+            value: '{{#start_node.image_url#}}'
+          aspect_ratio:
+            type: mixed
+            value: '16:9'
+      height: 90
+      id: 'luma_video'
+      position:
+        x: 334
+        y: 127
+      positionAbsolute:
+        x: 334
+        y: 127
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    # Kling
+    - data:
+        desc: 'Kling 图生视频'
+        title: Kling 视频
+        type: tool
+        provider_id: kling
+        provider_type: plugin
+        provider_name: kling
+        tool_name: kling_generate_video
+        tool_label: Kling Generate Video
+        tool_configurations: {}
+        tool_parameters:
+          action:
+            type: mixed
+            value: image2video
+          prompt:
+            type: mixed
+            value: '{{#start_node.motion_prompt#}}'
+          start_image_url:
+            type: mixed
+            value: '{{#start_node.image_url#}}'
+      height: 90
+      id: 'kling_video'
+      position:
+        x: 334
+        y: 277
+      positionAbsolute:
+        x: 334
+        y: 277
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    # Hailuo
+    - data:
+        desc: 'Hailuo 图生视频'
+        title: Hailuo 视频
+        type: tool
+        provider_id: hailuo
+        provider_type: plugin
+        provider_name: hailuo
+        tool_name: hailuo_generate_video
+        tool_label: Hailuo Generate Video
+        tool_configurations: {}
+        tool_parameters:
+          action:
+            type: mixed
+            value: generate
+          prompt:
+            type: mixed
+            value: '{{#start_node.motion_prompt#}}'
+          model:
+            type: mixed
+            value: minimax-i2v
+          first_image_url:
+            type: mixed
+            value: '{{#start_node.image_url#}}'
+      height: 90
+      id: 'hailuo_video'
+      position:
+        x: 334
+        y: 427
+      positionAbsolute:
+        x: 334
+        y: 427
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    # Compare
+    - data:
+        desc: '对比三个视频引擎的结果'
+        title: 效果对比
+        type: llm
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+        prompt_template:
+          - role: system
+            text: |
+              You are a video quality analyst. Present the results from 3 different video generation engines in a clean comparison table in Chinese.
+              
+              For each engine, extract and display:
+              - Engine name
+              - Video URL or task ID
+              - Status
+              - Any notable differences
+              
+              Format as markdown with a comparison table and recommendation.
+          - role: user
+            text: |
+              运动描述: {{#start_node.motion_prompt#}}
+              图片: {{#start_node.image_url#}}
+              
+              Luma 结果: {{#luma_video.text#}}
+              Kling 结果: {{#kling_video.text#}}
+              Hailuo 结果: {{#hailuo_video.text#}}
+        vision:
+          enabled: false
+          configs:
+            variable_selector: []
+        memory:
+          enabled: false
+          window:
+            enabled: false
+            size: 50
+        context:
+          enabled: false
+          variable_selector: []
+        structured_output:
+          enabled: false
+        retry_config:
+          enabled: false
+          max_retries: 1
+          retry_interval: 1000
+          exponential_backoff:
+            enabled: false
+            multiplier: 2
+            max_interval: 10000
+      height: 90
+      id: 'compare_llm'
+      position:
+        x: 638
+        y: 277
+      positionAbsolute:
+        x: 638
+        y: 277
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - 'compare_llm'
+          - text
+          value_type: string
+          variable: comparison_report
+        selected: false
+        title: 结束
+        type: end
+      height: 90
+      id: 'end_node'
+      position:
+        x: 942
+        y: 277
+      positionAbsolute:
+        x: 942
+        y: 277
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7

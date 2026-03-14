@@ -1,0 +1,739 @@
+app:
+  description: '输入一句话概念（如"左宗棠的一生"），AI 自动生成分镜脚本、为每个场景生成图片、再将图片转为视频片段'
+  icon: 🎬
+  icon_background: '#FFE4DE'
+  mode: workflow
+  name: AI 分镜故事视频
+  use_icon_as_answer_icon: false
+dependencies: []
+kind: app
+version: 0.3.1
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      enabled: false
+    opening_statement: ''
+    retriever_resource:
+      enabled: false
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: start-to-storyboard
+      source: 'start_node'
+      sourceHandle: source
+      target: 'storyboard_llm'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: tool
+      id: storyboard-to-scene1
+      source: 'storyboard_llm'
+      sourceHandle: source
+      target: 'scene1_image'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: tool
+      id: scene1-to-scene2
+      source: 'scene1_image'
+      sourceHandle: source
+      target: 'scene2_image'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: tool
+      id: scene2-to-scene3
+      source: 'scene2_image'
+      sourceHandle: source
+      target: 'scene3_image'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: tool
+      id: scene3-to-scene4
+      source: 'scene3_image'
+      sourceHandle: source
+      target: 'scene4_image'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: llm
+      id: scene4-to-extract
+      source: 'scene4_image'
+      sourceHandle: source
+      target: 'extract_urls_llm'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: tool
+      id: extract-to-video1
+      source: 'extract_urls_llm'
+      sourceHandle: source
+      target: 'video1_luma'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: tool
+      id: video1-to-video2
+      source: 'video1_luma'
+      sourceHandle: source
+      target: 'video2_luma'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: tool
+      id: video2-to-video3
+      source: 'video2_luma'
+      sourceHandle: source
+      target: 'video3_luma'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: tool
+      id: video3-to-video4
+      source: 'video3_luma'
+      sourceHandle: source
+      target: 'video4_luma'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: tool
+        targetType: llm
+      id: video4-to-summary
+      source: 'video4_luma'
+      sourceHandle: source
+      target: 'summary_llm'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: end
+      id: summary-to-end
+      source: 'summary_llm'
+      sourceHandle: source
+      target: 'end_node'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: 故事主题
+          max_length: 2000
+          options: []
+          required: true
+          type: text-input
+          variable: story_concept
+        - label: 视觉风格
+          max_length: 200
+          options:
+          - 电影写实
+          - 中国水墨
+          - 动漫风格
+          - 油画风格
+          - 赛博朋克
+          required: false
+          type: select
+          variable: visual_style
+      height: 90
+      id: 'start_node'
+      position:
+        x: 30
+        y: 300
+      positionAbsolute:
+        x: 30
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: '根据故事主题生成4个分镜场景'
+        title: 分镜编剧
+        type: llm
+        model:
+          provider: openai
+          name: gpt-4o
+          mode: chat
+        prompt_template:
+          - role: system
+            text: |
+              You are a professional storyboard director. Given a story concept, create exactly 4 scenes for a short video storyboard.
+              
+              For each scene, provide:
+              1. A detailed visual description for image generation (in English, optimized for Flux AI image generator)
+              2. A short camera movement description for video generation
+              3. A brief narrative text (in the story's original language)
+              
+              Output in this EXACT format (no other text):
+              
+              SCENE 1:
+              IMAGE_PROMPT: <detailed English prompt for image generation, include style, lighting, composition, colors>
+              CAMERA: <camera movement description, e.g. "slow zoom in", "pan left to right", "aerial tracking shot">
+              NARRATION: <narrative text in original language>
+              
+              SCENE 2:
+              IMAGE_PROMPT: <...>
+              CAMERA: <...>
+              NARRATION: <...>
+              
+              SCENE 3:
+              IMAGE_PROMPT: <...>
+              CAMERA: <...>
+              NARRATION: <...>
+              
+              SCENE 4:
+              IMAGE_PROMPT: <...>
+              CAMERA: <...>
+              NARRATION: <...>
+              
+              Make scenes tell a coherent story arc: setup → development → climax → resolution.
+              Visual style to incorporate: {{#start_node.visual_style#}}
+          - role: user
+            text: '{{#start_node.story_concept#}}'
+        vision:
+          enabled: false
+          configs:
+            variable_selector: []
+        memory:
+          enabled: false
+          window:
+            enabled: false
+            size: 50
+        context:
+          enabled: false
+          variable_selector: []
+        structured_output:
+          enabled: false
+        retry_config:
+          enabled: false
+          max_retries: 1
+          retry_interval: 1000
+          exponential_backoff:
+            enabled: false
+            multiplier: 2
+            max_interval: 10000
+      height: 90
+      id: 'storyboard_llm'
+      position:
+        x: 334
+        y: 300
+      positionAbsolute:
+        x: 334
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    # Scene 1 Image
+    - data:
+        desc: '生成第1个场景图片'
+        title: 场景1 图片
+        type: tool
+        provider_id: flux
+        provider_type: plugin
+        provider_name: flux
+        tool_name: flux_generate_image
+        tool_label: Flux Generate Image
+        tool_configurations: {}
+        tool_parameters:
+          prompt:
+            type: mixed
+            value: 'Extract SCENE 1 IMAGE_PROMPT from: {{#storyboard_llm.text#}}'
+          model:
+            type: mixed
+            value: flux-pro-1.1
+          size:
+            type: mixed
+            value: '1920x1080'
+      height: 90
+      id: 'scene1_image'
+      position:
+        x: 638
+        y: 100
+      positionAbsolute:
+        x: 638
+        y: 100
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    # Scene 2 Image
+    - data:
+        desc: '生成第2个场景图片'
+        title: 场景2 图片
+        type: tool
+        provider_id: flux
+        provider_type: plugin
+        provider_name: flux
+        tool_name: flux_generate_image
+        tool_label: Flux Generate Image
+        tool_configurations: {}
+        tool_parameters:
+          prompt:
+            type: mixed
+            value: 'Extract SCENE 2 IMAGE_PROMPT from: {{#storyboard_llm.text#}}'
+          model:
+            type: mixed
+            value: flux-pro-1.1
+          size:
+            type: mixed
+            value: '1920x1080'
+      height: 90
+      id: 'scene2_image'
+      position:
+        x: 638
+        y: 250
+      positionAbsolute:
+        x: 638
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    # Scene 3 Image
+    - data:
+        desc: '生成第3个场景图片'
+        title: 场景3 图片
+        type: tool
+        provider_id: flux
+        provider_type: plugin
+        provider_name: flux
+        tool_name: flux_generate_image
+        tool_label: Flux Generate Image
+        tool_configurations: {}
+        tool_parameters:
+          prompt:
+            type: mixed
+            value: 'Extract SCENE 3 IMAGE_PROMPT from: {{#storyboard_llm.text#}}'
+          model:
+            type: mixed
+            value: flux-pro-1.1
+          size:
+            type: mixed
+            value: '1920x1080'
+      height: 90
+      id: 'scene3_image'
+      position:
+        x: 638
+        y: 400
+      positionAbsolute:
+        x: 638
+        y: 400
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    # Scene 4 Image
+    - data:
+        desc: '生成第4个场景图片'
+        title: 场景4 图片
+        type: tool
+        provider_id: flux
+        provider_type: plugin
+        provider_name: flux
+        tool_name: flux_generate_image
+        tool_label: Flux Generate Image
+        tool_configurations: {}
+        tool_parameters:
+          prompt:
+            type: mixed
+            value: 'Extract SCENE 4 IMAGE_PROMPT from: {{#storyboard_llm.text#}}'
+          model:
+            type: mixed
+            value: flux-pro-1.1
+          size:
+            type: mixed
+            value: '1920x1080'
+      height: 90
+      id: 'scene4_image'
+      position:
+        x: 638
+        y: 550
+      positionAbsolute:
+        x: 638
+        y: 550
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    # Extract image URLs
+    - data:
+        desc: '从图片生成结果中提取 URL 和视频提示词'
+        title: 提取图片URL
+        type: llm
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+        prompt_template:
+          - role: system
+            text: |
+              You receive storyboard info and 4 scene image generation results. Extract the image_url from each scene's result data and pair it with a video motion prompt based on the CAMERA direction in the storyboard.
+              
+              Output EXACTLY in this format:
+              SCENE1_URL: <url>
+              SCENE1_VIDEO_PROMPT: <motion/camera prompt for video generation>
+              SCENE2_URL: <url>
+              SCENE2_VIDEO_PROMPT: <motion/camera prompt>
+              SCENE3_URL: <url>
+              SCENE3_VIDEO_PROMPT: <motion/camera prompt>
+              SCENE4_URL: <url>
+              SCENE4_VIDEO_PROMPT: <motion/camera prompt>
+          - role: user
+            text: |
+              Storyboard:
+              {{#storyboard_llm.text#}}
+              
+              Scene 1 Result:
+              {{#scene1_image.text#}}
+              
+              Scene 2 Result:
+              {{#scene2_image.text#}}
+              
+              Scene 3 Result:
+              {{#scene3_image.text#}}
+              
+              Scene 4 Result:
+              {{#scene4_image.text#}}
+        vision:
+          enabled: false
+          configs:
+            variable_selector: []
+        memory:
+          enabled: false
+          window:
+            enabled: false
+            size: 50
+        context:
+          enabled: false
+          variable_selector: []
+        structured_output:
+          enabled: false
+        retry_config:
+          enabled: false
+          max_retries: 1
+          retry_interval: 1000
+          exponential_backoff:
+            enabled: false
+            multiplier: 2
+            max_interval: 10000
+      height: 90
+      id: 'extract_urls_llm'
+      position:
+        x: 942
+        y: 300
+      positionAbsolute:
+        x: 942
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    # Video 1
+    - data:
+        desc: '场景1 图生视频'
+        title: 场景1 视频
+        type: tool
+        provider_id: kling
+        provider_type: plugin
+        provider_name: kling
+        tool_name: kling_generate_video
+        tool_label: Kling Generate Video
+        tool_configurations: {}
+        tool_parameters:
+          action:
+            type: mixed
+            value: image2video
+          prompt:
+            type: mixed
+            value: 'Extract SCENE1_VIDEO_PROMPT from: {{#extract_urls_llm.text#}}'
+          start_image_url:
+            type: mixed
+            value: 'Extract SCENE1_URL from: {{#extract_urls_llm.text#}}'
+      height: 90
+      id: 'video1_luma'
+      position:
+        x: 1246
+        y: 100
+      positionAbsolute:
+        x: 1246
+        y: 100
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    # Video 2
+    - data:
+        desc: '场景2 图生视频'
+        title: 场景2 视频
+        type: tool
+        provider_id: kling
+        provider_type: plugin
+        provider_name: kling
+        tool_name: kling_generate_video
+        tool_label: Kling Generate Video
+        tool_configurations: {}
+        tool_parameters:
+          action:
+            type: mixed
+            value: image2video
+          prompt:
+            type: mixed
+            value: 'Extract SCENE2_VIDEO_PROMPT from: {{#extract_urls_llm.text#}}'
+          start_image_url:
+            type: mixed
+            value: 'Extract SCENE2_URL from: {{#extract_urls_llm.text#}}'
+      height: 90
+      id: 'video2_luma'
+      position:
+        x: 1246
+        y: 250
+      positionAbsolute:
+        x: 1246
+        y: 250
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    # Video 3
+    - data:
+        desc: '场景3 图生视频'
+        title: 场景3 视频
+        type: tool
+        provider_id: kling
+        provider_type: plugin
+        provider_name: kling
+        tool_name: kling_generate_video
+        tool_label: Kling Generate Video
+        tool_configurations: {}
+        tool_parameters:
+          action:
+            type: mixed
+            value: image2video
+          prompt:
+            type: mixed
+            value: 'Extract SCENE3_VIDEO_PROMPT from: {{#extract_urls_llm.text#}}'
+          start_image_url:
+            type: mixed
+            value: 'Extract SCENE3_URL from: {{#extract_urls_llm.text#}}'
+      height: 90
+      id: 'video3_luma'
+      position:
+        x: 1246
+        y: 400
+      positionAbsolute:
+        x: 1246
+        y: 400
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    # Video 4
+    - data:
+        desc: '场景4 图生视频'
+        title: 场景4 视频
+        type: tool
+        provider_id: kling
+        provider_type: plugin
+        provider_name: kling
+        tool_name: kling_generate_video
+        tool_label: Kling Generate Video
+        tool_configurations: {}
+        tool_parameters:
+          action:
+            type: mixed
+            value: image2video
+          prompt:
+            type: mixed
+            value: 'Extract SCENE4_VIDEO_PROMPT from: {{#extract_urls_llm.text#}}'
+          start_image_url:
+            type: mixed
+            value: 'Extract SCENE4_URL from: {{#extract_urls_llm.text#}}'
+      height: 90
+      id: 'video4_luma'
+      position:
+        x: 1246
+        y: 550
+      positionAbsolute:
+        x: 1246
+        y: 550
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    # Summary
+    - data:
+        desc: '汇总所有成果'
+        title: 成果汇总
+        type: llm
+        model:
+          provider: openai
+          name: gpt-4o-mini
+          mode: chat
+        prompt_template:
+          - role: system
+            text: |
+              You are a video production assistant. Present a beautiful summary of the completed storyboard video production.
+              
+              Include:
+              1. The original storyboard (with narration for each scene)
+              2. Generated image URLs for each scene
+              3. Generated video URLs/IDs for each scene
+              4. Suggested order for final editing
+              
+              Format in markdown with clear sections. Use the original language for narrations.
+          - role: user
+            text: |
+              故事概念: {{#start_node.story_concept#}}
+              
+              分镜脚本:
+              {{#storyboard_llm.text#}}
+              
+              提取的URL和提示词:
+              {{#extract_urls_llm.text#}}
+              
+              视频1结果: {{#video1_luma.text#}}
+              视频2结果: {{#video2_luma.text#}}
+              视频3结果: {{#video3_luma.text#}}
+              视频4结果: {{#video4_luma.text#}}
+        vision:
+          enabled: false
+          configs:
+            variable_selector: []
+        memory:
+          enabled: false
+          window:
+            enabled: false
+            size: 50
+        context:
+          enabled: false
+          variable_selector: []
+        structured_output:
+          enabled: false
+        retry_config:
+          enabled: false
+          max_retries: 1
+          retry_interval: 1000
+          exponential_backoff:
+            enabled: false
+            multiplier: 2
+            max_interval: 10000
+      height: 90
+      id: 'summary_llm'
+      position:
+        x: 1550
+        y: 300
+      positionAbsolute:
+        x: 1550
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - 'summary_llm'
+          - text
+          value_type: string
+          variable: production_summary
+        - value_selector:
+          - 'storyboard_llm'
+          - text
+          value_type: string
+          variable: storyboard
+        selected: false
+        title: 结束
+        type: end
+      height: 90
+      id: 'end_node'
+      position:
+        x: 1854
+        y: 300
+      positionAbsolute:
+        x: 1854
+        y: 300
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.5
