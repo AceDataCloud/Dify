@@ -17,7 +17,7 @@ WORKFLOWS_DIR = Path(__file__).resolve().parent.parent.parent / "workflows"
 REDIS_KEY_PREFIX = "acedatacloud_workflow_imported:"
 REDIS_EXPIRY = 365 * 24 * 3600  # 1 year
 
-EXPLORE_CATEGORY = "AceDataCloud"
+EXPLORE_CATEGORY = "Workflow"
 EXPLORE_LANGUAGE = "en-US"
 
 

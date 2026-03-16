@@ -49,9 +49,9 @@ data:
   ACEDATACLOUD_PLATFORM_API_BASE_URL: "https://platform.acedata.cloud"
   ACEDATACLOUD_AUTO_PROVISION_PLUGIN_CREDENTIALS: "true"
 
-  # Use database mode for Explore page so our RecommendedApp records are displayed
-  # (instead of fetching from tmpl.dify.ai which only shows Dify official templates).
-  HOSTED_FETCH_APP_TEMPLATES_MODE: "db"
+  # Explore page mode: "hybrid" merges Dify official templates (from tmpl.dify.ai)
+  # with locally DB-registered AceDataCloud workflow templates.
+  HOSTED_FETCH_APP_TEMPLATES_MODE: "hybrid"
 
   # Enable the periodic task that ensures AceDataCloud workflow templates
   # are always registered in Explore (regardless of user login).

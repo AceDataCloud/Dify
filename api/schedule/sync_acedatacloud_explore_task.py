@@ -34,11 +34,11 @@ def _find_explore_tenant(session: Session, workflow_files: list) -> str | None:
 
     Returns tenant_id or None.
     """
-    # Strategy 1: Check if any RecommendedApp records already exist.
-    # The associated App's tenant_id is the one we want.
+    # Strategy 1: Check if any AceDataCloud RecommendedApp records already exist.
+    # We identify them by copyright="AceDataCloud" (stable, unlike category).
     existing_rec = session.execute(
         select(RecommendedApp.app_id)
-        .where(RecommendedApp.category == "AceDataCloud", RecommendedApp.is_listed == True)
+        .where(RecommendedApp.copyright == "AceDataCloud", RecommendedApp.is_listed == True)
         .limit(1)
     ).scalar_one_or_none()
     if existing_rec:

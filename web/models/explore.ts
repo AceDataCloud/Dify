@@ -29,6 +29,7 @@ export type App = {
   editable: boolean
   is_agent: boolean
   can_trial: boolean
+  source?: string
 }
 
 export type InstalledApp = {
