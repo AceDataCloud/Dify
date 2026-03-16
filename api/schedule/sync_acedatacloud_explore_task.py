@@ -21,9 +21,9 @@ from extensions.ext_database import db
 from models import Account, App
 from models.model import RecommendedApp
 from tasks.import_acedatacloud_workflow_templates_task import (
-    _get_workflow_files,
-    _parse_workflow_yaml,
-    _register_explore_apps,
+    get_workflow_files,
+    parse_workflow_yaml,
+    register_explore_apps,
 )
 
 logger = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ def _find_explore_tenant(session: Session, workflow_files: list) -> str | None:
 
     # Strategy 2: Search by app name from the first workflow YAML.
     for wf_file in workflow_files:
-        parsed = _parse_workflow_yaml(wf_file)
+        parsed = parse_workflow_yaml(wf_file)
         app_name = parsed.get("app", {}).get("name", "")
         if not app_name:
             continue
@@ -69,7 +69,7 @@ def sync_acedatacloud_explore_task():
     click.echo(click.style("Start sync AceDataCloud Explore apps.", fg="green"))
     start_at = time.perf_counter()
 
-    workflow_files = _get_workflow_files()
+    workflow_files = get_workflow_files()
     if not workflow_files:
         click.echo(click.style("No workflow files found, skipping.", fg="yellow"))
         return
@@ -100,17 +100,17 @@ def sync_acedatacloud_explore_task():
             tenant_id = str(join)
 
             # Import workflows first (only if they don't exist)
-            from tasks.import_acedatacloud_workflow_templates_task import _import_single_workflow
+            from tasks.import_acedatacloud_workflow_templates_task import import_single_workflow
 
             for wf_file in workflow_files:
-                _import_single_workflow(
+                import_single_workflow(
                     session=session,
                     account=account,
                     tenant_id=tenant_id,
                     wf_file=wf_file,
                 )
 
-        registered = _register_explore_apps(
+        registered = register_explore_apps(
             session=session,
             tenant_id=tenant_id,
             workflow_files=workflow_files,

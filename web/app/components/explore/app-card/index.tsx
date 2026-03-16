@@ -36,12 +36,14 @@ const AppCard = ({
   }
 
   return (
-    <div className={cn(
-      'group relative col-span-1 flex cursor-pointer flex-col overflow-hidden rounded-lg border-[0.5px] bg-components-panel-on-panel-item-bg pb-2 shadow-sm transition-all duration-200 ease-in-out hover:bg-components-panel-on-panel-item-bg-hover hover:shadow-lg',
-      isAceDataCloud
-        ? 'border-util-colors-blue-blue-200 ring-1 ring-util-colors-blue-blue-100'
-        : 'border-components-panel-border',
-    )}>
+    <div
+      className={cn(
+        'group relative col-span-1 flex cursor-pointer flex-col overflow-hidden rounded-lg border-[0.5px] bg-components-panel-on-panel-item-bg pb-2 shadow-sm transition-all duration-200 ease-in-out hover:bg-components-panel-on-panel-item-bg-hover hover:shadow-lg',
+        isAceDataCloud
+          ? 'border-util-colors-blue-blue-200 ring-1 ring-util-colors-blue-blue-100'
+          : 'border-components-panel-border',
+      )}
+    >
       {isAceDataCloud && (
         <div className="absolute right-0 top-0 rounded-bl-lg bg-util-colors-blue-blue-50 px-2 py-0.5">
           <span className="text-[10px] font-medium leading-[14px] text-util-colors-blue-blue-600">

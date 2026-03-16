@@ -21,13 +21,13 @@ EXPLORE_CATEGORY = "Workflow"
 EXPLORE_LANGUAGE = "en-US"
 
 
-def _get_workflow_files() -> list[Path]:
+def get_workflow_files() -> list[Path]:
     if not WORKFLOWS_DIR.is_dir():
         return []
     return sorted(WORKFLOWS_DIR.glob("*.yml"))
 
 
-def _parse_workflow_yaml(wf_file: Path) -> dict:
+def parse_workflow_yaml(wf_file: Path) -> dict:
     """Parse a workflow YAML file and return the parsed dict, or empty dict on failure."""
     try:
         parsed = yaml.safe_load(wf_file.read_text(encoding="utf-8"))
@@ -36,17 +36,17 @@ def _parse_workflow_yaml(wf_file: Path) -> dict:
         return {}
 
 
-def _already_imported(*, tenant_id: str, template_name: str) -> bool:
+def already_imported(*, tenant_id: str, template_name: str) -> bool:
     key = f"{REDIS_KEY_PREFIX}{tenant_id}:{template_name}"
     return bool(redis_client.exists(key))
 
 
-def _mark_imported(*, tenant_id: str, template_name: str, app_id: str) -> None:
+def mark_imported(*, tenant_id: str, template_name: str, app_id: str) -> None:
     key = f"{REDIS_KEY_PREFIX}{tenant_id}:{template_name}"
     redis_client.setex(key, REDIS_EXPIRY, app_id)
 
 
-def _import_single_workflow(
+def import_single_workflow(
     *,
     session: Session,
     account: Account,
@@ -61,14 +61,14 @@ def _import_single_workflow(
 
     template_name = wf_file.stem
 
-    if _already_imported(tenant_id=tenant_id, template_name=template_name):
+    if already_imported(tenant_id=tenant_id, template_name=template_name):
         return None
 
     yaml_content = wf_file.read_text(encoding="utf-8")
     if not yaml_content.strip():
         return None
 
-    parsed = _parse_workflow_yaml(wf_file)
+    parsed = parse_workflow_yaml(wf_file)
     app_name = parsed.get("app", {}).get("name", "")
 
     # Check if an app with the same name already exists in this tenant
@@ -77,7 +77,7 @@ def _import_single_workflow(
             select(App.id).where(App.tenant_id == tenant_id, App.name == app_name).limit(1)
         ).scalar_one_or_none()
         if existing:
-            _mark_imported(tenant_id=tenant_id, template_name=template_name, app_id=str(existing))
+            mark_imported(tenant_id=tenant_id, template_name=template_name, app_id=str(existing))
             return None
 
     account.set_tenant_id(tenant_id)
@@ -91,7 +91,7 @@ def _import_single_workflow(
 
     if result.status in (ImportStatus.COMPLETED, ImportStatus.COMPLETED_WITH_WARNINGS):
         session.commit()
-        _mark_imported(tenant_id=tenant_id, template_name=template_name, app_id=str(result.app_id or ""))
+        mark_imported(tenant_id=tenant_id, template_name=template_name, app_id=str(result.app_id or ""))
         logger.info("AceDataCloud: imported %s app_id=%s tenant=%s", template_name, result.app_id, tenant_id)
         return str(result.app_id) if result.app_id else None
 
@@ -99,7 +99,7 @@ def _import_single_workflow(
         confirm_result = dsl_service.confirm_import(import_id=result.id, account=account)
         if confirm_result.status in (ImportStatus.COMPLETED, ImportStatus.COMPLETED_WITH_WARNINGS):
             session.commit()
-            _mark_imported(tenant_id=tenant_id, template_name=template_name, app_id=str(confirm_result.app_id or ""))
+            mark_imported(tenant_id=tenant_id, template_name=template_name, app_id=str(confirm_result.app_id or ""))
             logger.info("AceDataCloud: imported (confirmed) %s app_id=%s", template_name, confirm_result.app_id)
             return str(confirm_result.app_id) if confirm_result.app_id else None
         session.rollback()
@@ -137,7 +137,7 @@ def _ensure_site_exists(*, session: Session, app: App) -> None:
     logger.info("AceDataCloud: created Site for app %s (%s)", app.name, app.id)
 
 
-def _register_explore_apps(*, session: Session, tenant_id: str, workflow_files: list[Path]) -> int:
+def register_explore_apps(*, session: Session, tenant_id: str, workflow_files: list[Path]) -> int:
     """Register already-imported workflows in Explore. Does NOT import anything.
 
     Fully idempotent via DB checks — safe to call repeatedly.
@@ -148,7 +148,7 @@ def _register_explore_apps(*, session: Session, tenant_id: str, workflow_files: 
     registered = 0
 
     for position, wf_file in enumerate(workflow_files):
-        parsed = _parse_workflow_yaml(wf_file)
+        parsed = parse_workflow_yaml(wf_file)
         app_name = parsed.get("app", {}).get("name", "")
         if not app_name:
             continue
@@ -214,7 +214,7 @@ def import_acedatacloud_workflow_templates_task(
 
     Only called once per new user from the OAuth callback.
     """
-    workflow_files = _get_workflow_files()
+    workflow_files = get_workflow_files()
     if not workflow_files:
         logger.info("AceDataCloud: no workflow files found in %s", WORKFLOWS_DIR)
         return
@@ -230,9 +230,9 @@ def import_acedatacloud_workflow_templates_task(
         # 1) Import all workflows into user's workspace
         imported = 0
         for wf_file in workflow_files:
-            if _import_single_workflow(session=session, account=account, tenant_id=tenant_id, wf_file=wf_file):
+            if import_single_workflow(session=session, account=account, tenant_id=tenant_id, wf_file=wf_file):
                 imported += 1
         logger.info("AceDataCloud: imported %d workflows for tenant=%s", imported, tenant_id)
 
         # 2) Register in Explore (idempotent, creates Site + RecommendedApp as needed)
-        _register_explore_apps(session=session, tenant_id=tenant_id, workflow_files=workflow_files)
+        register_explore_apps(session=session, tenant_id=tenant_id, workflow_files=workflow_files)
