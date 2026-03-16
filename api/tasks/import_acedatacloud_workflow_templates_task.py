@@ -81,7 +81,7 @@ def _import_single_workflow(
             _mark_imported(tenant_id=tenant_id, template_name=template_name, app_id=str(existing))
             return None
 
-    account.current_tenant_id = tenant_id
+    account.set_tenant_id(tenant_id)
     dsl_service = AppDslService(session)
 
     result = dsl_service.import_app(
