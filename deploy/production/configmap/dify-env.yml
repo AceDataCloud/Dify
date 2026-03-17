@@ -48,3 +48,11 @@ data:
   ACEDATACLOUD_AUTH_AUTO_REGISTER: "true"
   ACEDATACLOUD_PLATFORM_API_BASE_URL: "https://platform.acedata.cloud"
   ACEDATACLOUD_AUTO_PROVISION_PLUGIN_CREDENTIALS: "true"
+
+  # Explore page mode: "hybrid" merges Dify official templates (from tmpl.dify.ai)
+  # with locally DB-registered AceDataCloud workflow templates.
+  HOSTED_FETCH_APP_TEMPLATES_MODE: "hybrid"
+
+  # Enable the periodic task that ensures AceDataCloud workflow templates
+  # are always registered in Explore (regardless of user login).
+  ENABLE_ACEDATACLOUD_EXPLORE_SYNC_TASK: "true"

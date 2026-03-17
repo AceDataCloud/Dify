@@ -30,12 +30,27 @@ const AppCard = ({
   const { app: appBasicInfo } = app
   const { systemFeatures } = useGlobalPublicStore()
   const isTrialApp = app.can_trial && systemFeatures.enable_trial_app
+  const isAceDataCloud = app.source === 'acedatacloud'
   const handleTryApp = () => {
     onTry({ appId: app.app_id, app })
   }
 
   return (
-    <div className={cn('group relative col-span-1 flex cursor-pointer flex-col overflow-hidden rounded-lg border-[0.5px] border-components-panel-border bg-components-panel-on-panel-item-bg pb-2 shadow-sm transition-all duration-200 ease-in-out hover:bg-components-panel-on-panel-item-bg-hover hover:shadow-lg')}>
+    <div
+      className={cn(
+        'group relative col-span-1 flex cursor-pointer flex-col overflow-hidden rounded-lg border-[0.5px] bg-components-panel-on-panel-item-bg pb-2 shadow-sm transition-all duration-200 ease-in-out hover:bg-components-panel-on-panel-item-bg-hover hover:shadow-lg',
+        isAceDataCloud
+          ? 'border-util-colors-blue-blue-200 ring-1 ring-util-colors-blue-blue-100'
+          : 'border-components-panel-border',
+      )}
+    >
+      {isAceDataCloud && (
+        <div className="absolute right-0 top-0 rounded-bl-lg bg-util-colors-blue-blue-50 px-2 py-0.5">
+          <span className="text-[10px] font-medium leading-[14px] text-util-colors-blue-blue-600">
+            Ace Data Cloud
+          </span>
+        </div>
+      )}
       <div className="flex h-[66px] shrink-0 grow-0 items-center gap-3 px-[14px] pb-3 pt-[14px]">
         <div className="relative shrink-0">
           <AppIcon

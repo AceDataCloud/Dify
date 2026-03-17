@@ -1,5 +1,6 @@
 from services.recommend_app.buildin.buildin_retrieval import BuildInRecommendAppRetrieval
 from services.recommend_app.database.database_retrieval import DatabaseRecommendAppRetrieval
+from services.recommend_app.hybrid.hybrid_retrieval import HybridRecommendAppRetrieval
 from services.recommend_app.recommend_app_base import RecommendAppRetrievalBase
 from services.recommend_app.recommend_app_type import RecommendAppType
 from services.recommend_app.remote.remote_retrieval import RemoteRecommendAppRetrieval
@@ -15,6 +16,8 @@ class RecommendAppRetrievalFactory:
                 return DatabaseRecommendAppRetrieval
             case RecommendAppType.BUILDIN:
                 return BuildInRecommendAppRetrieval
+            case RecommendAppType.HYBRID:
+                return HybridRecommendAppRetrieval
             case _:
                 raise ValueError(f"invalid fetch recommended apps mode: {mode}")
 
