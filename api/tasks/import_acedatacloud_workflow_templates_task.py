@@ -13,7 +13,10 @@ from models.model import RecommendedApp, Site
 
 logger = logging.getLogger(__name__)
 
-WORKFLOWS_DIR = Path(__file__).resolve().parent.parent.parent / "workflows"
+_API_DIR = Path(__file__).resolve().parent.parent
+# In Docker the CI copies workflows/ into api/workflows/ (inside the build context).
+# In local dev the original workflows/ lives one level above api/.
+WORKFLOWS_DIR = _API_DIR / "workflows" if (_API_DIR / "workflows").is_dir() else _API_DIR.parent / "workflows"
 REDIS_KEY_PREFIX = "acedatacloud_workflow_imported:"
 REDIS_EXPIRY = 365 * 24 * 3600  # 1 year
 
