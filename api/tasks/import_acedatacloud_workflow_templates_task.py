@@ -112,12 +112,22 @@ def import_single_workflow(
 
 
 def _ensure_site_exists(*, session: Session, app: App) -> None:
-    """Ensure the App has a Site record (required by the DB retrieval to display on Explore).
+    """Ensure the App has a Site record with description (required for Explore display).
 
-    If the app already has a Site, this is a no-op.
+    If the app already has a Site, update its description/title if they are missing
+    (Dify's signal handler creates Sites without copying App.description).
     """
-    existing_site = session.execute(select(Site.id).where(Site.app_id == app.id).limit(1)).scalar_one_or_none()
+    existing_site = session.execute(select(Site).where(Site.app_id == app.id).limit(1)).scalar_one_or_none()
     if existing_site:
+        updated = False
+        if not existing_site.description and app.description:
+            existing_site.description = app.description
+            updated = True
+        if not existing_site.title and app.name:
+            existing_site.title = app.name
+            updated = True
+        if updated:
+            logger.info("AceDataCloud: updated Site description for app %s (%s)", app.name, app.id)
         return
 
     site = Site(
