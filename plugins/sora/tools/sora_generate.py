@@ -54,6 +54,13 @@ class SoraGenerateVideoTool(Tool):
         if character_end is not None and not isinstance(character_end, (int, float)):
             raise ValueError("`character_end` must be a number.")
 
+        version = tool_parameters.get("version")
+        version = (
+            version.strip()
+            if isinstance(version, str) and version.strip()
+            else None
+        )
+
         callback_url = tool_parameters.get("callback_url")
         callback_url = (
             callback_url.strip()
@@ -76,6 +83,7 @@ class SoraGenerateVideoTool(Tool):
                 character_url=character_url,
                 character_start=float(character_start) if character_start is not None else None,
                 character_end=float(character_end) if character_end is not None else None,
+                version=version,
                 callback_url=callback_url,
                 timeout_s=timeout_s,
             )

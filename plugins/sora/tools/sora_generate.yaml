@@ -84,6 +84,28 @@ parameters:
         label: { en_US: "15", zh_Hans: "15" }
       - value: 25
         label: { en_US: "25", zh_Hans: "25" }
+      - value: 4
+        label: { en_US: "4", zh_Hans: "4" }
+      - value: 8
+        label: { en_US: "8", zh_Hans: "8" }
+      - value: 12
+        label: { en_US: "12", zh_Hans: "12" }
+  - name: version
+    type: select
+    required: false
+    label:
+      en_US: API Version
+      zh_Hans: API 版本
+    human_description:
+      en_US: Optional API version. Default is 1.0. Version 2.0 supports pixel-based sizing.
+      zh_Hans: 可选 API 版本，默认 1.0。2.0 支持像素级尺寸。
+    llm_description: Optional. Use 1.0 (default) or 2.0. Version 2.0 supports pixel-based size like 720x1280.
+    form: form
+    options:
+      - value: "1.0"
+        label: { en_US: "1.0 (default)", zh_Hans: "1.0（默认）" }
+      - value: "2.0"
+        label: { en_US: "2.0", zh_Hans: "2.0" }
   - name: size
     type: select
     required: false
@@ -91,15 +113,23 @@ parameters:
       en_US: Size
       zh_Hans: 清晰度
     human_description:
-      en_US: Optional output size.
-      zh_Hans: 可选输出清晰度。
-    llm_description: Optional. Choose small or large.
+      en_US: Optional output size. Use small/large for v1.0, or pixel format (e.g. 720x1280) for v2.0.
+      zh_Hans: 可选输出尺寸。v1.0 用 small/large，v2.0 用像素格式（如 720x1280）。
+    llm_description: Optional. small/large for v1.0; pixel formats like 720x1280, 1280x720, 1024x1792, 1792x1024 for v2.0.
     form: form
     options:
       - value: small
         label: { en_US: small, zh_Hans: small }
       - value: large
         label: { en_US: large, zh_Hans: large }
+      - value: 720x1280
+        label: { en_US: 720x1280, zh_Hans: 720x1280 }
+      - value: 1280x720
+        label: { en_US: 1280x720, zh_Hans: 1280x720 }
+      - value: 1024x1792
+        label: { en_US: 1024x1792, zh_Hans: 1024x1792 }
+      - value: 1792x1024
+        label: { en_US: 1792x1024, zh_Hans: 1792x1024 }
   - name: orientation
     type: select
     required: false

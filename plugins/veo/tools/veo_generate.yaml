@@ -107,8 +107,26 @@ parameters:
     human_description:
       en_US: Optional model name. Default is veo2-fast.
       zh_Hans: 可选模型名称，不填则默认为 veo2-fast。
-    llm_description: "Optional. Examples: veo2-fast, veo2, veo3-fast, veo3, veo31-fast, veo31."
+    llm_description: "Optional. Examples: veo2-fast, veo2, veo3-fast, veo3, veo31-fast, veo31, veo31-fast-ingredient."
     form: form
+  - name: resolution
+    type: select
+    required: false
+    label:
+      en_US: Resolution
+      zh_Hans: 分辨率
+    human_description:
+      en_US: Optional output resolution.
+      zh_Hans: 可选输出分辨率。
+    llm_description: Optional. Choose 4k, 1080p, or gif.
+    form: form
+    options:
+      - value: 4k
+        label: { en_US: 4k, zh_Hans: 4k }
+      - value: 1080p
+        label: { en_US: 1080p, zh_Hans: 1080p }
+      - value: gif
+        label: { en_US: gif, zh_Hans: gif }
   - name: aspect_ratio
     type: select
     required: false

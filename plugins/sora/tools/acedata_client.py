@@ -63,6 +63,7 @@ class AceDataSoraClient:
         character_url: str | None = None,
         character_start: float | None = None,
         character_end: float | None = None,
+        version: str | None = None,
         callback_url: str | None = None,
         timeout_s: int = 1860,
     ) -> AceDataSoraVideosResult:
@@ -81,6 +82,8 @@ class AceDataSoraClient:
             payload["character_start"] = character_start
         if character_end is not None:
             payload["character_end"] = character_end
+        if version:
+            payload["version"] = version
         if callback_url:
             payload["callback_url"] = callback_url
 

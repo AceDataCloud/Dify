@@ -61,6 +61,7 @@ class AceDataVeoClient:
         image_urls: list[str] | None = None,
         video_id: str | None = None,
         aspect_ratio: str | None = None,
+        resolution: str | None = None,
         translation: bool | None = None,
         callback_url: str | None = None,
         timeout_s: int = 1800,
@@ -76,6 +77,8 @@ class AceDataVeoClient:
             payload["video_id"] = video_id
         if aspect_ratio:
             payload["aspect_ratio"] = aspect_ratio
+        if resolution:
+            payload["resolution"] = resolution
         if translation is not None:
             payload["translation"] = translation
         if callback_url:

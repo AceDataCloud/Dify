@@ -79,6 +79,10 @@ parameters:
         label:
           en_US: nano-banana (default)
           zh_Hans: nano-banana（默认）
+      - value: nano-banana-2
+        label:
+          en_US: nano-banana-2
+          zh_Hans: nano-banana-2
       - value: nano-banana-pro
         label:
           en_US: nano-banana-pro

@@ -205,6 +205,10 @@ def build_midjourney_imagine_payload(tool_parameters: dict[str, Any]) -> dict[st
     if isinstance(application_id, str) and application_id.strip():
         payload["application_id"] = application_id.strip()
 
+    mask = tool_parameters.get("mask")
+    if isinstance(mask, str) and mask.strip():
+        payload["mask"] = mask.strip()
+
     return payload
 
 
