@@ -32,9 +32,9 @@ parameters:
     required: true
     label: { en_US: Action, zh_Hans: 行为 }
     human_description:
-      en_US: Generation action, e.g. generate/extend/cover/stems/all_stems/concat/remaster.
-      zh_Hans: 生成行为，如 generate/extend/cover/stems/all_stems/concat/remaster。
-    llm_description: Required. Typical values are generate, extend, upload_extend, cover, upload_cover, stems, all_stems, concat, remaster.
+      en_US: Generation action, e.g. generate/extend/cover/stems/all_stems/concat/remaster/mashup/replace_section/underpainting/overpainting/samples.
+      zh_Hans: 生成行为，如 generate/extend/cover/stems/all_stems/concat/remaster/mashup/replace_section/underpainting/overpainting/samples。
+    llm_description: Required. Typical values are generate, extend, upload_extend, cover, upload_cover, stems, all_stems, concat, remaster, artist_consistency, artist_consistency_vox, replace_section, underpainting, overpainting, mashup, samples.
     form: form
   - name: prompt
     type: string
@@ -145,6 +145,40 @@ parameters:
         label: { en_US: Female, zh_Hans: 女声 }
       - value: m
         label: { en_US: Male, zh_Hans: 男声 }
+  - name: variation_category
+    type: select
+    required: false
+    label: { en_US: Variation Category, zh_Hans: 变奏类别 }
+    human_description:
+      en_US: Optional. Variation intensity for v5+ models (high/normal/subtle).
+      zh_Hans: 可选。v5+ 模型变奏强度（high/normal/subtle）。
+    llm_description: Optional. Only for chirp-v5+. Controls variation intensity.
+    form: form
+    options:
+      - value: high
+        label: { en_US: high, zh_Hans: 高 }
+      - value: normal
+        label: { en_US: normal, zh_Hans: 正常 }
+      - value: subtle
+        label: { en_US: subtle, zh_Hans: 轻微 }
+  - name: weirdness
+    type: number
+    required: false
+    label: { en_US: Weirdness, zh_Hans: 奇特度 }
+    human_description:
+      en_US: Optional. 0-1, controls generation weirdness.
+      zh_Hans: 可选。0-1，控制生成奇特度。
+    llm_description: Optional. Range 0-1.
+    form: form
+  - name: style_influence
+    type: number
+    required: false
+    label: { en_US: Style Influence, zh_Hans: 风格影响 }
+    human_description:
+      en_US: Optional. 0-1, controls style influence strength.
+      zh_Hans: 可选。0-1，控制风格影响强度。
+    llm_description: Optional. Range 0-1.
+    form: form
   - name: callback_url
     type: string
     required: false

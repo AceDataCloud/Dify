@@ -99,9 +99,9 @@ parameters:
       en_US: Model
       zh_Hans: 模型
     human_description:
-      en_US: Optional model name (e.g., kling-v2-5-turbo).
-      zh_Hans: 可选模型名称（如 kling-v2-5-turbo）。
-    llm_description: "Optional. Examples: kling-v1, kling-v1-6, kling-v2-master, kling-v2-1-master, kling-v2-5-turbo."
+      en_US: Optional model name (e.g., kling-v2-5-turbo, kling-video-o1).
+      zh_Hans: 可选模型名称（如 kling-v2-5-turbo、kling-video-o1）。
+    llm_description: "Optional. Examples: kling-v1, kling-v1-6, kling-v2-master, kling-v2-1-master, kling-v2-5-turbo, kling-video-o1."
     form: form
   - name: mode
     type: select

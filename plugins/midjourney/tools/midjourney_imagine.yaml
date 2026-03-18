@@ -95,6 +95,15 @@ parameters:
       zh_Hans: 将 2x2 预览图拆分为单张（如支持）。
     llm_description: Optional boolean.
     form: form
+  - name: mask
+    type: string
+    required: false
+    label: { en_US: Mask URL, zh_Hans: 蒙版链接 }
+    human_description:
+      en_US: Optional mask image URL for variation_region action.
+      zh_Hans: 可选蒙版图片链接，用于 variation_region 操作。
+    llm_description: Optional. Provide a mask image URL when action is variation_region.
+    form: form
   - name: callback_url
     type: string
     required: false

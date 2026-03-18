@@ -102,6 +102,105 @@ parameters:
       type: array
       items:
         type: string
+  - name: resolution
+    type: select
+    required: false
+    label:
+      en_US: Resolution
+      zh_Hans: 分辨率
+    human_description:
+      en_US: Optional output resolution (480p/720p/1080p).
+      zh_Hans: 可选输出分辨率（480p/720p/1080p）。
+    llm_description: Optional. Choose 480p, 720p, or 1080p.
+    form: form
+    options:
+      - value: 480p
+        label: { en_US: 480p, zh_Hans: 480p }
+      - value: 720p
+        label: { en_US: 720p, zh_Hans: 720p }
+      - value: 1080p
+        label: { en_US: 1080p, zh_Hans: 1080p }
+  - name: ratio
+    type: select
+    required: false
+    label:
+      en_US: Aspect Ratio
+      zh_Hans: 画面比例
+    human_description:
+      en_US: Optional output aspect ratio. Default is 16:9.
+      zh_Hans: 可选输出画面比例，默认 16:9。
+    llm_description: Optional. Choose an aspect ratio.
+    form: form
+    options:
+      - value: "16:9"
+        label: { en_US: "16:9", zh_Hans: "16:9" }
+      - value: "4:3"
+        label: { en_US: "4:3", zh_Hans: "4:3" }
+      - value: "1:1"
+        label: { en_US: "1:1", zh_Hans: "1:1" }
+      - value: "3:4"
+        label: { en_US: "3:4", zh_Hans: "3:4" }
+      - value: "9:16"
+        label: { en_US: "9:16", zh_Hans: "9:16" }
+      - value: "21:9"
+        label: { en_US: "21:9", zh_Hans: "21:9" }
+      - value: adaptive
+        label: { en_US: adaptive, zh_Hans: adaptive }
+  - name: duration
+    type: number
+    required: false
+    label:
+      en_US: Duration (seconds)
+      zh_Hans: 时长（秒）
+    human_description:
+      en_US: Optional video duration in seconds (2-12, varies by model).
+      zh_Hans: 可选视频时长，秒（2-12，因模型而异）。
+    llm_description: Optional. Integer seconds, range 2-12.
+    form: form
+  - name: seed
+    type: number
+    required: false
+    label:
+      en_US: Seed
+      zh_Hans: 随机种子
+    human_description:
+      en_US: Optional seed for reproducibility (-1 to 4294967295).
+      zh_Hans: 可选随机种子（-1 到 4294967295）。
+    llm_description: Optional. Integer seed value.
+    form: form
+  - name: camerafixed
+    type: boolean
+    required: false
+    label:
+      en_US: Camera Fixed
+      zh_Hans: 固定镜头
+    human_description:
+      en_US: Optional. Fix camera position during generation.
+      zh_Hans: 可选。生成时固定镜头位置。
+    llm_description: Optional. Set true to lock camera.
+    form: form
+  - name: watermark
+    type: boolean
+    required: false
+    label:
+      en_US: Watermark
+      zh_Hans: 水印
+    human_description:
+      en_US: Optional. Add watermark or not.
+      zh_Hans: 可选，是否添加水印。
+    llm_description: Optional.
+    form: form
+  - name: generate_audio
+    type: boolean
+    required: false
+    label:
+      en_US: Generate Audio
+      zh_Hans: 生成音频
+    human_description:
+      en_US: Optional. Generate audio for the video (only 1.5-pro model).
+      zh_Hans: 可选。为视频生成音频（仅 1.5-pro 模型支持）。
+    llm_description: Optional. Only supported by doubao-seedance-1-5-pro-251215.
+    form: form
   - name: return_last_frame
     type: boolean
     required: false

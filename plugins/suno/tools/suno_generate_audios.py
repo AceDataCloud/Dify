@@ -69,6 +69,18 @@ class SunoGenerateAudiosTool(Tool):
         if vocal_gender is not None and vocal_gender not in {"f", "m"}:
             raise ValueError("`vocal_gender` must be 'f' or 'm'.")
 
+        variation_category = tool_parameters.get("variation_category")
+        variation_category = (
+            variation_category.strip()
+            if isinstance(variation_category, str) and variation_category.strip()
+            else None
+        )
+        if variation_category is not None and variation_category not in {"high", "normal", "subtle"}:
+            raise ValueError("`variation_category` must be 'high', 'normal', or 'subtle'.")
+
+        weirdness = parse_optional_float(tool_parameters.get("weirdness"), field="weirdness")
+        style_influence = parse_optional_float(tool_parameters.get("style_influence"), field="style_influence")
+
         callback_url = tool_parameters.get("callback_url")
         callback_url = (
             callback_url.strip()
@@ -93,6 +105,7 @@ class SunoGenerateAudiosTool(Tool):
             "concat",
             "remaster",
             "replace_section",
+            "mashup",
         }
         if action in actions_requiring_audio_id and not audio_id:
             raise ValueError(f"`audio_id` is required when action is {action}.")
@@ -126,6 +139,12 @@ class SunoGenerateAudiosTool(Tool):
             payload["persona_id"] = persona_id
         if vocal_gender:
             payload["vocal_gender"] = vocal_gender
+        if variation_category:
+            payload["variation_category"] = variation_category
+        if weirdness is not None:
+            payload["weirdness"] = weirdness
+        if style_influence is not None:
+            payload["style_influence"] = style_influence
         if callback_url:
             payload["callback_url"] = callback_url
 

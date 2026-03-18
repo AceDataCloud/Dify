@@ -67,6 +67,13 @@ class AceDataSeedanceClient:
         first_frame_url: str | None = None,
         last_frame_url: str | None = None,
         reference_image_urls: list[str] | None = None,
+        resolution: str | None = None,
+        ratio: str | None = None,
+        duration: int | None = None,
+        seed: int | None = None,
+        camerafixed: bool | None = None,
+        watermark: bool | None = None,
+        generate_audio: bool | None = None,
         callback_url: str | None = None,
         return_last_frame: bool | None = None,
         service_tier: str | None = None,
@@ -86,6 +93,20 @@ class AceDataSeedanceClient:
         payload: dict[str, Any] = {"content": content}
         if model:
             payload["model"] = model
+        if resolution:
+            payload["resolution"] = resolution
+        if ratio:
+            payload["ratio"] = ratio
+        if duration is not None:
+            payload["duration"] = duration
+        if seed is not None:
+            payload["seed"] = seed
+        if camerafixed is not None:
+            payload["camerafixed"] = camerafixed
+        if watermark is not None:
+            payload["watermark"] = watermark
+        if generate_audio is not None:
+            payload["generate_audio"] = generate_audio
         if callback_url:
             payload["callback_url"] = callback_url
         if return_last_frame is not None:

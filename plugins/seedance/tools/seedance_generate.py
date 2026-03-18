@@ -68,6 +68,44 @@ class SeedanceGenerateVideoTool(Tool):
             else None
         )
 
+        resolution = tool_parameters.get("resolution")
+        resolution = (
+            resolution.strip()
+            if isinstance(resolution, str) and resolution.strip()
+            else None
+        )
+
+        ratio = tool_parameters.get("ratio")
+        ratio = (
+            ratio.strip()
+            if isinstance(ratio, str) and ratio.strip()
+            else None
+        )
+
+        duration = tool_parameters.get("duration")
+        if duration is not None:
+            if isinstance(duration, bool) or not isinstance(duration, (int, float)):
+                raise ValueError("`duration` must be a number.")
+            duration = int(duration)
+
+        seed = tool_parameters.get("seed")
+        if seed is not None:
+            if isinstance(seed, bool) or not isinstance(seed, (int, float)):
+                raise ValueError("`seed` must be a number.")
+            seed = int(seed)
+
+        camerafixed = tool_parameters.get("camerafixed")
+        if camerafixed is not None and not isinstance(camerafixed, bool):
+            raise ValueError("`camerafixed` must be a boolean.")
+
+        watermark = tool_parameters.get("watermark")
+        if watermark is not None and not isinstance(watermark, bool):
+            raise ValueError("`watermark` must be a boolean.")
+
+        generate_audio = tool_parameters.get("generate_audio")
+        if generate_audio is not None and not isinstance(generate_audio, bool):
+            raise ValueError("`generate_audio` must be a boolean.")
+
         client = AceDataSeedanceClient(
             bearer_token=str(self.runtime.credentials["acedata_bearer_token"])
         )
@@ -78,6 +116,13 @@ class SeedanceGenerateVideoTool(Tool):
                 first_frame_url=first_frame_url,
                 last_frame_url=last_frame_url,
                 reference_image_urls=reference_image_urls or None,
+                resolution=resolution,
+                ratio=ratio,
+                duration=duration,
+                seed=seed,
+                camerafixed=camerafixed,
+                watermark=watermark,
+                generate_audio=generate_audio,
                 return_last_frame=return_last_frame,
                 service_tier=service_tier,
                 execution_expires_after=execution_expires_after,

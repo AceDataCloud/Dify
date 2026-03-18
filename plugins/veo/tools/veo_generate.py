@@ -36,6 +36,13 @@ class VeoGenerateVideoTool(Tool):
             else None
         )
 
+        resolution = tool_parameters.get("resolution")
+        resolution = (
+            resolution.strip()
+            if isinstance(resolution, str) and resolution.strip()
+            else None
+        )
+
         translation = tool_parameters.get("translation")
         if translation is not None and not isinstance(translation, bool):
             raise ValueError("`translation` must be a boolean.")
@@ -68,6 +75,7 @@ class VeoGenerateVideoTool(Tool):
                 image_urls=image_urls or None,
                 video_id=video_id,
                 aspect_ratio=aspect_ratio,
+                resolution=resolution,
                 translation=translation,
                 callback_url=callback_url,
                 timeout_s=1800,

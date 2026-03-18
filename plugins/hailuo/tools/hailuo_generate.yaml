@@ -73,6 +73,8 @@ parameters:
         label: { en_US: minimax-t2v, zh_Hans: 文生视频 }
       - value: minimax-i2v
         label: { en_US: minimax-i2v, zh_Hans: 图生视频 }
+      - value: minimax-i2v-director
+        label: { en_US: minimax-i2v-director, zh_Hans: 图生视频(导演模式) }
   - name: first_image_url
     type: string
     required: false
