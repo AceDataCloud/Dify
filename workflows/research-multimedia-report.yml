@@ -1,0 +1,780 @@
+# AI 深度研究 + 多模态报告
+# 场景：深度调研某个主题并自动生成带图文视频的多媒体报告
+# 流程：输入课题 → SERP 多轮搜索 → LLM 分析整合 → 生成报告 → 为每章配图 → 视频摘要 → 输出
+# 服务链：Google SERP (搜索) → LLM (分析/写作) → Midjourney (配图) → Veo (视频摘要)
+
+version: 0.1.0
+kind: workflow
+
+dependencies:
+  - type: marketplace
+    value:
+      plugin_unique_identifier: acedatacloud/serp
+  - type: marketplace
+    value:
+      plugin_unique_identifier: acedatacloud/midjourney
+  - type: marketplace
+    value:
+      plugin_unique_identifier: acedatacloud/veo
+
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features: {}
+
+  graph:
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7
+
+    edges:
+      # Start → LLM Query Planner
+      - id: start-to-planner
+        source: start
+        sourceHandle: source
+        target: llm_query_planner
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: start
+          targetType: llm
+          isInIteration: false
+          isInLoop: false
+
+      # LLM Planner → Code Parse Queries
+      - id: planner-to-parse
+        source: llm_query_planner
+        sourceHandle: source
+        target: code_parse_queries
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: llm
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+
+      # Code Parse → Iteration (Multi-query Search)
+      - id: parse-to-search-iter
+        source: code_parse_queries
+        sourceHandle: source
+        target: iteration_search
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: iteration
+          isInIteration: false
+          isInLoop: false
+
+      # Search Iteration internals
+      - id: search-iter-start-to-serp
+        source: search_iter_start
+        sourceHandle: source
+        target: serp_search
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: iteration-start
+          targetType: tool
+          isInIteration: true
+          isInLoop: false
+
+      # Search Iteration → LLM Synthesizer
+      - id: search-to-synthesizer
+        source: iteration_search
+        sourceHandle: source
+        target: llm_synthesizer
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: iteration
+          targetType: llm
+          isInIteration: false
+          isInLoop: false
+
+      # LLM Synthesizer → Code Parse Report
+      - id: synthesizer-to-parse-report
+        source: llm_synthesizer
+        sourceHandle: source
+        target: code_parse_report
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: llm
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+
+      # Code Parse Report → Iteration (Chapter Illustrations)
+      - id: report-to-iter-illustrations
+        source: code_parse_report
+        sourceHandle: source
+        target: iteration_illustrations
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: iteration
+          isInIteration: false
+          isInLoop: false
+
+      # Code Parse Report → Veo Video Summary (parallel branch)
+      - id: report-to-veo
+        source: code_parse_report
+        sourceHandle: source
+        target: veo_summary
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: tool
+          isInIteration: false
+          isInLoop: false
+
+      # Illustration Iteration internals
+      - id: illust-iter-start-to-mj
+        source: illust_iter_start
+        sourceHandle: source
+        target: midjourney_illustrate
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: iteration-start
+          targetType: tool
+          isInIteration: true
+          isInLoop: false
+
+      # Both → Variable Aggregator
+      - id: illustrations-to-agg
+        source: iteration_illustrations
+        sourceHandle: source
+        target: var_agg_report
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: iteration
+          targetType: variable-aggregator
+          isInIteration: false
+          isInLoop: false
+
+      - id: veo-to-agg
+        source: veo_summary
+        sourceHandle: source
+        target: var_agg_report
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: tool
+          targetType: variable-aggregator
+          isInIteration: false
+          isInLoop: false
+
+      # Aggregator → Final Report Assembly
+      - id: agg-to-final
+        source: var_agg_report
+        sourceHandle: source
+        target: code_final_report
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: variable-aggregator
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+
+      # Final → End
+      - id: final-to-end
+        source: code_final_report
+        sourceHandle: source
+        target: end_node
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: end
+          isInIteration: false
+          isInLoop: false
+
+    nodes:
+      # ============================================================
+      # START
+      # ============================================================
+      - id: start
+        type: custom
+        position: { x: 0, y: 300 }
+        width: 244
+        height: 118
+        data:
+          type: start
+          title: "研究课题"
+          variables:
+            - variable: research_topic
+              label: 研究主题
+              type: text-input
+              required: true
+              max_length: 500
+            - variable: depth
+              label: 研究深度
+              type: select
+              required: true
+              default: "medium"
+              options:
+                - "quick"
+                - "medium"
+                - "deep"
+            - variable: language
+              label: 报告语言
+              type: select
+              required: true
+              default: "zh"
+              options:
+                - "zh"
+                - "en"
+            - variable: visual_style
+              label: 配图风格
+              type: select
+              required: false
+              default: "professional infographic"
+              options:
+                - "professional infographic"
+                - "artistic illustration"
+                - "photorealistic"
+                - "technical diagram"
+                - "minimalist"
+
+      # ============================================================
+      # LLM: 搜索策略规划
+      # ============================================================
+      - id: llm_query_planner
+        type: custom
+        position: { x: 350, y: 300 }
+        width: 244
+        height: 118
+        data:
+          type: llm
+          title: "研究策略师"
+          desc: "设计最优搜索策略"
+          model:
+            provider: langgenius/openai/openai
+            name: chatgpt-4o-latest
+            mode: chat
+            completion_params:
+              temperature: 0.5
+              max_tokens: 2000
+          prompt_template:
+            - role: system
+              text: |
+                你是一个研究策略专家。给定研究主题和深度要求，生成一组搜索查询词，覆盖该主题的多个维度。
+
+                返回 JSON：
+                ```json
+                {
+                  "queries": [
+                    {"query": "search query 1 in English", "aspect": "维度描述"},
+                    {"query": "search query 2 in English", "aspect": "维度描述"},
+                    ...
+                  ],
+                  "report_outline": ["第一章标题", "第二章标题", ...]
+                }
+                ```
+
+                规则：
+                - quick: 3 个查询
+                - medium: 5 个查询
+                - deep: 8 个查询
+                - 查询必须用英文（搜索效果更好）
+                - 覆盖：定义/概述、最新进展、关键玩家、挑战/争议、未来趋势
+              jinja2_text: null
+            - role: user
+              text: ""
+              jinja2_text: |
+                研究主题：{{ topic }}
+                研究深度：{{ depth }}
+                报告语言：{{ language }}
+          prompt_config:
+            jinja2_variables:
+              - variable: topic
+                value_selector: [start, research_topic]
+              - variable: depth
+                value_selector: [start, depth]
+              - variable: language
+                value_selector: [start, language]
+          context:
+            enabled: false
+          vision:
+            enabled: false
+
+      # ============================================================
+      # CODE: 解析搜索策略
+      # ============================================================
+      - id: code_parse_queries
+        type: custom
+        position: { x: 700, y: 300 }
+        width: 244
+        height: 80
+        data:
+          type: code
+          title: "解析搜索策略"
+          code_language: python3
+          code: |
+            import json
+            import re
+
+            def main(llm_output: str) -> dict:
+                json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', llm_output, re.DOTALL)
+                if json_match:
+                    raw = json_match.group(1)
+                else:
+                    json_match = re.search(r'\{.*\}', llm_output, re.DOTALL)
+                    raw = json_match.group(0) if json_match else llm_output
+                data = json.loads(raw)
+                queries = [q["query"] for q in data.get("queries", [])]
+                aspects = [q["aspect"] for q in data.get("queries", [])]
+                outline = data.get("report_outline", [])
+                return {
+                    "search_queries": queries,
+                    "aspects": aspects,
+                    "report_outline": outline,
+                    "outline_json": json.dumps(outline, ensure_ascii=False)
+                }
+          variables:
+            - variable: llm_output
+              value_selector: [llm_query_planner, text]
+          outputs:
+            search_queries:
+              type: "array[string]"
+            aspects:
+              type: "array[string]"
+            report_outline:
+              type: "array[string]"
+            outline_json:
+              type: string
+
+      # ============================================================
+      # ITERATION: 多维度搜索
+      # ============================================================
+      - id: iteration_search
+        type: custom
+        position: { x: 1050, y: 200 }
+        width: 500
+        height: 250
+        data:
+          type: iteration
+          title: "多维度搜索"
+          desc: "并行搜索多个维度的信息"
+          iterator_selector: [code_parse_queries, search_queries]
+          output_selector: [serp_search, text]
+          is_parallel: true
+          parallel_nums: 5
+          error_handle_mode: continue-on-error
+          flatten_output: false
+          start_node_id: search_iter_start
+
+      - id: search_iter_start
+        type: custom
+        position: { x: 1100, y: 300 }
+        width: 100
+        height: 50
+        parentId: iteration_search
+        data:
+          type: iteration-start
+          title: "开始"
+          isInIteration: true
+          iteration_id: iteration_search
+
+      - id: serp_search
+        type: custom
+        position: { x: 1300, y: 280 }
+        width: 244
+        height: 118
+        parentId: iteration_search
+        data:
+          type: tool
+          title: "Google 搜索"
+          isInIteration: true
+          iteration_id: iteration_search
+          provider_type: builtin
+          provider_name: acedatacloud/serp/serp
+          provider_id: acedatacloud/serp/serp
+          tool_name: serp_google
+          tool_label: Google SERP
+          is_team_authorization: true
+          tool_configurations: {}
+          tool_parameters:
+            query:
+              type: variable
+              value: [iteration_search, item]
+            count:
+              type: constant
+              value: 10
+
+      # ============================================================
+      # LLM: 信息整合 + 报告撰写
+      # ============================================================
+      - id: llm_synthesizer
+        type: custom
+        position: { x: 1650, y: 200 }
+        width: 244
+        height: 118
+        data:
+          type: llm
+          title: "AI 研究员：深度分析"
+          desc: "整合搜索结果，撰写深度报告"
+          model:
+            provider: langgenius/openai/openai
+            name: chatgpt-4o-latest
+            mode: chat
+            completion_params:
+              temperature: 0.6
+              max_tokens: 8000
+          prompt_template:
+            - role: system
+              text: |
+                你是一个资深研究分析师。根据多维度搜索结果，整合撰写一份深度研究报告。
+
+                返回 JSON：
+                ```json
+                {
+                  "title": "报告标题",
+                  "executive_summary": "200 字执行摘要",
+                  "chapters": [
+                    {
+                      "title": "章节标题",
+                      "content": "详细内容（500-1000字）",
+                      "key_findings": ["发现1", "发现2"],
+                      "illustration_prompt": "English prompt for chapter illustration - descriptive, artistic, ..."
+                    }
+                  ],
+                  "conclusion": "总结与预测",
+                  "video_summary_prompt": "English prompt for a 10-second video summary visualizing the key findings of this research in a dynamic, data-driven style",
+                  "sources": ["来源1", "来源2"]
+                }
+                ```
+
+                要求：
+                - 每章的 illustration_prompt 是英文的图片生成 prompt，与章节内容匹配
+                - video_summary_prompt 是视频摘要的 prompt（英文）
+                - 内容要有数据支撑、客观分析，引用搜索结果中的具体发现
+                - 使用报告语言撰写正文（中文或英文）
+              jinja2_text: null
+            - role: user
+              text: ""
+              jinja2_text: |
+                研究主题：{{ topic }}
+                报告大纲：{{ outline }}
+                报告语言：{{ language }}
+
+                搜索结果（多个维度）：
+                {{ search_results }}
+          prompt_config:
+            jinja2_variables:
+              - variable: topic
+                value_selector: [start, research_topic]
+              - variable: outline
+                value_selector: [code_parse_queries, outline_json]
+              - variable: language
+                value_selector: [start, language]
+              - variable: search_results
+                value_selector: [iteration_search, output]
+          context:
+            enabled: false
+          vision:
+            enabled: false
+
+      # ============================================================
+      # CODE: 解析报告
+      # ============================================================
+      - id: code_parse_report
+        type: custom
+        position: { x: 2000, y: 200 }
+        width: 244
+        height: 80
+        data:
+          type: code
+          title: "解析研究报告"
+          code_language: python3
+          code: |
+            import json
+            import re
+
+            def main(llm_output: str, visual_style: str) -> dict:
+                json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', llm_output, re.DOTALL)
+                if json_match:
+                    raw = json_match.group(1)
+                else:
+                    json_match = re.search(r'\{.*\}', llm_output, re.DOTALL)
+                    raw = json_match.group(0) if json_match else llm_output
+                data = json.loads(raw)
+                chapters = data.get("chapters", [])
+                # Build illustration prompts with style prefix
+                illustration_prompts = []
+                for ch in chapters:
+                    base_prompt = ch.get("illustration_prompt", "")
+                    styled = f"{visual_style} style, {base_prompt}" if base_prompt else ""
+                    illustration_prompts.append(styled)
+
+                return {
+                    "report_title": data.get("title", ""),
+                    "executive_summary": data.get("executive_summary", ""),
+                    "chapter_titles": [ch.get("title", "") for ch in chapters],
+                    "chapter_contents": [ch.get("content", "") for ch in chapters],
+                    "illustration_prompts": illustration_prompts,
+                    "video_summary_prompt": data.get("video_summary_prompt", ""),
+                    "conclusion": data.get("conclusion", ""),
+                    "sources": json.dumps(data.get("sources", []), ensure_ascii=False),
+                    "full_report_json": json.dumps(data, ensure_ascii=False)
+                }
+          variables:
+            - variable: llm_output
+              value_selector: [llm_synthesizer, text]
+            - variable: visual_style
+              value_selector: [start, visual_style]
+          outputs:
+            report_title:
+              type: string
+            executive_summary:
+              type: string
+            chapter_titles:
+              type: "array[string]"
+            chapter_contents:
+              type: "array[string]"
+            illustration_prompts:
+              type: "array[string]"
+            video_summary_prompt:
+              type: string
+            conclusion:
+              type: string
+            sources:
+              type: string
+            full_report_json:
+              type: string
+
+      # ============================================================
+      # ITERATION: 章节配图
+      # ============================================================
+      - id: iteration_illustrations
+        type: custom
+        position: { x: 2400, y: 100 }
+        width: 500
+        height: 200
+        data:
+          type: iteration
+          title: "生成章节配图"
+          iterator_selector: [code_parse_report, illustration_prompts]
+          output_selector: [midjourney_illustrate, text]
+          is_parallel: true
+          parallel_nums: 4
+          error_handle_mode: continue-on-error
+          flatten_output: false
+          start_node_id: illust_iter_start
+
+      - id: illust_iter_start
+        type: custom
+        position: { x: 2450, y: 180 }
+        width: 100
+        height: 50
+        parentId: iteration_illustrations
+        data:
+          type: iteration-start
+          title: "开始"
+          isInIteration: true
+          iteration_id: iteration_illustrations
+
+      - id: midjourney_illustrate
+        type: custom
+        position: { x: 2650, y: 160 }
+        width: 244
+        height: 118
+        parentId: iteration_illustrations
+        data:
+          type: tool
+          title: "Midjourney 配图"
+          isInIteration: true
+          iteration_id: iteration_illustrations
+          provider_type: builtin
+          provider_name: acedatacloud/midjourney/midjourney
+          provider_id: acedatacloud/midjourney/midjourney
+          tool_name: midjourney_imagine
+          tool_label: Midjourney Imagine
+          is_team_authorization: true
+          tool_configurations: {}
+          tool_parameters:
+            prompt:
+              type: variable
+              value: [iteration_illustrations, item]
+            aspect_ratio:
+              type: constant
+              value: "16:9"
+
+      # ============================================================
+      # Veo: 视频摘要
+      # ============================================================
+      - id: veo_summary
+        type: custom
+        position: { x: 2400, y: 400 }
+        width: 244
+        height: 118
+        data:
+          type: tool
+          title: "Veo 视频摘要"
+          desc: "生成研究要点的 10 秒视频"
+          provider_type: builtin
+          provider_name: acedatacloud/veo/veo
+          provider_id: acedatacloud/veo/veo
+          tool_name: veo_generate
+          tool_label: Veo Generate
+          is_team_authorization: true
+          tool_configurations: {}
+          tool_parameters:
+            prompt:
+              type: mixed
+              value: "{{#code_parse_report.video_summary_prompt#}}"
+
+      # ============================================================
+      # Variable Aggregator
+      # ============================================================
+      - id: var_agg_report
+        type: custom
+        position: { x: 3000, y: 250 }
+        width: 244
+        height: 100
+        data:
+          type: variable-aggregator
+          title: "汇聚配图+视频"
+          variables:
+            - [iteration_illustrations, output]
+            - [veo_summary, text]
+
+      # ============================================================
+      # CODE: 最终报告组装
+      # ============================================================
+      - id: code_final_report
+        type: custom
+        position: { x: 3350, y: 250 }
+        width: 244
+        height: 80
+        data:
+          type: code
+          title: "组装多媒体报告"
+          code_language: python3
+          code: |
+            import json
+
+            def main(report_title: str, executive_summary: str, chapter_titles: list,
+                     chapter_contents: list, conclusion: str, sources: str,
+                     illustration_results: list, veo_result: str) -> dict:
+                # Parse illustration image URLs
+                image_urls = []
+                for r in (illustration_results or []):
+                    if r:
+                        try:
+                            data = json.loads(r)
+                            d = data.get("data", {})
+                            if isinstance(d, dict):
+                                image_urls.append(d.get("image_url", ""))
+                            elif isinstance(d, list) and d:
+                                image_urls.append(d[0].get("image_url", ""))
+                            else:
+                                image_urls.append("")
+                        except (json.JSONDecodeError, TypeError):
+                            image_urls.append("")
+
+                # Parse video URL
+                video_url = ""
+                try:
+                    vd = json.loads(veo_result)
+                    items = vd.get("data", [])
+                    if isinstance(items, list) and items:
+                        video_url = items[0].get("video_url", "")
+                    elif isinstance(items, dict):
+                        video_url = items.get("video_url", "")
+                except (json.JSONDecodeError, TypeError):
+                    pass
+
+                source_list = json.loads(sources) if sources else []
+
+                # Build Markdown report
+                md = [f"# {report_title}", ""]
+                if video_url:
+                    md.append(f"> 📹 **[观看视频摘要]({video_url})**")
+                    md.append("")
+                md.append(f"## 执行摘要\n{executive_summary}\n")
+
+                for i, (title, content) in enumerate(zip(chapter_titles, chapter_contents)):
+                    md.append(f"## {i+1}. {title}")
+                    if i < len(image_urls) and image_urls[i]:
+                        md.append(f"![{title}]({image_urls[i]})")
+                    md.append(content)
+                    md.append("")
+
+                md.append(f"## 结论\n{conclusion}\n")
+
+                if source_list:
+                    md.append("## 参考来源")
+                    for j, src in enumerate(source_list):
+                        md.append(f"{j+1}. {src}")
+
+                return {
+                    "report_markdown": "\n".join(md),
+                    "data_json": json.dumps({
+                        "title": report_title,
+                        "images": image_urls,
+                        "video": video_url,
+                        "chapters": len(chapter_titles),
+                        "sources": source_list
+                    }, ensure_ascii=False)
+                }
+          variables:
+            - variable: report_title
+              value_selector: [code_parse_report, report_title]
+            - variable: executive_summary
+              value_selector: [code_parse_report, executive_summary]
+            - variable: chapter_titles
+              value_selector: [code_parse_report, chapter_titles]
+            - variable: chapter_contents
+              value_selector: [code_parse_report, chapter_contents]
+            - variable: conclusion
+              value_selector: [code_parse_report, conclusion]
+            - variable: sources
+              value_selector: [code_parse_report, sources]
+            - variable: illustration_results
+              value_selector: [iteration_illustrations, output]
+            - variable: veo_result
+              value_selector: [veo_summary, text]
+          outputs:
+            report_markdown:
+              type: string
+            data_json:
+              type: string
+
+      # ============================================================
+      # END
+      # ============================================================
+      - id: end_node
+        type: custom
+        position: { x: 3700, y: 250 }
+        width: 244
+        height: 80
+        data:
+          type: end
+          title: "研究报告"
+          outputs:
+            - variable: report_markdown
+              value_selector: [code_final_report, report_markdown]
+            - variable: data_json
+              value_selector: [code_final_report, data_json]

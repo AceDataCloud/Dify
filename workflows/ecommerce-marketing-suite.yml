@@ -1,0 +1,699 @@
+# AI 电商产品营销套件
+# 场景：电商运营一键生成产品全套营销物料
+# 流程：描述产品 → LLM 分析 → 并行分支：多平台文案 + 产品宣传图 + 15s 产品视频 + 广告曲
+# 服务链：LLM (分析+文案) → Flux (产品图变体) → Kling (产品视频) → Suno (广告曲)
+
+version: 0.1.0
+kind: workflow
+
+dependencies:
+  - type: marketplace
+    value:
+      plugin_unique_identifier: acedatacloud/flux
+  - type: marketplace
+    value:
+      plugin_unique_identifier: acedatacloud/kling
+  - type: marketplace
+    value:
+      plugin_unique_identifier: acedatacloud/suno
+  - type: marketplace
+    value:
+      plugin_unique_identifier: acedatacloud/serp
+
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features: {}
+
+  graph:
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7
+
+    edges:
+      # Start → LLM Product Analyzer
+      - id: start-to-analyzer
+        source: start
+        sourceHandle: source
+        target: llm_analyzer
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: start
+          targetType: llm
+          isInIteration: false
+          isInLoop: false
+
+      # LLM Analyzer → Code Parse
+      - id: analyzer-to-parse
+        source: llm_analyzer
+        sourceHandle: source
+        target: code_parse_analysis
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: llm
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+
+      # ── Branch 1: Code Parse → LLM Copywriting (多平台文案)
+      - id: parse-to-copywriting
+        source: code_parse_analysis
+        sourceHandle: source
+        target: llm_copywriting
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: llm
+          isInIteration: false
+          isInLoop: false
+
+      # ── Branch 2: Code Parse → Iteration (产品图生成)
+      - id: parse-to-iter-images
+        source: code_parse_analysis
+        sourceHandle: source
+        target: iteration_product_images
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: iteration
+          isInIteration: false
+          isInLoop: false
+
+      # ── Branch 3: Code Parse → Kling (产品视频)
+      - id: parse-to-kling
+        source: code_parse_analysis
+        sourceHandle: source
+        target: kling_generate
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: tool
+          isInIteration: false
+          isInLoop: false
+
+      # ── Branch 4: Code Parse → Suno (广告曲)
+      - id: parse-to-suno
+        source: code_parse_analysis
+        sourceHandle: source
+        target: suno_jingle
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: tool
+          isInIteration: false
+          isInLoop: false
+
+      # Inside Iteration: Start → Flux Generate
+      - id: iter-start-to-flux
+        source: iter_images_start
+        sourceHandle: source
+        target: flux_generate
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: iteration-start
+          targetType: tool
+          isInIteration: true
+          isInLoop: false
+
+      # All 4 branches → Variable Aggregator → End
+      - id: copywriting-to-aggregator
+        source: llm_copywriting
+        sourceHandle: source
+        target: variable_aggregator
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: llm
+          targetType: variable-aggregator
+          isInIteration: false
+          isInLoop: false
+
+      - id: iteration-to-aggregator
+        source: iteration_product_images
+        sourceHandle: source
+        target: variable_aggregator
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: iteration
+          targetType: variable-aggregator
+          isInIteration: false
+          isInLoop: false
+
+      - id: kling-to-aggregator
+        source: kling_generate
+        sourceHandle: source
+        target: variable_aggregator
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: tool
+          targetType: variable-aggregator
+          isInIteration: false
+          isInLoop: false
+
+      - id: suno-to-aggregator
+        source: suno_jingle
+        sourceHandle: source
+        target: variable_aggregator
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: tool
+          targetType: variable-aggregator
+          isInIteration: false
+          isInLoop: false
+
+      - id: aggregator-to-assembly
+        source: variable_aggregator
+        sourceHandle: source
+        target: code_final_assembly
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: variable-aggregator
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+
+      - id: assembly-to-end
+        source: code_final_assembly
+        sourceHandle: source
+        target: end_node
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: end
+          isInIteration: false
+          isInLoop: false
+
+    nodes:
+      # ============================================================
+      # START: 产品信息输入
+      # ============================================================
+      - id: start
+        type: custom
+        position: { x: 0, y: 400 }
+        width: 244
+        height: 150
+        data:
+          type: start
+          title: "产品信息"
+          desc: "输入产品信息和营销需求"
+          variables:
+            - variable: product_name
+              label: 产品名称
+              type: text-input
+              required: true
+              max_length: 100
+            - variable: product_description
+              label: 产品描述
+              type: paragraph
+              required: true
+              max_length: 2000
+            - variable: target_audience
+              label: 目标受众
+              type: text-input
+              required: true
+              max_length: 200
+            - variable: selling_points
+              label: 核心卖点（用逗号分隔）
+              type: text-input
+              required: true
+              max_length: 500
+            - variable: brand_tone
+              label: 品牌调性
+              type: select
+              required: true
+              options:
+                - "高端奢华"
+                - "年轻潮流"
+                - "专业科技"
+                - "温暖亲和"
+                - "极简高级"
+            - variable: platforms
+              label: 目标平台
+              type: select
+              required: true
+              default: "all"
+              options:
+                - "all"
+                - "小红书 + 抖音"
+                - "Instagram + TikTok"
+                - "Twitter/X + LinkedIn"
+
+      # ============================================================
+      # LLM: 产品分析 + 营销策略
+      # ============================================================
+      - id: llm_analyzer
+        type: custom
+        position: { x: 350, y: 400 }
+        width: 244
+        height: 118
+        data:
+          type: llm
+          title: "AI 产品分析师"
+          desc: "深度分析产品特性，制定营销策略"
+          model:
+            provider: langgenius/openai/openai
+            name: chatgpt-4o-latest
+            mode: chat
+            completion_params:
+              temperature: 0.7
+              max_tokens: 4096
+          prompt_template:
+            - role: system
+              text: |
+                你是一个资深的电商营销策划专家，精通各大社交媒体平台的内容策略。
+
+                根据产品信息，你需要输出一个严格的 JSON：
+                ```json
+                {
+                  "product_analysis": {
+                    "category": "产品类目",
+                    "positioning": "市价定位",
+                    "emotional_value": "情感价值",
+                    "visual_keywords": ["关键视觉词1", "关键视觉词2"]
+                  },
+                  "image_prompts": [
+                    "English prompt for hero shot - clean product photography, studio lighting, white background, ...",
+                    "English prompt for lifestyle shot - product in use, natural setting, warm tones, ...",
+                    "English prompt for detail shot - macro close-up, texture detail, dramatic lighting, ...",
+                    "English prompt for social media banner - trendy layout, bold colors, ..."
+                  ],
+                  "video_prompt": "English prompt for 15s product video - elegant transitions, product rotation, ...",
+                  "jingle_prompt": "English music prompt - catchy brand jingle, upbeat, memorable melody, ...",
+                  "jingle_lyrics": "short catchy lyrics for the product jingle",
+                  "copywriting_brief": {
+                    "key_message": "核心传播信息",
+                    "hashtags": ["#标签1", "#标签2"],
+                    "call_to_action": "行动号召"
+                  }
+                }
+                ```
+
+                image_prompts 要包含 4 种不同场景的产品图 prompt（英文），适用于 AI 生图。
+                video_prompt 是 15 秒产品视频的 prompt（英文）。
+                jingle_prompt 是广告曲的描述。
+              jinja2_text: null
+            - role: user
+              text: ""
+              jinja2_text: |
+                产品名称：{{ product_name }}
+                产品描述：{{ product_description }}
+                目标受众：{{ target_audience }}
+                核心卖点：{{ selling_points }}
+                品牌调性：{{ brand_tone }}
+                目标平台：{{ platforms }}
+          prompt_config:
+            jinja2_variables:
+              - variable: product_name
+                value_selector: [start, product_name]
+              - variable: product_description
+                value_selector: [start, product_description]
+              - variable: target_audience
+                value_selector: [start, target_audience]
+              - variable: selling_points
+                value_selector: [start, selling_points]
+              - variable: brand_tone
+                value_selector: [start, brand_tone]
+              - variable: platforms
+                value_selector: [start, platforms]
+          context:
+            enabled: false
+          vision:
+            enabled: false
+
+      # ============================================================
+      # CODE: 解析分析结果
+      # ============================================================
+      - id: code_parse_analysis
+        type: custom
+        position: { x: 700, y: 400 }
+        width: 244
+        height: 80
+        data:
+          type: code
+          title: "解析分析结果"
+          code_language: python3
+          code: |
+            import json
+            import re
+
+            def main(llm_output: str) -> dict:
+                json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', llm_output, re.DOTALL)
+                if json_match:
+                    raw = json_match.group(1)
+                else:
+                    json_match = re.search(r'\{.*\}', llm_output, re.DOTALL)
+                    raw = json_match.group(0) if json_match else llm_output
+                data = json.loads(raw)
+                return {
+                    "image_prompts": data.get("image_prompts", []),
+                    "video_prompt": data.get("video_prompt", ""),
+                    "jingle_prompt": data.get("jingle_prompt", ""),
+                    "jingle_lyrics": data.get("jingle_lyrics", ""),
+                    "copywriting_brief": json.dumps(data.get("copywriting_brief", {}), ensure_ascii=False),
+                    "product_analysis": json.dumps(data.get("product_analysis", {}), ensure_ascii=False)
+                }
+          variables:
+            - variable: llm_output
+              value_selector: [llm_analyzer, text]
+          outputs:
+            image_prompts:
+              type: "array[string]"
+            video_prompt:
+              type: string
+            jingle_prompt:
+              type: string
+            jingle_lyrics:
+              type: string
+            copywriting_brief:
+              type: string
+            product_analysis:
+              type: string
+
+      # ============================================================
+      # Branch 1: LLM 多平台文案
+      # ============================================================
+      - id: llm_copywriting
+        type: custom
+        position: { x: 1100, y: 100 }
+        width: 244
+        height: 118
+        data:
+          type: llm
+          title: "AI 文案大师"
+          desc: "为多个平台生成差异化文案"
+          model:
+            provider: langgenius/openai/openai
+            name: chatgpt-4o-latest
+            mode: chat
+            completion_params:
+              temperature: 0.85
+              max_tokens: 3000
+          prompt_template:
+            - role: system
+              text: |
+                你是一个顶级社交媒体文案写手。根据产品信息和营销策略，为以下平台各写一篇营销文案：
+
+                1. **小红书** - 种草风格，真实感、生活化，emoji 丰富，3-5 个分段
+                2. **抖音** - 短平快，前 3 秒抓眼球，口语化
+                3. **Instagram** - 英文，lifestyle 风格，配合 hashtags
+                4. **Twitter/X** - 英文，精炼有力，280 字符内
+                5. **LinkedIn** - 英文，专业商务风，突出价值主张
+
+                每个平台的文案格式：
+                ---
+                ## [平台名]
+                [文案内容]
+                ---
+              jinja2_text: null
+            - role: user
+              text: ""
+              jinja2_text: |
+                产品：{{ product_name }}
+                描述：{{ product_description }}
+                卖点：{{ selling_points }}
+                受众：{{ target_audience }}
+                品牌调性：{{ brand_tone }}
+                营销策略：{{ copywriting_brief }}
+          prompt_config:
+            jinja2_variables:
+              - variable: product_name
+                value_selector: [start, product_name]
+              - variable: product_description
+                value_selector: [start, product_description]
+              - variable: selling_points
+                value_selector: [start, selling_points]
+              - variable: target_audience
+                value_selector: [start, target_audience]
+              - variable: brand_tone
+                value_selector: [start, brand_tone]
+              - variable: copywriting_brief
+                value_selector: [code_parse_analysis, copywriting_brief]
+          context:
+            enabled: false
+          vision:
+            enabled: false
+
+      # ============================================================
+      # Branch 2: Iteration 产品图生成 (4 styles)
+      # ============================================================
+      - id: iteration_product_images
+        type: custom
+        position: { x: 1100, y: 350 }
+        width: 500
+        height: 200
+        data:
+          type: iteration
+          title: "并行生成产品图"
+          desc: "4 种风格的产品图同时生成"
+          iterator_selector: [code_parse_analysis, image_prompts]
+          output_selector: [flux_generate, text]
+          is_parallel: true
+          parallel_nums: 4
+          error_handle_mode: continue-on-error
+          flatten_output: false
+          start_node_id: iter_images_start
+
+      - id: iter_images_start
+        type: custom
+        position: { x: 1150, y: 400 }
+        width: 100
+        height: 50
+        parentId: iteration_product_images
+        data:
+          type: iteration-start
+          title: "开始"
+          isInIteration: true
+          iteration_id: iteration_product_images
+
+      - id: flux_generate
+        type: custom
+        position: { x: 1350, y: 380 }
+        width: 244
+        height: 118
+        parentId: iteration_product_images
+        data:
+          type: tool
+          title: "Flux 生成产品图"
+          isInIteration: true
+          iteration_id: iteration_product_images
+          provider_type: builtin
+          provider_name: acedatacloud/flux/flux
+          provider_id: acedatacloud/flux/flux
+          tool_name: flux_generate
+          tool_label: Flux Generate
+          is_team_authorization: true
+          tool_configurations: {}
+          tool_parameters:
+            prompt:
+              type: variable
+              value: [iteration_product_images, item]
+            size:
+              type: constant
+              value: "1024x1024"
+
+      # ============================================================
+      # Branch 3: Kling 产品视频
+      # ============================================================
+      - id: kling_generate
+        type: custom
+        position: { x: 1100, y: 600 }
+        width: 244
+        height: 118
+        data:
+          type: tool
+          title: "Kling 生成产品视频"
+          desc: "15 秒产品展示视频"
+          provider_type: builtin
+          provider_name: acedatacloud/kling/kling
+          provider_id: acedatacloud/kling/kling
+          tool_name: kling_generate
+          tool_label: Kling Generate
+          is_team_authorization: true
+          tool_configurations: {}
+          tool_parameters:
+            prompt:
+              type: mixed
+              value: "{{#code_parse_analysis.video_prompt#}}"
+
+      # ============================================================
+      # Branch 4: Suno 广告曲
+      # ============================================================
+      - id: suno_jingle
+        type: custom
+        position: { x: 1100, y: 800 }
+        width: 244
+        height: 118
+        data:
+          type: tool
+          title: "Suno 生成广告曲"
+          desc: "30 秒品牌广告曲"
+          provider_type: builtin
+          provider_name: acedatacloud/suno/suno
+          provider_id: acedatacloud/suno/suno
+          tool_name: suno_generate_audios
+          tool_label: Suno Generate
+          is_team_authorization: true
+          tool_configurations: {}
+          tool_parameters:
+            action:
+              type: constant
+              value: "custom"
+            prompt:
+              type: mixed
+              value: "{{#code_parse_analysis.jingle_prompt#}}"
+            lyrics:
+              type: mixed
+              value: "{{#code_parse_analysis.jingle_lyrics#}}"
+
+      # ============================================================
+      # Variable Aggregator: 汇聚4条并行分支
+      # ============================================================
+      - id: variable_aggregator
+        type: custom
+        position: { x: 1550, y: 400 }
+        width: 244
+        height: 100
+        data:
+          type: variable-aggregator
+          title: "汇聚所有结果"
+          desc: "等待所有并行分支完成"
+          advanced_settings:
+            group_enabled: false
+          variables:
+            - [llm_copywriting, text]
+            - [iteration_product_images, output]
+            - [kling_generate, text]
+            - [suno_jingle, text]
+
+      # ============================================================
+      # CODE: 最终汇总
+      # ============================================================
+      - id: code_final_assembly
+        type: custom
+        position: { x: 1900, y: 400 }
+        width: 244
+        height: 80
+        data:
+          type: code
+          title: "汇总营销套件"
+          code_language: python3
+          code: |
+            import json
+
+            def main(copywriting: str, image_results: list, video_result: str, music_result: str, product_name: str) -> dict:
+                # Parse image URLs
+                image_urls = []
+                for r in (image_results or []):
+                    if r:
+                        try:
+                            data = json.loads(r)
+                            items = data.get("data", [])
+                            if isinstance(items, list) and items:
+                                image_urls.append(items[0].get("image_url", ""))
+                        except (json.JSONDecodeError, TypeError):
+                            pass
+
+                # Parse video
+                video_url = ""
+                try:
+                    vd = json.loads(video_result)
+                    d = vd.get("data", {})
+                    if isinstance(d, dict):
+                        video_url = d.get("video_url", "")
+                except (json.JSONDecodeError, TypeError):
+                    pass
+
+                # Parse music
+                music_url = ""
+                try:
+                    md = json.loads(music_result)
+                    audios = md.get("data", [])
+                    if isinstance(audios, list) and audios:
+                        music_url = audios[0].get("audio_url", "")
+                except (json.JSONDecodeError, TypeError):
+                    pass
+
+                lines = [f"# 🛍️ {product_name} 营销套件", ""]
+                lines.append("## 📝 多平台文案")
+                lines.append(copywriting or "(生成中...)")
+                lines.append("")
+                lines.append("## 🖼️ 产品宣传图")
+                labels = ["主图 (Hero Shot)", "场景图 (Lifestyle)", "细节图 (Detail)", "社媒 Banner"]
+                for i, url in enumerate(image_urls):
+                    label = labels[i] if i < len(labels) else f"图片 {i+1}"
+                    lines.append(f"- **{label}**: [查看]({url})")
+                lines.append("")
+                if video_url:
+                    lines.append(f"## 🎬 产品视频\n[播放 15s 视频]({video_url})")
+                if music_url:
+                    lines.append(f"\n## 🎵 广告曲\n[播放广告曲]({music_url})")
+
+                return {
+                    "report": "\n".join(lines),
+                    "data_json": json.dumps({
+                        "product": product_name,
+                        "images": image_urls,
+                        "video": video_url,
+                        "music": music_url,
+                        "copywriting": copywriting
+                    }, ensure_ascii=False)
+                }
+          variables:
+            - variable: copywriting
+              value_selector: [llm_copywriting, text]
+            - variable: image_results
+              value_selector: [iteration_product_images, output]
+            - variable: video_result
+              value_selector: [kling_generate, text]
+            - variable: music_result
+              value_selector: [suno_jingle, text]
+            - variable: product_name
+              value_selector: [start, product_name]
+          outputs:
+            report:
+              type: string
+            data_json:
+              type: string
+
+      # ============================================================
+      # END NODE
+      # ============================================================
+      - id: end_node
+        type: custom
+        position: { x: 2250, y: 400 }
+        width: 244
+        height: 80
+        data:
+          type: end
+          title: "营销套件输出"
+          outputs:
+            - variable: report
+              value_selector: [code_final_assembly, report]
+            - variable: data_json
+              value_selector: [code_final_assembly, data_json]

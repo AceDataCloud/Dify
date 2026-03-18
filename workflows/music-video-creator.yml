@@ -1,0 +1,789 @@
+# AI 音乐 MV 制作工作流
+# 场景：从主题/情绪出发，自动创作歌曲 + 配套 MV 视觉素材
+# 流程：输入主题 → LLM 写词 → Suno 生曲 → LLM 分镜 → 逐句生成画面 → 画面转视频 → 输出 MV 素材包
+# 服务链：LLM (歌词+分镜) → Suno (音乐) → Seedream (画面) → Seedance (画面转视频)
+
+version: 0.1.0
+kind: workflow
+
+dependencies:
+  - type: marketplace
+    value:
+      plugin_unique_identifier: acedatacloud/suno
+  - type: marketplace
+    value:
+      plugin_unique_identifier: acedatacloud/seedream
+  - type: marketplace
+    value:
+      plugin_unique_identifier: acedatacloud/seedance
+
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features: {}
+
+  graph:
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7
+
+    edges:
+      # Start → LLM Lyricist
+      - id: start-to-lyricist
+        source: start
+        sourceHandle: source
+        target: llm_lyricist
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: start
+          targetType: llm
+          isInIteration: false
+          isInLoop: false
+
+      # LLM Lyricist → Code Parse Lyrics
+      - id: lyricist-to-parse
+        source: llm_lyricist
+        sourceHandle: source
+        target: code_parse_lyrics
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: llm
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+
+      # Code Parse → Suno Generate Music
+      - id: parse-to-suno
+        source: code_parse_lyrics
+        sourceHandle: source
+        target: suno_generate
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: tool
+          isInIteration: false
+          isInLoop: false
+
+      # Suno → LLM Storyboard  (needs music + lyrics context)
+      - id: suno-to-storyboard
+        source: suno_generate
+        sourceHandle: source
+        target: llm_storyboard
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: tool
+          targetType: llm
+          isInIteration: false
+          isInLoop: false
+
+      # LLM Storyboard → Code Parse Storyboard
+      - id: storyboard-to-parse
+        source: llm_storyboard
+        sourceHandle: source
+        target: code_parse_storyboard
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: llm
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+
+      # Code Parse Storyboard → Iteration (Image Gen)
+      - id: parse-storyboard-to-iter-images
+        source: code_parse_storyboard
+        sourceHandle: source
+        target: iteration_mv_frames
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: iteration
+          isInIteration: false
+          isInLoop: false
+
+      # Inside Image Iteration
+      - id: img-iter-start-to-seedream
+        source: img_iter_start
+        sourceHandle: source
+        target: seedream_frame
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: iteration-start
+          targetType: tool
+          isInIteration: true
+          isInLoop: false
+
+      # Image Iteration → Code Extract URLs
+      - id: img-iter-to-extract
+        source: iteration_mv_frames
+        sourceHandle: source
+        target: code_extract_images
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: iteration
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+
+      # Code Extract → Iteration (Video Gen from Images)
+      - id: extract-to-iter-videos
+        source: code_extract_images
+        sourceHandle: source
+        target: iteration_mv_clips
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: iteration
+          isInIteration: false
+          isInLoop: false
+
+      # Inside Video Iteration
+      - id: vid-iter-start-to-seedance
+        source: vid_iter_start
+        sourceHandle: source
+        target: seedance_clip
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: iteration-start
+          targetType: tool
+          isInIteration: true
+          isInLoop: false
+
+      # Video Iteration → Final Assembly
+      - id: vid-iter-to-assembly
+        source: iteration_mv_clips
+        sourceHandle: source
+        target: code_mv_assembly
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: iteration
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+
+      # Assembly → End
+      - id: assembly-to-end
+        source: code_mv_assembly
+        sourceHandle: source
+        target: end_node
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: end
+          isInIteration: false
+          isInLoop: false
+
+    nodes:
+      # ============================================================
+      # START
+      # ============================================================
+      - id: start
+        type: custom
+        position: { x: 0, y: 300 }
+        width: 244
+        height: 150
+        data:
+          type: start
+          title: "MV 创作输入"
+          variables:
+            - variable: theme
+              label: 歌曲主题/故事
+              type: paragraph
+              required: true
+              max_length: 1000
+            - variable: genre
+              label: 音乐风格
+              type: select
+              required: true
+              options:
+                - "Pop"
+                - "Rock"
+                - "R&B / Soul"
+                - "Hip-Hop"
+                - "Electronic"
+                - "Folk / Acoustic"
+                - "Jazz"
+                - "Classical Crossover"
+                - "Indie"
+                - "Country"
+            - variable: mood
+              label: 情绪基调
+              type: select
+              required: true
+              options:
+                - "欢快阳光"
+                - "深情浪漫"
+                - "忧郁感伤"
+                - "热血燃烧"
+                - "神秘梦幻"
+                - "治愈温暖"
+            - variable: mv_style
+              label: MV 视觉风格
+              type: select
+              required: true
+              options:
+                - "电影叙事 (Cinematic Narrative)"
+                - "动漫风格 (Anime Style)"
+                - "抽象艺术 (Abstract Art)"
+                - "复古怀旧 (Retro/Vintage)"
+                - "赛博霓虹 (Cyberpunk Neon)"
+                - "自然风光 (Nature Scenery)"
+            - variable: language
+              label: 歌词语言
+              type: select
+              required: true
+              default: "Chinese"
+              options:
+                - "Chinese"
+                - "English"
+                - "Japanese"
+                - "Korean"
+                - "Bilingual (Chinese + English)"
+
+      # ============================================================
+      # LLM: 作词
+      # ============================================================
+      - id: llm_lyricist
+        type: custom
+        position: { x: 350, y: 300 }
+        width: 244
+        height: 118
+        data:
+          type: llm
+          title: "AI 作词人"
+          desc: "根据主题和情绪创作歌词"
+          model:
+            provider: langgenius/openai/openai
+            name: chatgpt-4o-latest
+            mode: chat
+            completion_params:
+              temperature: 0.9
+              max_tokens: 2000
+          prompt_template:
+            - role: system
+              text: |
+                你是一个专业词曲创作人，擅长用细腻的意象和画面感写词。
+
+                返回 JSON：
+                ```json
+                {
+                  "title": "歌曲标题",
+                  "lyrics": "完整歌词（用 [Verse 1], [Chorus], [Bridge] 等标记结构）",
+                  "style_tags": "Suno 风格标签（英文，逗号分隔，如 pop, emotional, female vocal, piano）",
+                  "structure_summary": "歌曲结构概述（如：Intro → Verse 1 → Chorus → ...）"
+                }
+                ```
+
+                要求：
+                - 歌词有画面感，每一句都能联想到具体视觉画面（后续用于 MV 分镜）
+                - 歌词控制在 200 字以内（短歌，适合 AI 生成）
+                - style_tags 要与音乐风格匹配
+              jinja2_text: null
+            - role: user
+              text: ""
+              jinja2_text: |
+                主题故事：{{ theme }}
+                音乐风格：{{ genre }}
+                情绪基调：{{ mood }}
+                歌词语言：{{ language }}
+          prompt_config:
+            jinja2_variables:
+              - variable: theme
+                value_selector: [start, theme]
+              - variable: genre
+                value_selector: [start, genre]
+              - variable: mood
+                value_selector: [start, mood]
+              - variable: language
+                value_selector: [start, language]
+          context:
+            enabled: false
+          vision:
+            enabled: false
+
+      # ============================================================
+      # CODE: 解析歌词
+      # ============================================================
+      - id: code_parse_lyrics
+        type: custom
+        position: { x: 700, y: 300 }
+        width: 244
+        height: 80
+        data:
+          type: code
+          title: "解析歌词"
+          code_language: python3
+          code: |
+            import json
+            import re
+
+            def main(llm_output: str) -> dict:
+                json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', llm_output, re.DOTALL)
+                if json_match:
+                    raw = json_match.group(1)
+                else:
+                    json_match = re.search(r'\{.*\}', llm_output, re.DOTALL)
+                    raw = json_match.group(0) if json_match else llm_output
+                data = json.loads(raw)
+                return {
+                    "song_title": data.get("title", ""),
+                    "lyrics": data.get("lyrics", ""),
+                    "style_tags": data.get("style_tags", ""),
+                    "structure_summary": data.get("structure_summary", "")
+                }
+          variables:
+            - variable: llm_output
+              value_selector: [llm_lyricist, text]
+          outputs:
+            song_title:
+              type: string
+            lyrics:
+              type: string
+            style_tags:
+              type: string
+            structure_summary:
+              type: string
+
+      # ============================================================
+      # TOOL: Suno 生成音乐
+      # ============================================================
+      - id: suno_generate
+        type: custom
+        position: { x: 1050, y: 300 }
+        width: 244
+        height: 118
+        data:
+          type: tool
+          title: "Suno 作曲"
+          desc: "根据歌词和风格生成完整歌曲"
+          provider_type: builtin
+          provider_name: acedatacloud/suno/suno
+          provider_id: acedatacloud/suno/suno
+          tool_name: suno_generate_audios
+          tool_label: Suno Generate
+          is_team_authorization: true
+          tool_configurations: {}
+          tool_parameters:
+            action:
+              type: constant
+              value: "custom"
+            prompt:
+              type: mixed
+              value: "{{#code_parse_lyrics.style_tags#}}"
+            lyrics:
+              type: mixed
+              value: "{{#code_parse_lyrics.lyrics#}}"
+            title:
+              type: mixed
+              value: "{{#code_parse_lyrics.song_title#}}"
+
+      # ============================================================
+      # LLM: MV 分镜
+      # ============================================================
+      - id: llm_storyboard
+        type: custom
+        position: { x: 1400, y: 300 }
+        width: 244
+        height: 118
+        data:
+          type: llm
+          title: "AI 导演：MV 分镜"
+          desc: "根据歌词逐段设计视觉画面"
+          model:
+            provider: langgenius/openai/openai
+            name: chatgpt-4o-latest
+            mode: chat
+            completion_params:
+              temperature: 0.8
+              max_tokens: 4000
+          prompt_template:
+            - role: system
+              text: |
+                你是一个 MV 导演。根据歌词和音乐信息，为 MV 设计 6-8 个关键画面（每个画面对应一段歌词）。
+
+                返回 JSON：
+                ```json
+                {
+                  "frames": [
+                    {
+                      "lyric_segment": "对应的歌词片段",
+                      "timestamp": "0:00-0:15",
+                      "visual_prompt": "English image generation prompt - detailed visual description including composition, lighting, colors, subjects, mood, camera angle...",
+                      "motion_prompt": "English video motion description - how the scene should move/animate (camera pan, zoom, character movement...)"
+                    }
+                  ]
+                }
+                ```
+
+                规则：
+                - visual_prompt 必须是英文，高质量 AI 生图 prompt
+                - 画面风格统一，保持 MV 视觉连贯性
+                - 每个画面要有情感递进，配合音乐起伏
+                - motion_prompt 描述从这帧图片出发的动态变化
+              jinja2_text: null
+            - role: user
+              text: ""
+              jinja2_text: |
+                歌曲标题：{{ title }}
+                歌词：
+                {{ lyrics }}
+
+                音乐结构：{{ structure }}
+                MV 视觉风格：{{ mv_style }}
+                情绪基调：{{ mood }}
+          prompt_config:
+            jinja2_variables:
+              - variable: title
+                value_selector: [code_parse_lyrics, song_title]
+              - variable: lyrics
+                value_selector: [code_parse_lyrics, lyrics]
+              - variable: structure
+                value_selector: [code_parse_lyrics, structure_summary]
+              - variable: mv_style
+                value_selector: [start, mv_style]
+              - variable: mood
+                value_selector: [start, mood]
+          context:
+            enabled: false
+          vision:
+            enabled: false
+
+      # ============================================================
+      # CODE: 解析分镜
+      # ============================================================
+      - id: code_parse_storyboard
+        type: custom
+        position: { x: 1750, y: 300 }
+        width: 244
+        height: 80
+        data:
+          type: code
+          title: "解析分镜"
+          code_language: python3
+          code: |
+            import json
+            import re
+
+            def main(llm_output: str) -> dict:
+                json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', llm_output, re.DOTALL)
+                if json_match:
+                    raw = json_match.group(1)
+                else:
+                    json_match = re.search(r'\{.*\}', llm_output, re.DOTALL)
+                    raw = json_match.group(0) if json_match else llm_output
+                data = json.loads(raw)
+                frames = data.get("frames", [])
+                return {
+                    "visual_prompts": [f.get("visual_prompt", "") for f in frames],
+                    "motion_prompts": [f.get("motion_prompt", "") for f in frames],
+                    "lyric_segments": [f.get("lyric_segment", "") for f in frames],
+                    "timestamps": [f.get("timestamp", "") for f in frames],
+                    "frame_count": len(frames)
+                }
+          variables:
+            - variable: llm_output
+              value_selector: [llm_storyboard, text]
+          outputs:
+            visual_prompts:
+              type: "array[string]"
+            motion_prompts:
+              type: "array[string]"
+            lyric_segments:
+              type: "array[string]"
+            timestamps:
+              type: "array[string]"
+            frame_count:
+              type: number
+
+      # ============================================================
+      # ITERATION: 生成 MV 帧图
+      # ============================================================
+      - id: iteration_mv_frames
+        type: custom
+        position: { x: 2100, y: 200 }
+        width: 500
+        height: 200
+        data:
+          type: iteration
+          title: "生成 MV 关键帧"
+          iterator_selector: [code_parse_storyboard, visual_prompts]
+          output_selector: [seedream_frame, text]
+          is_parallel: true
+          parallel_nums: 4
+          error_handle_mode: continue-on-error
+          flatten_output: false
+          start_node_id: img_iter_start
+
+      - id: img_iter_start
+        type: custom
+        position: { x: 2150, y: 280 }
+        width: 100
+        height: 50
+        parentId: iteration_mv_frames
+        data:
+          type: iteration-start
+          title: "开始"
+          isInIteration: true
+          iteration_id: iteration_mv_frames
+
+      - id: seedream_frame
+        type: custom
+        position: { x: 2350, y: 260 }
+        width: 244
+        height: 118
+        parentId: iteration_mv_frames
+        data:
+          type: tool
+          title: "Seedream 画面"
+          isInIteration: true
+          iteration_id: iteration_mv_frames
+          provider_type: builtin
+          provider_name: acedatacloud/seedream/seedream
+          provider_id: acedatacloud/seedream/seedream
+          tool_name: seedream_generate
+          tool_label: Seedream Generate
+          is_team_authorization: true
+          tool_configurations: {}
+          tool_parameters:
+            prompt:
+              type: variable
+              value: [iteration_mv_frames, item]
+            size:
+              type: constant
+              value: "1920x1080"
+
+      # ============================================================
+      # CODE: 提取所有图片 URL
+      # ============================================================
+      - id: code_extract_images
+        type: custom
+        position: { x: 2700, y: 300 }
+        width: 244
+        height: 80
+        data:
+          type: code
+          title: "提取图片 URL"
+          code_language: python3
+          code: |
+            import json
+
+            def main(image_results: list) -> dict:
+                image_urls = []
+                for r in (image_results or []):
+                    if r:
+                        try:
+                            data = json.loads(r)
+                            items = data.get("data", [])
+                            if isinstance(items, list) and items:
+                                image_urls.append(items[0].get("image_url", ""))
+                            elif isinstance(items, dict):
+                                image_urls.append(items.get("image_url", ""))
+                            else:
+                                image_urls.append("")
+                        except (json.JSONDecodeError, TypeError):
+                            image_urls.append("")
+                return {"image_urls": image_urls}
+          variables:
+            - variable: image_results
+              value_selector: [iteration_mv_frames, output]
+          outputs:
+            image_urls:
+              type: "array[string]"
+
+      # ============================================================
+      # ITERATION: 图片转视频片段
+      # ============================================================
+      - id: iteration_mv_clips
+        type: custom
+        position: { x: 3050, y: 200 }
+        width: 500
+        height: 200
+        data:
+          type: iteration
+          title: "图片转 MV 片段"
+          desc: "每帧图片用 Seedance 转成视频片段"
+          iterator_selector: [code_extract_images, image_urls]
+          output_selector: [seedance_clip, text]
+          is_parallel: false
+          parallel_nums: 2
+          error_handle_mode: continue-on-error
+          flatten_output: false
+          start_node_id: vid_iter_start
+
+      - id: vid_iter_start
+        type: custom
+        position: { x: 3100, y: 280 }
+        width: 100
+        height: 50
+        parentId: iteration_mv_clips
+        data:
+          type: iteration-start
+          title: "开始"
+          isInIteration: true
+          iteration_id: iteration_mv_clips
+
+      - id: seedance_clip
+        type: custom
+        position: { x: 3300, y: 260 }
+        width: 244
+        height: 118
+        parentId: iteration_mv_clips
+        data:
+          type: tool
+          title: "Seedance 动态化"
+          isInIteration: true
+          iteration_id: iteration_mv_clips
+          provider_type: builtin
+          provider_name: acedatacloud/seedance/seedance
+          provider_id: acedatacloud/seedance/seedance
+          tool_name: seedance_generate
+          tool_label: Seedance Generate
+          is_team_authorization: true
+          tool_configurations: {}
+          tool_parameters:
+            prompt:
+              type: constant
+              value: "smooth cinematic motion, gentle camera movement"
+            image_url:
+              type: variable
+              value: [iteration_mv_clips, item]
+
+      # ============================================================
+      # CODE: 最终 MV 素材包组装
+      # ============================================================
+      - id: code_mv_assembly
+        type: custom
+        position: { x: 3650, y: 300 }
+        width: 244
+        height: 80
+        data:
+          type: code
+          title: "MV 素材包汇总"
+          code_language: python3
+          code: |
+            import json
+
+            def main(song_title: str, lyrics: str, suno_output: str,
+                     video_results: list, image_urls: list,
+                     lyric_segments: list, timestamps: list) -> dict:
+                # Parse music
+                audio_url = ""
+                cover_url = ""
+                try:
+                    sd = json.loads(suno_output)
+                    audios = sd.get("data", [])
+                    if isinstance(audios, list) and audios:
+                        audio_url = audios[0].get("audio_url", "")
+                        cover_url = audios[0].get("image_url", "")
+                except (json.JSONDecodeError, TypeError):
+                    pass
+
+                # Parse video clips
+                video_clips = []
+                for r in (video_results or []):
+                    if r:
+                        try:
+                            data = json.loads(r)
+                            items = data.get("data", [])
+                            url = ""
+                            if isinstance(items, list) and items:
+                                url = items[0].get("video_url", "")
+                            elif isinstance(items, dict):
+                                url = items.get("video_url", "")
+                            video_clips.append(url)
+                        except (json.JSONDecodeError, TypeError):
+                            video_clips.append("")
+
+                # Build output
+                md = [f"# 🎵 MV 素材包：{song_title}", ""]
+                if audio_url:
+                    md.append(f"## 🎶 歌曲\n[播放]({audio_url})")
+                if cover_url:
+                    md.append(f"\n![封面]({cover_url})")
+                md.append(f"\n## 📝 歌词\n```\n{lyrics}\n```\n")
+                md.append("## 🎬 MV 片段时间线")
+                for i in range(max(len(video_clips), len(image_urls or []))):
+                    ts = timestamps[i] if i < len(timestamps) else f"片段 {i+1}"
+                    lyric = lyric_segments[i] if i < len(lyric_segments) else ""
+                    img = (image_urls or [])[i] if i < len(image_urls or []) else ""
+                    vid = video_clips[i] if i < len(video_clips) else ""
+                    md.append(f"\n### {ts}")
+                    if lyric:
+                        md.append(f"> {lyric}")
+                    if img:
+                        md.append(f"- 🖼️ [关键帧]({img})")
+                    if vid:
+                        md.append(f"- 🎬 [视频片段]({vid})")
+
+                return {
+                    "mv_report": "\n".join(md),
+                    "data_json": json.dumps({
+                        "title": song_title,
+                        "audio_url": audio_url,
+                        "cover_url": cover_url,
+                        "video_clips": video_clips,
+                        "image_frames": image_urls or [],
+                        "total_clips": len(video_clips)
+                    }, ensure_ascii=False)
+                }
+          variables:
+            - variable: song_title
+              value_selector: [code_parse_lyrics, song_title]
+            - variable: lyrics
+              value_selector: [code_parse_lyrics, lyrics]
+            - variable: suno_output
+              value_selector: [suno_generate, text]
+            - variable: video_results
+              value_selector: [iteration_mv_clips, output]
+            - variable: image_urls
+              value_selector: [code_extract_images, image_urls]
+            - variable: lyric_segments
+              value_selector: [code_parse_storyboard, lyric_segments]
+            - variable: timestamps
+              value_selector: [code_parse_storyboard, timestamps]
+          outputs:
+            mv_report:
+              type: string
+            data_json:
+              type: string
+
+      # ============================================================
+      # END
+      # ============================================================
+      - id: end_node
+        type: custom
+        position: { x: 4000, y: 300 }
+        width: 244
+        height: 80
+        data:
+          type: end
+          title: "MV 素材包"
+          outputs:
+            - variable: mv_report
+              value_selector: [code_mv_assembly, mv_report]
+            - variable: data_json
+              value_selector: [code_mv_assembly, data_json]
