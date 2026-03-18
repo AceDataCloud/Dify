@@ -209,6 +209,26 @@ def build_midjourney_imagine_payload(tool_parameters: dict[str, Any]) -> dict[st
     if isinstance(mask, str) and mask.strip():
         payload["mask"] = mask.strip()
 
+    version = tool_parameters.get("version")
+    if isinstance(version, str) and version.strip():
+        payload["version"] = version.strip()
+
+    hd = _parse_optional_bool(tool_parameters.get("hd"), name="hd")
+    if hd is not None:
+        payload["hd"] = hd
+
+    quality = tool_parameters.get("quality")
+    if isinstance(quality, str) and quality.strip():
+        payload["quality"] = quality.strip()
+
+    style_reference = _parse_optional_bool(tool_parameters.get("style_reference"), name="style_reference")
+    if style_reference is not None:
+        payload["style_reference"] = style_reference
+
+    moodboard = _parse_optional_bool(tool_parameters.get("moodboard"), name="moodboard")
+    if moodboard is not None:
+        payload["moodboard"] = moodboard
+
     return payload
 
 

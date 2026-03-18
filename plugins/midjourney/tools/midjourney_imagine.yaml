@@ -113,6 +113,69 @@ parameters:
       zh_Hans: 异步回调地址（可选）。
     llm_description: Optional.
     form: form
+  - name: version
+    type: select
+    required: false
+    label: { en_US: Version, zh_Hans: 版本 }
+    human_description:
+      en_US: Midjourney model version. V8 is the latest with HD and quality 4 support.
+      zh_Hans: Midjourney 模型版本。V8 为最新版本，支持 HD 和 quality 4。
+    llm_description: Optional. Model version string, e.g. "8", "7", "6.1".
+    form: form
+    options:
+      - value: "8"
+        label: { en_US: "8 (Alpha)", zh_Hans: "8（Alpha）" }
+      - value: "7"
+        label: { en_US: "7", zh_Hans: "7" }
+      - value: "6.1"
+        label: { en_US: "6.1", zh_Hans: "6.1" }
+      - value: "6"
+        label: { en_US: "6", zh_Hans: "6" }
+  - name: hd
+    type: boolean
+    required: false
+    label: { en_US: HD Mode, zh_Hans: HD 高清 }
+    human_description:
+      en_US: Enable HD mode for 2K resolution output (V8 only, costs 4x).
+      zh_Hans: 启用 HD 高清模式输出 2K 分辨率图像（仅 V8，消耗 4 倍积分）。
+    llm_description: Optional. V8 only. Enable HD for 2K resolution images.
+    form: form
+  - name: quality
+    type: select
+    required: false
+    label: { en_US: Quality, zh_Hans: 画质 }
+    human_description:
+      en_US: Image quality level.
+      zh_Hans: 图像画质等级。
+    llm_description: Optional. Quality level. "4" is ultra detail (V8 only, costs 4x).
+    form: form
+    options:
+      - value: "1"
+        label: { en_US: "1 (default)", zh_Hans: "1（默认）" }
+      - value: ".5"
+        label: { en_US: "0.5 (medium)", zh_Hans: "0.5（中等）" }
+      - value: ".25"
+        label: { en_US: "0.25 (low)", zh_Hans: "0.25（低）" }
+      - value: "4"
+        label: { en_US: "4 (ultra, V8 only)", zh_Hans: "4（超清，仅 V8）" }
+  - name: style_reference
+    type: boolean
+    required: false
+    label: { en_US: Style Reference, zh_Hans: 风格参考 }
+    human_description:
+      en_US: Whether the prompt uses --sref style references (V8 premium feature).
+      zh_Hans: 提示词是否使用了 --sref 风格参考（V8 高级特性）。
+    llm_description: Optional. Set true if the prompt contains --sref parameter.
+    form: form
+  - name: moodboard
+    type: boolean
+    required: false
+    label: { en_US: Moodboard, zh_Hans: 情绪板 }
+    human_description:
+      en_US: Whether using moodboard mode with multiple reference images (V8 premium feature).
+      zh_Hans: 是否使用多参考图的情绪板模式（V8 高级特性）。
+    llm_description: Optional. Set true when blending multiple reference images as a moodboard.
+    form: form
   - name: application_id
     type: string
     required: false
