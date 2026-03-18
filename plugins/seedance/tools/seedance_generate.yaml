@@ -56,15 +56,35 @@ parameters:
     form: form
     options:
       - value: doubao-seedance-1-0-pro-250528
-        label: { en_US: doubao-seedance-1-0-pro-250528 (default), zh_Hans: doubao-seedance-1-0-pro-250528（默认） }
+        label:
+          {
+            en_US: doubao-seedance-1-0-pro-250528 (default),
+            zh_Hans: doubao-seedance-1-0-pro-250528（默认）,
+          }
       - value: doubao-seedance-1-0-pro-fast-251015
-        label: { en_US: doubao-seedance-1-0-pro-fast-251015, zh_Hans: doubao-seedance-1-0-pro-fast-251015 }
+        label:
+          {
+            en_US: doubao-seedance-1-0-pro-fast-251015,
+            zh_Hans: doubao-seedance-1-0-pro-fast-251015,
+          }
       - value: doubao-seedance-1-5-pro-251215
-        label: { en_US: doubao-seedance-1-5-pro-251215, zh_Hans: doubao-seedance-1-5-pro-251215 }
+        label:
+          {
+            en_US: doubao-seedance-1-5-pro-251215,
+            zh_Hans: doubao-seedance-1-5-pro-251215,
+          }
       - value: doubao-seedance-1-0-lite-t2v-250428
-        label: { en_US: doubao-seedance-1-0-lite-t2v-250428, zh_Hans: doubao-seedance-1-0-lite-t2v-250428 }
+        label:
+          {
+            en_US: doubao-seedance-1-0-lite-t2v-250428,
+            zh_Hans: doubao-seedance-1-0-lite-t2v-250428,
+          }
       - value: doubao-seedance-1-0-lite-i2v-250428
-        label: { en_US: doubao-seedance-1-0-lite-i2v-250428, zh_Hans: doubao-seedance-1-0-lite-i2v-250428 }
+        label:
+          {
+            en_US: doubao-seedance-1-0-lite-i2v-250428,
+            zh_Hans: doubao-seedance-1-0-lite-i2v-250428,
+          }
   - name: first_frame_url
     type: string
     required: false
@@ -253,4 +273,3 @@ parameters:
 extra:
   python:
     source: tools/seedance_generate.py
-

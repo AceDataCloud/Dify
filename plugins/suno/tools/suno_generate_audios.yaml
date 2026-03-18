@@ -190,4 +190,3 @@ parameters:
 extra:
   python:
     source: tools/suno_generate_audios.py
-

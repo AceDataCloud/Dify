@@ -208,4 +208,3 @@ parameters:
 extra:
   python:
     source: tools/sora_generate.py
-
