@@ -1,0 +1,686 @@
+# AI 短视频全自动生产线
+# 场景：短视频/Reels/TikTok 自动化内容生产
+# 流程：用户输入主题 → LLM 生成脚本+分镜 → 并行生成每个分镜的图片 → 图片转视频 → AI 生成背景音乐 → 输出
+# 服务链：LLM (GPT-4o) → Seedream (图片) → Luma (图生视频) → Suno (AI 音乐)
+
+version: 0.1.0
+kind: workflow
+
+dependencies:
+  - type: marketplace
+    value:
+      plugin_unique_identifier: acedatacloud/seedream
+  - type: marketplace
+    value:
+      plugin_unique_identifier: acedatacloud/luma
+  - type: marketplace
+    value:
+      plugin_unique_identifier: acedatacloud/suno
+
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features: {}
+
+  graph:
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.8
+
+    edges:
+      # Start → LLM Script Generator
+      - id: start-to-llm-script
+        source: start
+        sourceHandle: source
+        target: llm_script
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: start
+          targetType: llm
+          isInIteration: false
+          isInLoop: false
+
+      # LLM Script → Code (Parse JSON)
+      - id: llm-script-to-parse
+        source: llm_script
+        sourceHandle: source
+        target: code_parse_script
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: llm
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+
+      # Code Parse → Iteration (Generate Images)
+      - id: parse-to-iteration-images
+        source: code_parse_script
+        sourceHandle: source
+        target: iteration_scenes
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: iteration
+          isInIteration: false
+          isInLoop: false
+
+      # Inside Iteration: Start → Seedream Generate
+      - id: iter-start-to-seedream
+        source: iteration_scenes_start
+        sourceHandle: source
+        target: seedream_generate
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: iteration-start
+          targetType: tool
+          isInIteration: true
+          isInLoop: false
+
+      # Inside Iteration: Seedream → Code (Extract Image URL)
+      - id: seedream-to-extract
+        source: seedream_generate
+        sourceHandle: source
+        target: code_extract_image
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: tool
+          targetType: code
+          isInIteration: true
+          isInLoop: false
+
+      # Inside Iteration: Code Extract → Luma Video
+      - id: extract-to-luma
+        source: code_extract_image
+        sourceHandle: source
+        target: luma_generate
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: tool
+          isInIteration: true
+          isInLoop: false
+
+      # Iteration → LLM Music Prompt
+      - id: iteration-to-llm-music
+        source: iteration_scenes
+        sourceHandle: source
+        target: llm_music_prompt
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: iteration
+          targetType: llm
+          isInIteration: false
+          isInLoop: false
+
+      # LLM Music → Suno Generate
+      - id: llm-music-to-suno
+        source: llm_music_prompt
+        sourceHandle: source
+        target: suno_generate
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: llm
+          targetType: tool
+          isInIteration: false
+          isInLoop: false
+
+      # Suno → Final Assembly (Code)
+      - id: suno-to-assembly
+        source: suno_generate
+        sourceHandle: source
+        target: code_assembly
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: tool
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+
+      # Assembly → End
+      - id: assembly-to-end
+        source: code_assembly
+        sourceHandle: source
+        target: end_node
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: end
+          isInIteration: false
+          isInLoop: false
+
+    nodes:
+      # ============================================================
+      # START NODE: Accept user input
+      # ============================================================
+      - id: start
+        type: custom
+        position: { x: 0, y: 300 }
+        width: 244
+        height: 118
+        data:
+          type: start
+          title: 开始
+          desc: "输入视频主题和参数"
+          variables:
+            - variable: topic
+              label: 视频主题
+              type: text-input
+              required: true
+              max_length: 500
+            - variable: style
+              label: 视觉风格
+              type: select
+              required: true
+              options:
+                - "电影感 (Cinematic)"
+                - "动漫风 (Anime)"
+                - "赛博朋克 (Cyberpunk)"
+                - "自然纪录片 (Nature Documentary)"
+                - "极简商务 (Minimal Corporate)"
+                - "复古胶片 (Vintage Film)"
+            - variable: scene_count
+              label: 分镜数量
+              type: select
+              required: true
+              default: "4"
+              options: ["3", "4", "5", "6"]
+            - variable: music_style
+              label: 背景音乐风格
+              type: select
+              required: false
+              default: "auto"
+              options:
+                - "auto"
+                - "Epic Orchestral"
+                - "Lo-fi Chill"
+                - "Electronic/EDM"
+                - "Acoustic Folk"
+                - "Cinematic Ambient"
+                - "Pop"
+
+      # ============================================================
+      # LLM NODE: Generate video script + storyboard
+      # ============================================================
+      - id: llm_script
+        type: custom
+        position: { x: 350, y: 300 }
+        width: 244
+        height: 118
+        data:
+          type: llm
+          title: "AI 编剧：生成脚本 + 分镜"
+          desc: "根据主题生成完整视频脚本、分镜描述和音乐建议"
+          model:
+            provider: langgenius/openai/openai
+            name: chatgpt-4o-latest
+            mode: chat
+            completion_params:
+              temperature: 0.8
+              top_p: 0.95
+              max_tokens: 4096
+          prompt_template:
+            - role: system
+              text: |
+                你是一个专业的短视频编剧和分镜师。你需要根据用户给出的主题，生成一个完整的短视频脚本。
+
+                你必须返回一个严格的 JSON 对象，格式如下：
+                ```json
+                {
+                  "title": "视频标题",
+                  "hook": "开头 3 秒的钩子文案",
+                  "scenes": [
+                    {
+                      "scene_number": 1,
+                      "duration_seconds": 5,
+                      "visual_description": "详细的画面描述，用于 AI 生图（英文，描述构图、光影、色调、主体）",
+                      "narration": "这个场景的旁白/字幕文案",
+                      "camera_movement": "镜头运动描述（如：缓慢推进、航拍俯瞰、特写）"
+                    }
+                  ],
+                  "music_description": "背景音乐的风格描述（英文，包含情绪、节奏、乐器）",
+                  "music_lyrics_hint": "如果需要歌词，提供一段简短的歌词提示（可选）",
+                  "overall_mood": "整体情绪基调"
+                }
+                ```
+
+                要求：
+                1. visual_description 必须是英文，适合作为 AI 图片生成的 prompt，要包含具体的构图、光影、色调描述
+                2. 每个场景的画面描述要有连贯性和视觉递进感
+                3. 第一个场景必须是强 hook（抓眼球的画面）
+                4. 视觉风格统一为用户指定的风格
+                5. 分镜数量严格按照用户要求
+              jinja2_text: null
+            - role: user
+              text: ""
+              jinja2_text: |
+                视频主题：{{ topic }}
+                视觉风格：{{ style }}
+                分镜数量：{{ scene_count }}
+                {% if music_style != 'auto' %}音乐风格偏好：{{ music_style }}{% endif %}
+
+                请生成完整的视频脚本和分镜，返回 JSON。
+          prompt_config:
+            jinja2_variables:
+              - variable: topic
+                value_selector: [start, topic]
+              - variable: style
+                value_selector: [start, style]
+              - variable: scene_count
+                value_selector: [start, scene_count]
+              - variable: music_style
+                value_selector: [start, music_style]
+          context:
+            enabled: false
+          vision:
+            enabled: false
+
+      # ============================================================
+      # CODE NODE: Parse LLM output JSON
+      # ============================================================
+      - id: code_parse_script
+        type: custom
+        position: { x: 700, y: 300 }
+        width: 244
+        height: 80
+        data:
+          type: code
+          title: "解析脚本 JSON"
+          desc: "提取 LLM 返回的脚本结构"
+          code_language: python3
+          code: |
+            import json
+            import re
+
+            def main(llm_output: str) -> dict:
+                # Extract JSON from markdown code blocks if present
+                json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', llm_output, re.DOTALL)
+                if json_match:
+                    raw = json_match.group(1)
+                else:
+                    # Try to find JSON object directly
+                    json_match = re.search(r'\{.*\}', llm_output, re.DOTALL)
+                    raw = json_match.group(0) if json_match else llm_output
+
+                data = json.loads(raw)
+                scenes = data.get("scenes", [])
+                # Build array of scene visual descriptions for iteration
+                scene_prompts = []
+                for s in scenes:
+                    scene_prompts.append(s.get("visual_description", ""))
+
+                return {
+                    "title": data.get("title", ""),
+                    "hook": data.get("hook", ""),
+                    "scene_prompts": scene_prompts,
+                    "scene_narrations": [s.get("narration", "") for s in scenes],
+                    "camera_movements": [s.get("camera_movement", "") for s in scenes],
+                    "music_description": data.get("music_description", ""),
+                    "music_lyrics_hint": data.get("music_lyrics_hint", ""),
+                    "overall_mood": data.get("overall_mood", ""),
+                    "full_script": json.dumps(data, ensure_ascii=False)
+                }
+          variables:
+            - variable: llm_output
+              value_selector: [llm_script, text]
+          outputs:
+            title:
+              type: string
+            hook:
+              type: string
+            scene_prompts:
+              type: "array[string]"
+            scene_narrations:
+              type: "array[string]"
+            camera_movements:
+              type: "array[string]"
+            music_description:
+              type: string
+            music_lyrics_hint:
+              type: string
+            overall_mood:
+              type: string
+            full_script:
+              type: string
+
+      # ============================================================
+      # ITERATION NODE: Generate image + video for each scene
+      # ============================================================
+      - id: iteration_scenes
+        type: custom
+        position: { x: 1050, y: 200 }
+        width: 800
+        height: 400
+        data:
+          type: iteration
+          title: "并行生成分镜素材"
+          desc: "对每个分镜：生成图片 → 转成视频片段"
+          iterator_selector: [code_parse_script, scene_prompts]
+          output_selector: [luma_generate, text]
+          is_parallel: true
+          parallel_nums: 4
+          error_handle_mode: continue-on-error
+          flatten_output: false
+          start_node_id: iteration_scenes_start
+
+      # --- Iteration internal: Start ---
+      - id: iteration_scenes_start
+        type: custom
+        position: { x: 1100, y: 300 }
+        width: 100
+        height: 50
+        parentId: iteration_scenes
+        data:
+          type: iteration-start
+          title: "开始"
+          isInIteration: true
+          iteration_id: iteration_scenes
+
+      # --- Iteration internal: Seedream Generate Image ---
+      - id: seedream_generate
+        type: custom
+        position: { x: 1250, y: 280 }
+        width: 244
+        height: 118
+        parentId: iteration_scenes
+        data:
+          type: tool
+          title: "Seedream 生成分镜图"
+          desc: "为当前分镜生成高质量图片"
+          isInIteration: true
+          iteration_id: iteration_scenes
+          provider_type: builtin
+          provider_name: acedatacloud/seedream/seedream
+          provider_id: acedatacloud/seedream/seedream
+          tool_name: seedream_generate
+          tool_label: Seedream Generate
+          is_team_authorization: true
+          tool_configurations: {}
+          tool_parameters:
+            prompt:
+              type: variable
+              value: [iteration_scenes, item]
+            size:
+              type: constant
+              value: "1920x1080"
+            seed:
+              type: constant
+              value: -1
+
+      # --- Iteration internal: Code Extract Image URL ---
+      - id: code_extract_image
+        type: custom
+        position: { x: 1550, y: 280 }
+        width: 200
+        height: 80
+        parentId: iteration_scenes
+        data:
+          type: code
+          title: "提取图片 URL"
+          isInIteration: true
+          iteration_id: iteration_scenes
+          code_language: python3
+          code: |
+            import json
+
+            def main(tool_output: str) -> dict:
+                data = json.loads(tool_output)
+                images = data.get("data", [])
+                image_url = ""
+                if isinstance(images, list) and len(images) > 0:
+                    image_url = images[0].get("image_url", "")
+                elif isinstance(images, dict):
+                    image_url = images.get("image_url", "")
+                return {"image_url": image_url}
+          variables:
+            - variable: tool_output
+              value_selector: [seedream_generate, text]
+          outputs:
+            image_url:
+              type: string
+
+      # --- Iteration internal: Luma Generate Video from Image ---
+      - id: luma_generate
+        type: custom
+        position: { x: 1800, y: 280 }
+        width: 244
+        height: 118
+        parentId: iteration_scenes
+        data:
+          type: tool
+          title: "Luma 图片转视频"
+          desc: "将分镜图转为 5 秒视频片段"
+          isInIteration: true
+          iteration_id: iteration_scenes
+          provider_type: builtin
+          provider_name: acedatacloud/luma/luma
+          provider_id: acedatacloud/luma/luma
+          tool_name: luma_generate
+          tool_label: Luma Generate Video
+          is_team_authorization: true
+          tool_configurations: {}
+          tool_parameters:
+            prompt:
+              type: variable
+              value: [iteration_scenes, item]
+            start_image_url:
+              type: mixed
+              value: "{{#code_extract_image.image_url#}}"
+
+      # ============================================================
+      # LLM NODE: Generate music prompt
+      # ============================================================
+      - id: llm_music_prompt
+        type: custom
+        position: { x: 2000, y: 100 }
+        width: 244
+        height: 118
+        data:
+          type: llm
+          title: "AI 音乐策划"
+          desc: "根据视频脚本生成最适合的音乐"
+          model:
+            provider: langgenius/openai/openai
+            name: chatgpt-4o-latest
+            mode: chat
+            completion_params:
+              temperature: 0.7
+              max_tokens: 500
+          prompt_template:
+            - role: system
+              text: |
+                你是一个音乐制作人。根据视频脚本信息，生成一段描述来指导 AI 音乐生成。
+                直接返回一段英文的音乐描述 prompt（不要返回 JSON），描述应该包含：
+                - 音乐风格和类型
+                - 节奏（BPM 范围）
+                - 情绪和氛围
+                - 推荐乐器
+                - 大致结构（如 intro → build → climax → outro）
+                控制在 200 字以内。
+              jinja2_text: null
+            - role: user
+              text: ""
+              jinja2_text: |
+                视频标题：{{ title }}
+                整体情绪：{{ mood }}
+                脚本中的音乐建议：{{ music_desc }}
+                {% if music_hint %}歌词提示：{{ music_hint }}{% endif %}
+
+                请生成音乐描述 prompt。
+          prompt_config:
+            jinja2_variables:
+              - variable: title
+                value_selector: [code_parse_script, title]
+              - variable: mood
+                value_selector: [code_parse_script, overall_mood]
+              - variable: music_desc
+                value_selector: [code_parse_script, music_description]
+              - variable: music_hint
+                value_selector: [code_parse_script, music_lyrics_hint]
+          context:
+            enabled: false
+          vision:
+            enabled: false
+
+      # ============================================================
+      # TOOL NODE: Suno Generate Music
+      # ============================================================
+      - id: suno_generate
+        type: custom
+        position: { x: 2350, y: 100 }
+        width: 244
+        height: 118
+        data:
+          type: tool
+          title: "Suno AI 生成背景音乐"
+          desc: "根据描述生成一首完整的背景音乐"
+          provider_type: builtin
+          provider_name: acedatacloud/suno/suno
+          provider_id: acedatacloud/suno/suno
+          tool_name: suno_generate_audios
+          tool_label: Suno Generate
+          is_team_authorization: true
+          tool_configurations: {}
+          tool_parameters:
+            action:
+              type: constant
+              value: "generate"
+            prompt:
+              type: mixed
+              value: "{{#llm_music_prompt.text#}}"
+
+      # ============================================================
+      # CODE NODE: Final Assembly
+      # ============================================================
+      - id: code_assembly
+        type: custom
+        position: { x: 2700, y: 300 }
+        width: 244
+        height: 80
+        data:
+          type: code
+          title: "汇总输出"
+          desc: "组装所有生成的素材为最终输出"
+          code_language: python3
+          code: |
+            import json
+
+            def main(full_script: str, video_results: list, suno_output: str, title: str, hook: str, narrations: list) -> dict:
+                # Parse video results from iteration
+                video_clips = []
+                for i, result in enumerate(video_results):
+                    if result:
+                        try:
+                            data = json.loads(result)
+                            video_url = ""
+                            d = data.get("data", {})
+                            if isinstance(d, dict):
+                                video_url = d.get("video_url", "")
+                            elif isinstance(d, list) and len(d) > 0:
+                                video_url = d[0].get("video_url", "")
+                            narration = narrations[i] if i < len(narrations) else ""
+                            video_clips.append({
+                                "scene": i + 1,
+                                "video_url": video_url,
+                                "narration": narration
+                            })
+                        except (json.JSONDecodeError, TypeError):
+                            video_clips.append({"scene": i + 1, "video_url": "", "narration": "", "error": "parse_failed"})
+
+                # Parse Suno music output
+                music_url = ""
+                music_cover = ""
+                try:
+                    suno_data = json.loads(suno_output)
+                    audios = suno_data.get("data", [])
+                    if isinstance(audios, list) and len(audios) > 0:
+                        music_url = audios[0].get("audio_url", "")
+                        music_cover = audios[0].get("image_url", "")
+                except (json.JSONDecodeError, TypeError):
+                    pass
+
+                output = {
+                    "title": title,
+                    "hook": hook,
+                    "video_clips": video_clips,
+                    "music": {
+                        "audio_url": music_url,
+                        "cover_url": music_cover
+                    },
+                    "total_clips": len(video_clips),
+                    "status": "complete"
+                }
+
+                # Build readable summary
+                summary_lines = [f"🎬 **{title}**", f"📢 Hook: {hook}", ""]
+                summary_lines.append("**视频片段：**")
+                for clip in video_clips:
+                    url_display = f"[视频]({clip['video_url']})" if clip.get('video_url') else "⚠️ 生成失败"
+                    summary_lines.append(f"  场景 {clip['scene']}: {url_display}")
+                    if clip.get('narration'):
+                        summary_lines.append(f"    旁白: {clip['narration']}")
+
+                summary_lines.append("")
+                if music_url:
+                    summary_lines.append(f"**🎵 背景音乐：** [播放]({music_url})")
+                summary_lines.append(f"\n**完整数据 (JSON):**\n```json\n{json.dumps(output, ensure_ascii=False, indent=2)}\n```")
+
+                return {
+                    "summary": "\n".join(summary_lines),
+                    "data_json": json.dumps(output, ensure_ascii=False)
+                }
+          variables:
+            - variable: full_script
+              value_selector: [code_parse_script, full_script]
+            - variable: video_results
+              value_selector: [iteration_scenes, output]
+            - variable: suno_output
+              value_selector: [suno_generate, text]
+            - variable: title
+              value_selector: [code_parse_script, title]
+            - variable: hook
+              value_selector: [code_parse_script, hook]
+            - variable: narrations
+              value_selector: [code_parse_script, scene_narrations]
+          outputs:
+            summary:
+              type: string
+            data_json:
+              type: string
+
+      # ============================================================
+      # END NODE
+      # ============================================================
+      - id: end_node
+        type: custom
+        position: { x: 3050, y: 300 }
+        width: 244
+        height: 80
+        data:
+          type: end
+          title: "输出"
+          outputs:
+            - variable: summary
+              value_selector: [code_assembly, summary]
+            - variable: data_json
+              value_selector: [code_assembly, data_json]

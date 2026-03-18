@@ -1,0 +1,729 @@
+# 智能客户需求分析 + 方案生成
+# 场景：咨询/SaaS 销售场景，根据客户描述自动生成包含效果图的商业方案
+# 流程：需求描述 → LLM 分类 → SERP 搜索案例 → LLM 写方案 → 效果图 → 演示视频 → 输出
+# 服务链：LLM (分析+写作) → SERP (行业搜索) → NanoBanana (效果图) → Hailuo (演示视频)
+
+version: 0.1.0
+kind: workflow
+
+dependencies:
+  - type: marketplace
+    value:
+      plugin_unique_identifier: acedatacloud/serp
+  - type: marketplace
+    value:
+      plugin_unique_identifier: acedatacloud/nano-banana
+  - type: marketplace
+    value:
+      plugin_unique_identifier: acedatacloud/hailuo
+
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features: {}
+
+  graph:
+    viewport:
+      x: 0
+      y: 0
+      zoom: 0.7
+
+    edges:
+      # Start → LLM Need Classifier
+      - id: start-to-classifier
+        source: start
+        sourceHandle: source
+        target: llm_classifier
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: start
+          targetType: llm
+          isInIteration: false
+          isInLoop: false
+
+      # Classifier → Code Parse
+      - id: classifier-to-parse
+        source: llm_classifier
+        sourceHandle: source
+        target: code_parse_needs
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: llm
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+
+      # Parse → SERP (搜索行业案例)
+      - id: parse-to-serp
+        source: code_parse_needs
+        sourceHandle: source
+        target: serp_industry
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: tool
+          isInIteration: false
+          isInLoop: false
+
+      # SERP → LLM Proposal Writer
+      - id: serp-to-writer
+        source: serp_industry
+        sourceHandle: source
+        target: llm_proposal_writer
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: tool
+          targetType: llm
+          isInIteration: false
+          isInLoop: false
+
+      # Proposal Writer → Code Parse Proposal
+      - id: writer-to-parse-proposal
+        source: llm_proposal_writer
+        sourceHandle: source
+        target: code_parse_proposal
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: llm
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+
+      # Parse Proposal → Iteration (效果图)
+      - id: proposal-to-iter-mockups
+        source: code_parse_proposal
+        sourceHandle: source
+        target: iteration_mockups
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: iteration
+          isInIteration: false
+          isInLoop: false
+
+      # Parse Proposal → Hailuo (演示视频)
+      - id: proposal-to-hailuo
+        source: code_parse_proposal
+        sourceHandle: source
+        target: hailuo_demo
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: tool
+          isInIteration: false
+          isInLoop: false
+
+      # Inside mockup iteration
+      - id: mockup-iter-start-to-nb
+        source: mockup_iter_start
+        sourceHandle: source
+        target: nano_banana_mockup
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: iteration-start
+          targetType: tool
+          isInIteration: true
+          isInLoop: false
+
+      # Both branches → Aggregator
+      - id: mockups-to-agg
+        source: iteration_mockups
+        sourceHandle: source
+        target: var_agg_proposal
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: iteration
+          targetType: variable-aggregator
+          isInIteration: false
+          isInLoop: false
+
+      - id: hailuo-to-agg
+        source: hailuo_demo
+        sourceHandle: source
+        target: var_agg_proposal
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: tool
+          targetType: variable-aggregator
+          isInIteration: false
+          isInLoop: false
+
+      # Aggregator → Final
+      - id: agg-to-final
+        source: var_agg_proposal
+        sourceHandle: source
+        target: code_final_proposal
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: variable-aggregator
+          targetType: code
+          isInIteration: false
+          isInLoop: false
+
+      - id: final-to-end
+        source: code_final_proposal
+        sourceHandle: source
+        target: end_node
+        targetHandle: target
+        type: custom
+        zIndex: 0
+        data:
+          sourceType: code
+          targetType: end
+          isInIteration: false
+          isInLoop: false
+
+    nodes:
+      # ============================================================
+      # START
+      # ============================================================
+      - id: start
+        type: custom
+        position: { x: 0, y: 300 }
+        width: 244
+        height: 150
+        data:
+          type: start
+          title: "客户需求"
+          variables:
+            - variable: client_description
+              label: 客户需求描述
+              type: paragraph
+              required: true
+              max_length: 3000
+            - variable: industry
+              label: 行业
+              type: select
+              required: true
+              options:
+                - "科技/SaaS"
+                - "电商/零售"
+                - "金融/保险"
+                - "教育/培训"
+                - "医疗/健康"
+                - "餐饮/酒店"
+                - "制造/工业"
+                - "房地产"
+                - "其他"
+            - variable: budget_range
+              label: 预算范围
+              type: select
+              required: false
+              default: "不限"
+              options:
+                - "不限"
+                - "10 万以内"
+                - "10-50 万"
+                - "50-200 万"
+                - "200 万以上"
+            - variable: proposal_language
+              label: 方案语言
+              type: select
+              required: true
+              default: "zh"
+              options:
+                - "zh"
+                - "en"
+
+      # ============================================================
+      # LLM: 需求分类+策略
+      # ============================================================
+      - id: llm_classifier
+        type: custom
+        position: { x: 350, y: 300 }
+        width: 244
+        height: 118
+        data:
+          type: llm
+          title: "需求分析师"
+          model:
+            provider: langgenius/openai/openai
+            name: chatgpt-4o-latest
+            mode: chat
+            completion_params:
+              temperature: 0.5
+              max_tokens: 2000
+          prompt_template:
+            - role: system
+              text: |
+                你是一个资深商业顾问。分析客户需求，输出结构化的需求画像。
+
+                返回 JSON：
+                ```json
+                {
+                  "need_category": "需求类目（如：数字化转型、品牌营销、AI 赋能、运营优化等）",
+                  "pain_points": ["痛点1", "痛点2", "痛点3"],
+                  "key_requirements": ["核心需求1", "核心需求2"],
+                  "search_query": "English search query for finding industry case studies and solutions",
+                  "mockup_prompts": [
+                    "English prompt for product/solution mockup image - dashboard UI, modern design, ...",
+                    "English prompt for architecture diagram - system flow, clean technical illustration, ...",
+                    "English prompt for results visualization - data charts, growth metrics, professional ..."
+                  ],
+                  "demo_video_prompt": "English prompt for a professional demo video showing the solution in action, smooth transitions, modern UI elements..."
+                }
+                ```
+              jinja2_text: null
+            - role: user
+              text: ""
+              jinja2_text: |
+                客户需求：{{ description }}
+                行业：{{ industry }}
+                预算：{{ budget }}
+          prompt_config:
+            jinja2_variables:
+              - variable: description
+                value_selector: [start, client_description]
+              - variable: industry
+                value_selector: [start, industry]
+              - variable: budget
+                value_selector: [start, budget_range]
+          context:
+            enabled: false
+          vision:
+            enabled: false
+
+      # ============================================================
+      # CODE: 解析需求分析
+      # ============================================================
+      - id: code_parse_needs
+        type: custom
+        position: { x: 700, y: 300 }
+        width: 244
+        height: 80
+        data:
+          type: code
+          title: "解析需求画像"
+          code_language: python3
+          code: |
+            import json
+            import re
+
+            def main(llm_output: str) -> dict:
+                json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', llm_output, re.DOTALL)
+                if json_match:
+                    raw = json_match.group(1)
+                else:
+                    json_match = re.search(r'\{.*\}', llm_output, re.DOTALL)
+                    raw = json_match.group(0) if json_match else llm_output
+                data = json.loads(raw)
+                return {
+                    "need_category": data.get("need_category", ""),
+                    "pain_points": json.dumps(data.get("pain_points", []), ensure_ascii=False),
+                    "key_requirements": json.dumps(data.get("key_requirements", []), ensure_ascii=False),
+                    "search_query": data.get("search_query", ""),
+                    "mockup_prompts": data.get("mockup_prompts", []),
+                    "demo_video_prompt": data.get("demo_video_prompt", "")
+                }
+          variables:
+            - variable: llm_output
+              value_selector: [llm_classifier, text]
+          outputs:
+            need_category:
+              type: string
+            pain_points:
+              type: string
+            key_requirements:
+              type: string
+            search_query:
+              type: string
+            mockup_prompts:
+              type: "array[string]"
+            demo_video_prompt:
+              type: string
+
+      # ============================================================
+      # TOOL: SERP 搜索行业案例
+      # ============================================================
+      - id: serp_industry
+        type: custom
+        position: { x: 1050, y: 300 }
+        width: 244
+        height: 118
+        data:
+          type: tool
+          title: "搜索行业案例"
+          provider_type: builtin
+          provider_name: acedatacloud/serp/serp
+          provider_id: acedatacloud/serp/serp
+          tool_name: serp_google
+          tool_label: Google SERP
+          is_team_authorization: true
+          tool_configurations: {}
+          tool_parameters:
+            query:
+              type: mixed
+              value: "{{#code_parse_needs.search_query#}}"
+            count:
+              type: constant
+              value: 10
+
+      # ============================================================
+      # LLM: 商业方案撰写
+      # ============================================================
+      - id: llm_proposal_writer
+        type: custom
+        position: { x: 1400, y: 300 }
+        width: 244
+        height: 118
+        data:
+          type: llm
+          title: "方案撰写专家"
+          model:
+            provider: langgenius/openai/openai
+            name: chatgpt-4o-latest
+            mode: chat
+            completion_params:
+              temperature: 0.65
+              max_tokens: 6000
+          prompt_template:
+            - role: system
+              text: |
+                你是一个专业的商业方案撰写专家。根据需求分析和行业案例，撰写专业的商业提案。
+
+                返回 JSON：
+                ```json
+                {
+                  "proposal_title": "方案标题",
+                  "sections": [
+                    {
+                      "title": "章节标题",
+                      "content": "详细内容",
+                      "type": "overview | solution | timeline | pricing | case_study"
+                    }
+                  ],
+                  "key_differentiators": ["差异化优势1", "差异化优势2"],
+                  "roi_estimate": "投资回报估算描述",
+                  "next_steps": ["下一步行动1", "下一步行动2"]
+                }
+                ```
+
+                方案结构：
+                1. 项目背景与痛点分析
+                2. 解决方案概述
+                3. 技术架构 / 实现路径
+                4. 实施计划与时间线
+                5. 行业案例参考
+                6. 投资回报分析
+                7. 下一步行动
+              jinja2_text: null
+            - role: user
+              text: ""
+              jinja2_text: |
+                客户需求：{{ client_description }}
+                行业：{{ industry }}
+                预算：{{ budget }}
+                需求类目：{{ category }}
+                痛点：{{ pain_points }}
+                核心需求：{{ requirements }}
+                语言：{{ language }}
+
+                行业案例搜索结果：
+                {{ search_results }}
+          prompt_config:
+            jinja2_variables:
+              - variable: client_description
+                value_selector: [start, client_description]
+              - variable: industry
+                value_selector: [start, industry]
+              - variable: budget
+                value_selector: [start, budget_range]
+              - variable: category
+                value_selector: [code_parse_needs, need_category]
+              - variable: pain_points
+                value_selector: [code_parse_needs, pain_points]
+              - variable: requirements
+                value_selector: [code_parse_needs, key_requirements]
+              - variable: language
+                value_selector: [start, proposal_language]
+              - variable: search_results
+                value_selector: [serp_industry, text]
+          context:
+            enabled: false
+          vision:
+            enabled: false
+
+      # ============================================================
+      # CODE: 解析方案
+      # ============================================================
+      - id: code_parse_proposal
+        type: custom
+        position: { x: 1750, y: 300 }
+        width: 244
+        height: 80
+        data:
+          type: code
+          title: "解析方案"
+          code_language: python3
+          code: |
+            import json
+            import re
+
+            def main(llm_output: str) -> dict:
+                json_match = re.search(r'```(?:json)?\s*(\{.*?\})\s*```', llm_output, re.DOTALL)
+                if json_match:
+                    raw = json_match.group(1)
+                else:
+                    json_match = re.search(r'\{.*\}', llm_output, re.DOTALL)
+                    raw = json_match.group(0) if json_match else llm_output
+                data = json.loads(raw)
+                return {
+                    "proposal_title": data.get("proposal_title", ""),
+                    "sections_json": json.dumps(data.get("sections", []), ensure_ascii=False),
+                    "differentiators": json.dumps(data.get("key_differentiators", []), ensure_ascii=False),
+                    "roi_estimate": data.get("roi_estimate", ""),
+                    "next_steps": json.dumps(data.get("next_steps", []), ensure_ascii=False)
+                }
+          variables:
+            - variable: llm_output
+              value_selector: [llm_proposal_writer, text]
+          outputs:
+            proposal_title:
+              type: string
+            sections_json:
+              type: string
+            differentiators:
+              type: string
+            roi_estimate:
+              type: string
+            next_steps:
+              type: string
+
+      # ============================================================
+      # ITERATION: 效果图/原型图
+      # ============================================================
+      - id: iteration_mockups
+        type: custom
+        position: { x: 2150, y: 150 }
+        width: 500
+        height: 200
+        data:
+          type: iteration
+          title: "生成方案效果图"
+          iterator_selector: [code_parse_needs, mockup_prompts]
+          output_selector: [nano_banana_mockup, text]
+          is_parallel: true
+          parallel_nums: 3
+          error_handle_mode: continue-on-error
+          flatten_output: false
+          start_node_id: mockup_iter_start
+
+      - id: mockup_iter_start
+        type: custom
+        position: { x: 2200, y: 230 }
+        width: 100
+        height: 50
+        parentId: iteration_mockups
+        data:
+          type: iteration-start
+          title: "开始"
+          isInIteration: true
+          iteration_id: iteration_mockups
+
+      - id: nano_banana_mockup
+        type: custom
+        position: { x: 2400, y: 210 }
+        width: 244
+        height: 118
+        parentId: iteration_mockups
+        data:
+          type: tool
+          title: "NanoBanana 效果图"
+          isInIteration: true
+          iteration_id: iteration_mockups
+          provider_type: builtin
+          provider_name: acedatacloud/nano-banana/nano-banana
+          provider_id: acedatacloud/nano-banana/nano-banana
+          tool_name: nano_banana_generate
+          tool_label: NanoBanana Generate
+          is_team_authorization: true
+          tool_configurations: {}
+          tool_parameters:
+            prompt:
+              type: variable
+              value: [iteration_mockups, item]
+
+      # ============================================================
+      # TOOL: Hailuo 演示视频
+      # ============================================================
+      - id: hailuo_demo
+        type: custom
+        position: { x: 2150, y: 450 }
+        width: 244
+        height: 118
+        data:
+          type: tool
+          title: "Hailuo 演示视频"
+          desc: "生成方案演示视频"
+          provider_type: builtin
+          provider_name: acedatacloud/hailuo/hailuo
+          provider_id: acedatacloud/hailuo/hailuo
+          tool_name: hailuo_generate
+          tool_label: Hailuo Generate
+          is_team_authorization: true
+          tool_configurations: {}
+          tool_parameters:
+            prompt:
+              type: mixed
+              value: "{{#code_parse_needs.demo_video_prompt#}}"
+
+      # ============================================================
+      # Variable Aggregator
+      # ============================================================
+      - id: var_agg_proposal
+        type: custom
+        position: { x: 2750, y: 300 }
+        width: 244
+        height: 100
+        data:
+          type: variable-aggregator
+          title: "汇聚效果图+视频"
+          variables:
+            - [iteration_mockups, output]
+            - [hailuo_demo, text]
+
+      # ============================================================
+      # CODE: 最终方案组装
+      # ============================================================
+      - id: code_final_proposal
+        type: custom
+        position: { x: 3100, y: 300 }
+        width: 244
+        height: 80
+        data:
+          type: code
+          title: "组装完整提案"
+          code_language: python3
+          code: |
+            import json
+
+            def main(proposal_title: str, sections_json: str, differentiators: str,
+                     roi_estimate: str, next_steps: str,
+                     mockup_results: list, hailuo_result: str) -> dict:
+                sections = json.loads(sections_json) if sections_json else []
+                diffs = json.loads(differentiators) if differentiators else []
+                steps = json.loads(next_steps) if next_steps else []
+
+                # Parse mockup images
+                mockup_urls = []
+                for r in (mockup_results or []):
+                    if r:
+                        try:
+                            data = json.loads(r)
+                            items = data.get("data", [])
+                            if isinstance(items, list) and items:
+                                mockup_urls.append(items[0].get("image_url", ""))
+                        except (json.JSONDecodeError, TypeError):
+                            pass
+
+                # Parse demo video
+                video_url = ""
+                try:
+                    vd = json.loads(hailuo_result)
+                    items = vd.get("data", [])
+                    if isinstance(items, list) and items:
+                        video_url = items[0].get("video_url", "")
+                    elif isinstance(items, dict):
+                        video_url = items.get("video_url", "")
+                except (json.JSONDecodeError, TypeError):
+                    pass
+
+                # Build Markdown proposal
+                md = [f"# 📋 {proposal_title}", ""]
+                if video_url:
+                    md.append(f"> 🎬 **[观看方案演示]({video_url})**\n")
+
+                for i, sec in enumerate(sections):
+                    md.append(f"## {i+1}. {sec.get('title', '')}")
+                    md.append(sec.get("content", ""))
+                    # Insert mockup after solution section
+                    if sec.get("type") == "solution" and mockup_urls:
+                        md.append("\n**方案效果预览：**")
+                        for j, url in enumerate(mockup_urls):
+                            labels = ["产品界面效果", "系统架构", "数据可视化"]
+                            label = labels[j] if j < len(labels) else f"效果图 {j+1}"
+                            md.append(f"![{label}]({url})")
+                    md.append("")
+
+                if diffs:
+                    md.append("## 核心差异化优势")
+                    for d in diffs:
+                        md.append(f"- ✅ {d}")
+                    md.append("")
+
+                if roi_estimate:
+                    md.append(f"## 投资回报预估\n{roi_estimate}\n")
+
+                if steps:
+                    md.append("## 下一步行动")
+                    for s in steps:
+                        md.append(f"- 📌 {s}")
+
+                return {
+                    "proposal": "\n".join(md),
+                    "data_json": json.dumps({
+                        "title": proposal_title,
+                        "mockups": mockup_urls,
+                        "video": video_url,
+                        "sections_count": len(sections)
+                    }, ensure_ascii=False)
+                }
+          variables:
+            - variable: proposal_title
+              value_selector: [code_parse_proposal, proposal_title]
+            - variable: sections_json
+              value_selector: [code_parse_proposal, sections_json]
+            - variable: differentiators
+              value_selector: [code_parse_proposal, differentiators]
+            - variable: roi_estimate
+              value_selector: [code_parse_proposal, roi_estimate]
+            - variable: next_steps
+              value_selector: [code_parse_proposal, next_steps]
+            - variable: mockup_results
+              value_selector: [iteration_mockups, output]
+            - variable: hailuo_result
+              value_selector: [hailuo_demo, text]
+          outputs:
+            proposal:
+              type: string
+            data_json:
+              type: string
+
+      # ============================================================
+      # END
+      # ============================================================
+      - id: end_node
+        type: custom
+        position: { x: 3450, y: 300 }
+        width: 244
+        height: 80
+        data:
+          type: end
+          title: "商业提案"
+          outputs:
+            - variable: proposal
+              value_selector: [code_final_proposal, proposal]
+            - variable: data_json
+              value_selector: [code_final_proposal, data_json]
