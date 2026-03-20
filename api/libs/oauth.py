@@ -149,7 +149,7 @@ class GoogleOAuth(OAuth):
 
 class AceDataCloudOAuth(OAuth):
     """
-    OAuth helper for the AceDataCloud auth service.
+    SSO helper for the AceDataCloud auth service.
     It uses an auth code issued by auth.acedata.cloud, exchanges it for an access token,
     and then fetches the user profile to build a common OAuthUserInfo.
     """
@@ -158,7 +158,7 @@ class AceDataCloudOAuth(OAuth):
         super().__init__("", "", redirect_uri)
         self.base_url = base_url.rstrip("/")
         self.login_path = login_path
-        self._token_url = f"{self.base_url}/oauth2/v1/token"
+        self._token_url = f"{self.base_url}/sso/v1/token"
         self._user_info_url = f"{self.base_url}/api/v1/users/me"
 
     def get_authorization_url(
