@@ -1,0 +1,60 @@
+name: Sync MCP Plugin
+
+on:
+  repository_dispatch:
+    types: [mcp-plugin-update]
+  workflow_dispatch:
+    inputs:
+      mcp_name:
+        description: "MCP plugin name (e.g., suno, serp, midjourney)"
+        required: true
+        type: string
+      version:
+        description: "New MCP version"
+        required: true
+        type: string
+
+jobs:
+  create-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Set variables
+        id: vars
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "mcp_name=${{ github.event.client_payload.mcp_name }}" >> $GITHUB_OUTPUT
+            echo "version=${{ github.event.client_payload.version }}" >> $GITHUB_OUTPUT
+            echo "source=${{ github.event.client_payload.source }}" >> $GITHUB_OUTPUT
+          else
+            echo "mcp_name=${{ inputs.mcp_name }}" >> $GITHUB_OUTPUT
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+            echo "source=manual" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create issue for Claude
+        env:
+          GH_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
+        run: |
+          MCP_NAME="${{ steps.vars.outputs.mcp_name }}"
+          VERSION="${{ steps.vars.outputs.version }}"
+          SOURCE="${{ steps.vars.outputs.source }}"
+
+          gh issue create \
+            --repo "${{ github.repository }}" \
+            --title "chore: update ${MCP_NAME} plugin to v${VERSION}" \
+            --body "@claude
+
+          The MCP server \`${MCP_NAME}\` has been published to PyPI with version \`${VERSION}\` (source: \`${SOURCE}\`).
+
+          Please update the Dify plugin at \`plugins/${MCP_NAME}/\`:
+
+          1. Check if \`plugins/${MCP_NAME}/\` exists
+          2. Review the MCP server changelog for any new tools or breaking changes
+          3. Update the plugin version in \`plugins/${MCP_NAME}/manifest.yaml\` (both \`version\` and \`meta.version\` fields)
+          4. If there are new tools added in the MCP server, add corresponding tool YAML definitions in \`plugins/${MCP_NAME}/tools/\`
+          5. Run a quick sanity check that all YAML files are valid
+          6. Create a PR with the changes
+
+          Note: The plugin code in \`plugins/${MCP_NAME}/\` calls \`api.acedata.cloud\` directly (not the MCP server). Focus on version bumps and any new tool definitions that match new MCP capabilities."
