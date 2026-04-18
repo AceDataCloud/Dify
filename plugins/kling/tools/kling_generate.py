@@ -87,6 +87,10 @@ class KlingGenerateVideoTool(Tool):
         if mirror is not None and not isinstance(mirror, bool):
             raise ValueError("`mirror` must be a boolean.")
 
+        generate_audio = tool_parameters.get("generate_audio")
+        if generate_audio is not None and not isinstance(generate_audio, bool):
+            raise ValueError("`generate_audio` must be a boolean.")
+
         if action in {"text2video", "image2video", "extend"} and not prompt:
             raise ValueError("`prompt` is required when action is text2video/image2video/extend.")
         if action == "image2video" and not start_image_url:
@@ -113,6 +117,7 @@ class KlingGenerateVideoTool(Tool):
                 callback_url=callback_url,
                 video_id=video_id,
                 mirror=mirror,
+                generate_audio=generate_audio,
                 timeout_s=1800,
             )
         except AceDataKlingError as e:
