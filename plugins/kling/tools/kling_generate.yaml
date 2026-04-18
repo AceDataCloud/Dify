@@ -99,9 +99,9 @@ parameters:
       en_US: Model
       zh_Hans: 模型
     human_description:
-      en_US: Optional model name (e.g., kling-v2-5-turbo, kling-video-o1).
-      zh_Hans: 可选模型名称（如 kling-v2-5-turbo、kling-video-o1）。
-    llm_description: "Optional. Examples: kling-v1, kling-v1-6, kling-v2-master, kling-v2-1-master, kling-v2-5-turbo, kling-video-o1."
+      en_US: Optional model name (e.g., kling-v3, kling-v3-omni, kling-v2-6, kling-v2-master).
+      zh_Hans: 可选模型名称（如 kling-v3、kling-v3-omni、kling-v2-6、kling-v2-master）。
+    llm_description: "Optional. Examples: kling-v1, kling-v1-6, kling-v2-master, kling-v2-1-master, kling-v2-5-turbo, kling-v2-6, kling-v3, kling-v3-omni, kling-video-o1."
     form: form
   - name: mode
     type: select
@@ -126,9 +126,9 @@ parameters:
       en_US: Duration
       zh_Hans: 时长
     human_description:
-      en_US: Optional duration in seconds (commonly 5 or 10).
-      zh_Hans: 可选视频时长（常用 5 或 10）。
-    llm_description: Optional. Use 5 or 10 if supported by the selected model/action.
+      en_US: Optional duration in seconds. For kling-v3/kling-v3-omni 3-15 (integer). Other models 5 or 10.
+      zh_Hans: 可选视频时长。kling-v3/kling-v3-omni 支持 3-15 秒整数，其他模型支持 5 或 10。
+    llm_description: Optional. For kling-v3/kling-v3-omni use integer 3-15. For other models use 5 or 10.
     form: form
   - name: aspect_ratio
     type: select
@@ -181,6 +181,17 @@ parameters:
       zh_Hans: 可选反向提示词（最多 200 字符）。
     llm_description: Optional. What you do NOT want in the video.
     form: llm
+  - name: generate_audio
+    type: boolean
+    required: false
+    label:
+      en_US: Generate Audio
+      zh_Hans: 生成音频
+    human_description:
+      en_US: Whether to generate audio synchronously. Supported by kling-v3, kling-v3-omni, and kling-v2-6 (pro mode only).
+      zh_Hans: 是否同步生成音频。支持 kling-v3、kling-v3-omni 和 kling-v2-6（仅 pro 模式）。
+    llm_description: Optional. Set true to generate audio with the video. Supported by kling-v3, kling-v3-omni, and kling-v2-6 (pro mode only).
+    form: form
   - name: mirror
     type: boolean
     required: false

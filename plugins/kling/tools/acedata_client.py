@@ -73,6 +73,7 @@ class AceDataKlingClient:
         callback_url: str | None = None,
         video_id: str | None = None,
         mirror: bool | None = None,
+        generate_audio: bool | None = None,
         timeout_s: int = 1800,
     ) -> AceDataKlingVideosResult:
         payload: dict[str, Any] = {"action": action}
@@ -102,6 +103,8 @@ class AceDataKlingClient:
             payload["video_id"] = video_id
         if mirror is not None:
             payload["mirror"] = mirror
+        if generate_audio is not None:
+            payload["generate_audio"] = generate_audio
 
         body = self._post_json(path="/kling/videos", payload=payload, timeout_s=timeout_s)
         return AceDataKlingVideosResult(
