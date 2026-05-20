@@ -237,8 +237,8 @@ spec:
             cpu: 500m
             memory: 1Gi
           requests:
-            cpu: 300m
-            memory: 512Mi
+            cpu: 100m
+            memory: 256Mi
         securityContext:
           privileged: false
         volumeMounts:
