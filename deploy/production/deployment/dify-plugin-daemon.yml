@@ -6,7 +6,7 @@ metadata:
   name: dify-plugin-daemon
   namespace: acedatacloud
 spec:
-  replicas: 3
+  replicas: 2
   revisionHistoryLimit: 10
   selector:
     matchLabels:
@@ -110,10 +110,10 @@ spec:
           resources:
             limits:
               cpu: "2"
-              memory: 4Gi
+              memory: 5Gi
             requests:
               cpu: 500m
-              memory: 1Gi
+              memory: 2500Mi
           securityContext:
             privileged: false
           startupProbe:
