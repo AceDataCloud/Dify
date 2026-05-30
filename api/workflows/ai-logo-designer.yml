@@ -243,7 +243,7 @@ workflow:
             value: 'Extract LOGO1 prompt from: {{#designer_llm.text#}}'
           model:
             type: mixed
-            value: flux-pro-1.1
+            value: flux-pro
           size:
             type: mixed
             value: 1024x1024
@@ -276,7 +276,7 @@ workflow:
             value: 'Extract LOGO2 prompt from: {{#designer_llm.text#}}'
           model:
             type: mixed
-            value: flux-pro-1.1
+            value: flux-pro
           size:
             type: mixed
             value: 1024x1024
@@ -309,7 +309,7 @@ workflow:
             value: 'Extract LOGO3 prompt from: {{#designer_llm.text#}}'
           model:
             type: mixed
-            value: flux-pro-1.1
+            value: flux-pro
           size:
             type: mixed
             value: 1024x1024

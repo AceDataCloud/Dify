@@ -334,7 +334,7 @@ workflow:
             value: 'Extract SCENE 1 IMAGE_PROMPT from: {{#storyboard_llm.text#}}'
           model:
             type: mixed
-            value: flux-pro-1.1
+            value: flux-pro
           size:
             type: mixed
             value: 1920x1080
@@ -367,7 +367,7 @@ workflow:
             value: 'Extract SCENE 2 IMAGE_PROMPT from: {{#storyboard_llm.text#}}'
           model:
             type: mixed
-            value: flux-pro-1.1
+            value: flux-pro
           size:
             type: mixed
             value: 1920x1080
@@ -400,7 +400,7 @@ workflow:
             value: 'Extract SCENE 3 IMAGE_PROMPT from: {{#storyboard_llm.text#}}'
           model:
             type: mixed
-            value: flux-pro-1.1
+            value: flux-pro
           size:
             type: mixed
             value: 1920x1080
@@ -433,7 +433,7 @@ workflow:
             value: 'Extract SCENE 4 IMAGE_PROMPT from: {{#storyboard_llm.text#}}'
           model:
             type: mixed
-            value: flux-pro-1.1
+            value: flux-pro
           size:
             type: mixed
             value: 1920x1080

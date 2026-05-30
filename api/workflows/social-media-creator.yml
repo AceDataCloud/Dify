@@ -283,7 +283,7 @@ workflow:
             value: '{{#article_writer.text#}}'
           model:
             type: mixed
-            value: flux-pro-1.1
+            value: flux-pro
           size:
             type: mixed
             value: 1920x1080
