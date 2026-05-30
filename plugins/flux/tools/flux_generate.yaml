@@ -64,14 +64,16 @@ parameters:
         label: { en_US: flux-dev (default), zh_Hans: flux-dev（默认） }
       - value: flux-pro
         label: { en_US: flux-pro, zh_Hans: flux-pro }
-      - value: flux-pro-1.1
-        label: { en_US: flux-pro-1.1, zh_Hans: flux-pro-1.1 }
-      - value: flux-pro-1.1-ultra
-        label: { en_US: flux-pro-1.1-ultra, zh_Hans: flux-pro-1.1-ultra }
       - value: flux-kontext-pro
         label: { en_US: flux-kontext-pro, zh_Hans: flux-kontext-pro }
       - value: flux-kontext-max
         label: { en_US: flux-kontext-max, zh_Hans: flux-kontext-max }
+      - value: flux-2-flex
+        label: { en_US: flux-2-flex, zh_Hans: flux-2-flex }
+      - value: flux-2-pro
+        label: { en_US: flux-2-pro, zh_Hans: flux-2-pro }
+      - value: flux-2-max
+        label: { en_US: flux-2-max, zh_Hans: flux-2-max }
   - name: size
     type: string
     required: false

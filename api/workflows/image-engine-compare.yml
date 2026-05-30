@@ -218,7 +218,7 @@ workflow:
               value: "{{#prompt_optimizer.text#}}"
             model:
               type: mixed
-              value: flux-pro-1.1
+              value: flux-pro
         height: 90
         id: flux_gen
         position:
