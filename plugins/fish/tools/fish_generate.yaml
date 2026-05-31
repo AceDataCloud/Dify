@@ -1,0 +1,140 @@
+identity:
+  name: fish_generate_audio
+  author: acedatacloud
+  label:
+    en_US: Fish Generate Audio
+    zh_Hans: Fish 生成音频
+description:
+  human:
+    en_US: Generate text-to-speech audio with the Ace Data Cloud Fish Audio API.
+    zh_Hans: 通过 Ace Data Cloud Fish Audio API 合成语音。
+  llm: Generate text-to-speech audio via the Ace Data Cloud Fish Audio API.
+output_schema:
+  type: object
+  properties:
+    success:
+      type: boolean
+    error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      additionalProperties: true
+    task_id:
+      type: string
+    trace_id:
+      type: string
+    data:
+      type: object
+      additionalProperties: true
+parameters:
+  - name: text
+    type: string
+    required: true
+    label:
+      en_US: Text
+      zh_Hans: 文本
+    human_description:
+      en_US: The text to synthesize.
+      zh_Hans: 要合成的文本。
+    llm_description: The text to synthesize into speech.
+    form: llm
+  - name: reference_id
+    type: string
+    required: false
+    label:
+      en_US: Voice ID
+      zh_Hans: 音色 ID
+    human_description:
+      en_US: Voice model ID. A default example is provided when omitted.
+      zh_Hans: 音色模型 ID，未填则使用默认示例音色。
+    llm_description: Optional voice model ID (single speaker).
+    form: form
+  - name: model
+    type: select
+    required: false
+    label:
+      en_US: Model
+      zh_Hans: 模型
+    human_description:
+      en_US: TTS model. Default s1.
+      zh_Hans: TTS 模型，默认 s1。
+    llm_description: Optional. 's1' (default) or 's2-pro'.
+    form: form
+    options:
+      - value: s1
+        label: { en_US: s1, zh_Hans: s1 }
+      - value: s2-pro
+        label: { en_US: s2-pro, zh_Hans: s2-pro }
+  - name: format
+    type: select
+    required: false
+    label:
+      en_US: Format
+      zh_Hans: 输出格式
+    human_description:
+      en_US: Audio output format. Default mp3.
+      zh_Hans: 输出音频格式，默认 mp3。
+    llm_description: Optional. mp3 (default), wav, or opus.
+    form: form
+    options:
+      - value: mp3
+        label: { en_US: mp3, zh_Hans: mp3 }
+      - value: wav
+        label: { en_US: wav, zh_Hans: wav }
+      - value: opus
+        label: { en_US: opus, zh_Hans: opus }
+  - name: sample_rate
+    type: number
+    required: false
+    label:
+      en_US: Sample Rate
+      zh_Hans: 采样率
+    human_description:
+      en_US: Sample rate in Hz (e.g. 16000, 22050, 44100).
+      zh_Hans: 输出采样率（如 16000、22050、44100）。
+    llm_description: Optional sample rate in Hz.
+    form: form
+  - name: mp3_bitrate
+    type: number
+    required: false
+    label:
+      en_US: MP3 Bitrate
+      zh_Hans: MP3 比特率
+    human_description:
+      en_US: MP3 bitrate (64, 128, 192) when format=mp3.
+      zh_Hans: MP3 比特率（64、128、192）。
+    llm_description: Optional MP3 bitrate when format=mp3.
+    form: form
+  - name: latency
+    type: select
+    required: false
+    label:
+      en_US: Latency
+      zh_Hans: 延迟模式
+    human_description:
+      en_US: Latency mode.
+      zh_Hans: 延迟模式。
+    llm_description: Optional. 'normal' or 'balanced'.
+    form: form
+    options:
+      - value: normal
+        label: { en_US: normal, zh_Hans: normal }
+      - value: balanced
+        label: { en_US: balanced, zh_Hans: balanced }
+  - name: callback_url
+    type: string
+    required: false
+    label:
+      en_US: Callback URL
+      zh_Hans: 回调地址
+    human_description:
+      en_US: Optional async callback URL.
+      zh_Hans: 可选异步回调地址。
+    llm_description: Optional public webhook URL.
+    form: form
+extra:
+  python:
+    source: tools/fish_generate.py
