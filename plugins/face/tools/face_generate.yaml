@@ -1,0 +1,149 @@
+identity:
+  name: face_transform
+  author: acedatacloud
+  label:
+    en_US: Face Transform
+    zh_Hans: 面部转换
+description:
+  human:
+    en_US: Analyze or transform faces with the Ace Data Cloud Face Transform API.
+    zh_Hans: 通过 Ace Data Cloud 面部转换 API 分析或变换人脸。
+  llm: Run face analysis or transformation operations via the Ace Data Cloud Face Transform API.
+output_schema:
+  type: object
+  properties:
+    success:
+      type: boolean
+    error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      additionalProperties: true
+    task_id:
+      type: string
+    trace_id:
+      type: string
+    data:
+      type: object
+      additionalProperties: true
+parameters:
+  - name: action
+    type: select
+    required: true
+    label:
+      en_US: Action
+      zh_Hans: 操作
+    human_description:
+      en_US: Which face operation to perform.
+      zh_Hans: 要执行的面部操作。
+    llm_description: One of keypoints (detect 90+ landmarks), beautify (smoothing/whitening/slimming), age (age/de-age), gender (swap apparent gender), swap (swap face between two images), cartoon (stylize), liveness (liveness check).
+    form: form
+    options:
+      - value: keypoints
+        label: { en_US: Detect Keypoints, zh_Hans: 人脸关键点 }
+      - value: beautify
+        label: { en_US: Beautify, zh_Hans: 美颜 }
+      - value: age
+        label: { en_US: Change Age, zh_Hans: 年龄变换 }
+      - value: gender
+        label: { en_US: Change Gender, zh_Hans: 性别变换 }
+      - value: swap
+        label: { en_US: Face Swap, zh_Hans: 换脸 }
+      - value: cartoon
+        label: { en_US: Cartoonize, zh_Hans: 卡通化 }
+      - value: liveness
+        label: { en_US: Liveness Detection, zh_Hans: 活体检测 }
+  - name: image_url
+    type: string
+    required: false
+    label:
+      en_US: Image URL
+      zh_Hans: 图片链接
+    human_description:
+      en_US: Image URL. Required for keypoints / beautify / age / gender / cartoon / liveness.
+      zh_Hans: 图片链接。keypoints / beautify / age / gender / cartoon / liveness 必填。
+    llm_description: URL of the face image (required for non-swap actions).
+    form: form
+  - name: source_image_url
+    type: string
+    required: false
+    label:
+      en_US: Source Image URL
+      zh_Hans: 源图片链接
+    human_description:
+      en_US: For swap — image whose face will be transplanted.
+      zh_Hans: 换脸时，被截取人脸的源图片。
+    llm_description: Required for action=swap. The face from this image is transplanted.
+    form: form
+  - name: target_image_url
+    type: string
+    required: false
+    label:
+      en_US: Target Image URL
+      zh_Hans: 目标图片链接
+    human_description:
+      en_US: For swap — image that will receive the new face.
+      zh_Hans: 换脸时，接收新人脸的目标图片。
+    llm_description: Required for action=swap. The target image that receives the face.
+    form: form
+  - name: smoothing
+    type: number
+    required: false
+    label:
+      en_US: Smoothing
+      zh_Hans: 磨皮
+    human_description:
+      en_US: For beautify — skin smoothing 0-100 (default 10).
+      zh_Hans: 美颜时磨皮强度 0-100（默认 10）。
+    llm_description: Optional. Beautify only. 0-100.
+    form: form
+  - name: whitening
+    type: number
+    required: false
+    label:
+      en_US: Whitening
+      zh_Hans: 美白
+    human_description:
+      en_US: For beautify — whitening 0-100 (default 30).
+      zh_Hans: 美颜时美白强度 0-100（默认 30）。
+    llm_description: Optional. Beautify only. 0-100.
+    form: form
+  - name: face_lifting
+    type: number
+    required: false
+    label:
+      en_US: Face Lifting
+      zh_Hans: 瘦脸
+    human_description:
+      en_US: For beautify — face slimming 0-100 (default 70).
+      zh_Hans: 美颜时瘦脸强度 0-100（默认 70）。
+    llm_description: Optional. Beautify only. 0-100.
+    form: form
+  - name: eye_enlarging
+    type: number
+    required: false
+    label:
+      en_US: Eye Enlarging
+      zh_Hans: 大眼
+    human_description:
+      en_US: For beautify — eye enlarging 0-100 (default 70).
+      zh_Hans: 美颜时大眼强度 0-100（默认 70）。
+    llm_description: Optional. Beautify only. 0-100.
+    form: form
+  - name: callback_url
+    type: string
+    required: false
+    label:
+      en_US: Callback URL
+      zh_Hans: 回调地址
+    human_description:
+      en_US: Optional async callback URL.
+      zh_Hans: 可选异步回调地址。
+    llm_description: Optional public webhook URL.
+    form: form
+extra:
+  python:
+    source: tools/face_generate.py

@@ -1,0 +1,41 @@
+identity:
+  author: "acedatacloud"
+  name: "face"
+  label:
+    en_US: "Face Transform"
+    zh_Hans: "面部转换"
+    pt_BR: "Face Transform"
+    ja_JP: "Face Transform"
+  description:
+    en_US: "Analyze and transform faces with the Ace Data Cloud Face Transform API."
+    zh_Hans: "通过 Ace Data Cloud Face Transform API 分析或变换人脸。"
+    pt_BR: "Analise e transforme rostos com a API Ace Data Cloud Face Transform."
+    ja_JP: "Ace Data Cloud Face Transform API で顔を解析・変換します。"
+  icon: "icon.jpg"
+  icon_dark: "icon.jpg"
+
+  tags:
+    - image
+    - productivity
+
+credentials_for_provider:
+  acedata_bearer_token:
+    type: secret-input
+    required: true
+    label:
+      en_US: Ace Data Cloud Bearer Token
+      zh_Hans: Ace Data Cloud Token
+    placeholder:
+      en_US: Paste your token (without "Bearer ")
+      zh_Hans: 粘贴 Token（不需要带 Bearer）
+    help:
+      en_US: Acquire a token from the Ace Data Cloud console.
+      zh_Hans: 从 Ace Data Cloud 控制台获取 Token。
+    url: https://platform.acedata.cloud/documents/face-transform-integration
+
+tools:
+  - tools/face_generate.yaml
+
+extra:
+  python:
+    source: provider/face.py

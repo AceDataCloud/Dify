@@ -1,0 +1,206 @@
+identity:
+  name: wan_generate_video
+  author: acedatacloud
+  label:
+    en_US: Wan Generate Video
+    zh_Hans: Wan 生成视频
+description:
+  human:
+    en_US: Generate a video with Ace Data Cloud Wan (Alibaba) Videos API.
+    zh_Hans: 通过 Ace Data Cloud 通义万相 Wan API 生成视频。
+  llm: Generate a video from a text prompt or an image via Ace Data Cloud Wan (Alibaba) Videos API.
+output_schema:
+  type: object
+  properties:
+    success:
+      type: boolean
+    error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      additionalProperties: true
+    task_id:
+      type: string
+    trace_id:
+      type: string
+    data:
+      type: object
+      additionalProperties: true
+parameters:
+  - name: action
+    type: select
+    required: true
+    label:
+      en_US: Action
+      zh_Hans: 行为
+    human_description:
+      en_US: Choose how to generate the video.
+      zh_Hans: 选择视频生成方式。
+    llm_description: Use text2video for prompt-only generation, image2video when you provide image_url.
+    form: form
+    options:
+      - value: text2video
+        label: { en_US: text2video, zh_Hans: 文生视频 }
+      - value: image2video
+        label: { en_US: image2video, zh_Hans: 图生视频 }
+  - name: prompt
+    type: string
+    required: true
+    label:
+      en_US: Prompt
+      zh_Hans: 提示词
+    human_description:
+      en_US: Description of the scene, motion, and style.
+      zh_Hans: 视频场景、动作和风格的描述。
+    llm_description: Describe the video in detail (scene, motion, style, mood).
+    form: llm
+  - name: image_url
+    type: string
+    required: false
+    label:
+      en_US: Image URL
+      zh_Hans: 参考图片链接
+    human_description:
+      en_US: Required for image2video.
+      zh_Hans: image2video 必填。
+    llm_description: Provide a URL to the reference image for image2video.
+    form: form
+  - name: model
+    type: string
+    required: false
+    label:
+      en_US: Model
+      zh_Hans: 模型
+    human_description:
+      en_US: Optional model (wan2.6-t2v, wan2.6-i2v, wan2.6-r2v, wan2.6-i2v-flash). Default depends on action.
+      zh_Hans: 可选模型名称（如 wan2.6-t2v / wan2.6-i2v / wan2.6-r2v / wan2.6-i2v-flash）。
+    llm_description: "Optional. Examples: wan2.6-t2v (text2video default), wan2.6-i2v (image2video default), wan2.6-r2v (reference video to video), wan2.6-i2v-flash (faster i2v)."
+    form: form
+  - name: negative_prompt
+    type: string
+    required: false
+    label:
+      en_US: Negative prompt
+      zh_Hans: 反向提示词
+    human_description:
+      en_US: Content to exclude (max 500 characters).
+      zh_Hans: 不希望出现的内容（最多 500 字符）。
+    llm_description: Optional. What you do NOT want in the video.
+    form: llm
+  - name: resolution
+    type: select
+    required: false
+    label:
+      en_US: Resolution
+      zh_Hans: 分辨率
+    human_description:
+      en_US: Video resolution. Default 720P.
+      zh_Hans: 视频分辨率，默认 720P。
+    llm_description: Optional. 480P, 720P (default), or 1080P.
+    form: form
+    options:
+      - value: "480P"
+        label: { en_US: "480P", zh_Hans: "480P" }
+      - value: "720P"
+        label: { en_US: "720P", zh_Hans: "720P" }
+      - value: "1080P"
+        label: { en_US: "1080P", zh_Hans: "1080P" }
+  - name: duration
+    type: number
+    required: false
+    label:
+      en_US: Duration
+      zh_Hans: 时长
+    human_description:
+      en_US: Duration in seconds. Options 5, 10, or 15.
+      zh_Hans: 视频时长。可选 5、10、15。
+    llm_description: Optional. 5, 10, or 15 seconds.
+    form: form
+  - name: size
+    type: string
+    required: false
+    label:
+      en_US: Size
+      zh_Hans: 尺寸
+    human_description:
+      en_US: Optional explicit pixel size (e.g. 1280x720).
+      zh_Hans: 可选显式像素尺寸（如 1280x720）。
+    llm_description: Optional WxH pixel size string, e.g. "1280x720".
+    form: form
+  - name: audio
+    type: boolean
+    required: false
+    label:
+      en_US: Generate Audio
+      zh_Hans: 生成音频
+    human_description:
+      en_US: Whether the generated video should include audio. Default false.
+      zh_Hans: 是否生成音频，默认 false。
+    llm_description: Optional. Set true to generate audio along with the video.
+    form: form
+  - name: audio_url
+    type: string
+    required: false
+    label:
+      en_US: Reference Audio URL
+      zh_Hans: 参考音频链接
+    human_description:
+      en_US: Optional reference audio used when audio is enabled.
+      zh_Hans: 可选参考音频链接（启用音频时使用）。
+    llm_description: Optional URL for reference audio.
+    form: form
+  - name: prompt_extend
+    type: boolean
+    required: false
+    label:
+      en_US: LLM Prompt Rewrite
+      zh_Hans: 提示词扩写
+    human_description:
+      en_US: Enable LLM-based prompt rewriting for better results.
+      zh_Hans: 启用 LLM 自动扩写提示词。
+    llm_description: Optional. Set true to let the upstream rewrite the prompt for better results.
+    form: form
+  - name: shot_type
+    type: select
+    required: false
+    label:
+      en_US: Shot type
+      zh_Hans: 镜头类型
+    human_description:
+      en_US: Optional shot type.
+      zh_Hans: 可选镜头类型。
+    llm_description: Optional. 'single' for one continuous shot, 'multi' for multi-cut.
+    form: form
+    options:
+      - value: single
+        label: { en_US: single, zh_Hans: 单镜头 }
+      - value: multi
+        label: { en_US: multi, zh_Hans: 多镜头 }
+  - name: reference_video_urls
+    type: string
+    required: false
+    label:
+      en_US: Reference Video URLs
+      zh_Hans: 参考视频链接
+    human_description:
+      en_US: Comma-separated URLs of reference videos (for wan2.6-r2v).
+      zh_Hans: 多个参考视频 URL，逗号分隔（用于 wan2.6-r2v）。
+    llm_description: Optional comma-separated reference video URLs (wan2.6-r2v only).
+    form: form
+  - name: callback_url
+    type: string
+    required: false
+    label:
+      en_US: Callback URL
+      zh_Hans: 回调地址
+    human_description:
+      en_US: Optional callback URL for async notifications.
+      zh_Hans: 可选回调地址，用于异步通知。
+    llm_description: Optional public webhook URL.
+    form: form
+extra:
+  python:
+    source: tools/wan_generate.py
