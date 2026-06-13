@@ -1,0 +1,42 @@
+identity:
+  name: grok_task_retrieve
+  author: acedatacloud
+  label:
+    en_US: Grok Retrieve Task
+    zh_Hans: Grok 查询任务
+description:
+  human:
+    en_US: Retrieve a single Grok video task by task_id.
+    zh_Hans: 通过 task_id 查询单个 Grok 视频任务详情。
+  llm: Retrieve a single Grok video task status by task_id via Ace Data Cloud Grok Tasks API.
+output_schema:
+  type: object
+  properties:
+    success:
+      type: boolean
+    error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      additionalProperties: true
+    data:
+      type: object
+      additionalProperties: true
+parameters:
+  - name: task_id
+    type: string
+    required: true
+    label:
+      en_US: Task ID
+      zh_Hans: 任务ID
+    human_description:
+      en_US: The task_id returned by /grok/videos.
+      zh_Hans: /grok/videos 返回的 task_id。
+    llm_description: Provide the task_id you want to query.
+    form: form
+extra:
+  python:
+    source: tools/grok_task_retrieve.py

@@ -1,0 +1,163 @@
+identity:
+  name: grok_generate_video
+  author: acedatacloud
+  label:
+    en_US: Grok Generate Video
+    zh_Hans: Grok 生成视频
+description:
+  human:
+    en_US: Generate videos with Ace Data Cloud Grok Imagine Videos API (text-to-video or image-to-video).
+    zh_Hans: 通过 Ace Data Cloud Grok Imagine Videos API 生成视频（文生视频或图生视频）。
+  llm: Generate a video from a text prompt and/or an input image via Ace Data Cloud Grok Imagine Videos API.
+output_schema:
+  type: object
+  properties:
+    success:
+      type: boolean
+    error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      additionalProperties: true
+    task_id:
+      type: string
+    trace_id:
+      type: string
+    data:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+          video_url:
+            type: string
+          state:
+            type: string
+          duration:
+            type: number
+        additionalProperties: true
+parameters:
+  - name: prompt
+    type: string
+    required: false
+    label:
+      en_US: Prompt
+      zh_Hans: 提示词
+    human_description:
+      en_US: Text description. Required for text-to-video; optional when an image_url is provided.
+      zh_Hans: 文本提示词。文生视频必填；提供 image_url 时可选。
+    llm_description: Describe the video in detail (scene, subject, motion, camera, lighting, style).
+    form: llm
+  - name: image_url
+    type: string
+    required: false
+    label:
+      en_US: Image URL
+      zh_Hans: 图片链接
+    human_description:
+      en_US: Input image to animate (image-to-video). Required for grok-imagine-video-1.5-preview.
+      zh_Hans: 用于图生视频的输入图片链接。grok-imagine-video-1.5-preview 必填。
+    llm_description: Provide an image URL to animate it into a video (image-to-video).
+    form: llm
+  - name: model
+    type: select
+    required: false
+    label:
+      en_US: Model
+      zh_Hans: 模型
+    human_description:
+      en_US: Optional model. Default grok-imagine-video. The 1.5-preview model is image-to-video only.
+      zh_Hans: 可选模型，默认 grok-imagine-video。1.5-preview 仅支持图生视频。
+    llm_description: Optional. grok-imagine-video (default, text+image) or grok-imagine-video-1.5-preview (image only).
+    form: form
+    options:
+      - value: grok-imagine-video
+        label: { en_US: grok-imagine-video, zh_Hans: grok-imagine-video }
+      - value: grok-imagine-video-1.5-preview
+        label: { en_US: grok-imagine-video-1.5-preview, zh_Hans: grok-imagine-video-1.5-preview }
+  - name: reference_image_urls
+    type: array
+    required: false
+    label:
+      en_US: Reference Image URLs
+      zh_Hans: 参考图片链接
+    human_description:
+      en_US: Optional reference images to guide the style/content (array, JSON array string, or one per line).
+      zh_Hans: 可选参考图片，用于引导风格/内容（数组、JSON 数组字符串或每行一个）。
+    llm_description: Optional reference image URLs to guide the video style or content.
+    form: form
+    input_schema:
+      type: array
+      items:
+        type: string
+  - name: aspect_ratio
+    type: select
+    required: false
+    label:
+      en_US: Aspect ratio
+      zh_Hans: 画面比例
+    human_description:
+      en_US: Optional output aspect ratio.
+      zh_Hans: 可选输出画面比例。
+    llm_description: Optional. Choose 1:1, 16:9, 9:16, 4:3, 3:4, 3:2, or 2:3.
+    form: form
+    options:
+      - value: "1:1"
+        label: { en_US: "1:1", zh_Hans: "1:1" }
+      - value: "16:9"
+        label: { en_US: "16:9", zh_Hans: "16:9" }
+      - value: "9:16"
+        label: { en_US: "9:16", zh_Hans: "9:16" }
+      - value: "4:3"
+        label: { en_US: "4:3", zh_Hans: "4:3" }
+      - value: "3:4"
+        label: { en_US: "3:4", zh_Hans: "3:4" }
+      - value: "3:2"
+        label: { en_US: "3:2", zh_Hans: "3:2" }
+      - value: "2:3"
+        label: { en_US: "2:3", zh_Hans: "2:3" }
+  - name: resolution
+    type: select
+    required: false
+    label:
+      en_US: Resolution
+      zh_Hans: 分辨率
+    human_description:
+      en_US: Optional output resolution. Default 480p.
+      zh_Hans: 可选输出分辨率，默认 480p。
+    llm_description: Optional. Choose 480p (default) or 720p.
+    form: form
+    options:
+      - value: 480p
+        label: { en_US: 480p, zh_Hans: 480p }
+      - value: 720p
+        label: { en_US: 720p, zh_Hans: 720p }
+  - name: duration
+    type: number
+    required: false
+    label:
+      en_US: Duration (seconds)
+      zh_Hans: 时长（秒）
+    human_description:
+      en_US: Optional video duration in seconds (1-15, default 8). Billed per output second.
+      zh_Hans: 可选视频时长（秒），范围 1-15，默认 8。按输出秒数计费。
+    llm_description: Optional. Video duration in seconds, 1 to 15.
+    form: form
+  - name: callback_url
+    type: string
+    required: false
+    label:
+      en_US: Callback URL
+      zh_Hans: 回调地址
+    human_description:
+      en_US: Optional callback URL for async notifications.
+      zh_Hans: 可选回调地址，用于异步通知。
+    llm_description: Optional. Provide a public webhook URL for callbacks.
+    form: form
+extra:
+  python:
+    source: tools/grok_generate.py
