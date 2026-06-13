@@ -1,0 +1,42 @@
+identity:
+  author: "acedatacloud"
+  name: "grok"
+  label:
+    en_US: "Grok"
+    zh_Hans: "Grok"
+    pt_BR: "Grok"
+    ja_JP: "Grok"
+  description:
+    en_US: "Generate videos via Ace Data Cloud Grok Imagine Videos API."
+    zh_Hans: "通过 Ace Data Cloud Grok Imagine Videos API 生成视频。"
+    pt_BR: "Gere vídeos via Ace Data Cloud Grok Imagine Videos API."
+    ja_JP: "Ace Data Cloud Grok Imagine Videos API を使って動画生成を行います。"
+  icon: "icon.jpg"
+  icon_dark: "icon.jpg"
+  tags:
+    - videos
+    - productivity
+
+credentials_for_provider:
+  acedata_bearer_token:
+    type: secret-input
+    required: true
+    label:
+      en_US: Ace Data Cloud Bearer Token
+      zh_Hans: Ace Data Cloud Token
+    placeholder:
+      en_US: Paste your token (without "Bearer ")
+      zh_Hans: 粘贴 Token（不需要带 Bearer）
+    help:
+      en_US: Acquire a token from the Ace Data Cloud console.
+      zh_Hans: 从 Ace Data Cloud 控制台获取 Token。
+    url: https://platform.acedata.cloud/documents/grok-videos-integration
+
+tools:
+  - tools/grok_generate.yaml
+  - tools/grok_task_retrieve.yaml
+  - tools/grok_task_retrieve_batch.yaml
+
+extra:
+  python:
+    source: provider/grok.py
