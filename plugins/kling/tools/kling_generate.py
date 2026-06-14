@@ -115,6 +115,7 @@ class KlingGenerateVideoTool(Tool):
                 camera_control=camera_control,
                 cfg_scale=cfg_scale,
                 callback_url=callback_url,
+                async_mode=bool(tool_parameters.get("async")),
                 video_id=video_id,
                 mirror=mirror,
                 generate_audio=generate_audio,

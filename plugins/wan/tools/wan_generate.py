@@ -70,6 +70,7 @@ class WanGenerateVideoTool(Tool):
                 shot_type=shot_type,
                 reference_video_urls=reference_video_urls,
                 callback_url=callback_url,
+                async_mode=bool(tool_parameters.get("async")),
                 timeout_s=1800,
             )
         except AceDataWanError as e:

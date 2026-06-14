@@ -52,6 +52,7 @@ class FishGenerateAudioTool(Tool):
                 mp3_bitrate=mp3_bitrate,
                 latency=latency,
                 callback_url=callback_url,
+                async_mode=bool(tool_parameters.get("async")),
                 timeout_s=300,
             )
         except AceDataFishError as e:

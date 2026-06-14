@@ -85,6 +85,7 @@ class SoraGenerateVideoTool(Tool):
                 character_end=float(character_end) if character_end is not None else None,
                 version=version,
                 callback_url=callback_url,
+                async_mode=bool(tool_parameters.get("async")),
                 timeout_s=timeout_s,
             )
         except AceDataSoraError as e:

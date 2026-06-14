@@ -25,7 +25,7 @@ class SunoGetWavTool(Tool):
 
         client = AceDataSunoClient(bearer_token=str(self.runtime.credentials["acedata_bearer_token"]))
         try:
-            result = client.wav(audio_id=audio_id, callback_url=callback_url, timeout_s=1800)
+            result = client.wav(audio_id=audio_id, callback_url=callback_url, async_mode=bool(tool_parameters.get("async")), timeout_s=1800)
         except AceDataSunoError as e:
             yield self.create_variable_message("success", False)
             yield self.create_variable_message("error", {"code": e.code, "message": e.message})

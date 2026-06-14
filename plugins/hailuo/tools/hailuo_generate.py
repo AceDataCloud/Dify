@@ -60,6 +60,7 @@ class HailuoGenerateVideoTool(Tool):
                 model=model,
                 first_image_url=first_image_url,
                 callback_url=callback_url,
+                async_mode=bool(tool_parameters.get("async")),
                 mirror=mirror,
                 timeout_s=1800,
             )

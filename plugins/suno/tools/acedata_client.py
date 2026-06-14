@@ -82,19 +82,23 @@ class AceDataSunoClient:
         return self._post_object(path="/suno/mp4", payload={"audio_id": audio_id}, timeout_s=timeout_s)
 
     def wav(
-        self, *, audio_id: str, callback_url: str | None = None, timeout_s: int = 1800
+        self, *, audio_id: str, callback_url: str | None = None, async_mode: bool | None = None, timeout_s: int = 1800
     ) -> AceDataSunoListResult:
         payload: dict[str, Any] = {"audio_id": audio_id}
         if callback_url:
             payload["callback_url"] = callback_url
+            if async_mode:
+                payload["async"] = True
         return self._post_list(path="/suno/wav", payload=payload, timeout_s=timeout_s)
 
     def midi(
-        self, *, audio_id: str, callback_url: str | None = None, timeout_s: int = 1800
+        self, *, audio_id: str, callback_url: str | None = None, async_mode: bool | None = None, timeout_s: int = 1800
     ) -> AceDataSunoListResult:
         payload: dict[str, Any] = {"audio_id": audio_id}
         if callback_url:
             payload["callback_url"] = callback_url
+            if async_mode:
+                payload["async"] = True
         return self._post_list(path="/suno/midi", payload=payload, timeout_s=timeout_s)
 
     def timing(self, *, audio_id: str, timeout_s: int = 1800) -> AceDataSunoObjectResult:
