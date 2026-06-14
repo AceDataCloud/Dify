@@ -127,6 +127,7 @@ class SeedanceGenerateVideoTool(Tool):
                 service_tier=service_tier,
                 execution_expires_after=execution_expires_after,
                 callback_url=callback_url,
+                async_mode=bool(tool_parameters.get("async")),
                 timeout_s=600,
             )
         except AceDataSeedanceError as e:

@@ -200,6 +200,8 @@ def build_midjourney_imagine_payload(tool_parameters: dict[str, Any]) -> dict[st
     callback_url = tool_parameters.get("callback_url")
     if isinstance(callback_url, str) and callback_url.strip():
         payload["callback_url"] = callback_url.strip()
+        if tool_parameters.get("async"):
+            payload["async"] = True
 
     application_id = tool_parameters.get("application_id")
     if isinstance(application_id, str) and application_id.strip():
@@ -262,6 +264,8 @@ def build_midjourney_edits_payload(tool_parameters: dict[str, Any]) -> dict[str,
     callback_url = tool_parameters.get("callback_url")
     if isinstance(callback_url, str) and callback_url.strip():
         payload["callback_url"] = callback_url.strip()
+        if tool_parameters.get("async"):
+            payload["async"] = True
 
     application_id = tool_parameters.get("application_id")
     if isinstance(application_id, str) and application_id.strip():
@@ -317,6 +321,8 @@ def build_midjourney_videos_payload(tool_parameters: dict[str, Any]) -> dict[str
     callback_url = tool_parameters.get("callback_url")
     if isinstance(callback_url, str) and callback_url.strip():
         payload["callback_url"] = callback_url.strip()
+        if tool_parameters.get("async"):
+            payload["async"] = True
 
     application_id = tool_parameters.get("application_id")
     if isinstance(application_id, str) and application_id.strip():

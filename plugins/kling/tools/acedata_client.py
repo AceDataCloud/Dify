@@ -71,6 +71,7 @@ class AceDataKlingClient:
         camera_control: str | dict[str, Any] | None = None,
         cfg_scale: float | None = None,
         callback_url: str | None = None,
+        async_mode: bool | None = None,
         video_id: str | None = None,
         mirror: bool | None = None,
         generate_audio: bool | None = None,
@@ -99,6 +100,8 @@ class AceDataKlingClient:
             payload["cfg_scale"] = cfg_scale
         if callback_url:
             payload["callback_url"] = callback_url
+            if async_mode:
+                payload["async"] = True
         if video_id:
             payload["video_id"] = video_id
         if mirror is not None:

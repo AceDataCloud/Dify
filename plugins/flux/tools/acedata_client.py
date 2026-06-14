@@ -60,6 +60,7 @@ class AceDataFluxClient:
         size: str | None = None,
         count: int | None = None,
         callback_url: str | None = None,
+        async_mode: bool | None = None,
         timeout_s: int = 150,
     ) -> AceDataFluxImagesResult:
         payload: dict[str, Any] = {"action": "generate", "prompt": prompt}
@@ -71,6 +72,8 @@ class AceDataFluxClient:
             payload["count"] = count
         if callback_url:
             payload["callback_url"] = callback_url
+            if async_mode:
+                payload["async"] = True
         return self._post_images(payload=payload, timeout_s=timeout_s)
 
     def edit(
@@ -81,6 +84,7 @@ class AceDataFluxClient:
         model: str | None = None,
         size: str | None = None,
         callback_url: str | None = None,
+        async_mode: bool | None = None,
         timeout_s: int = 150,
     ) -> AceDataFluxImagesResult:
         payload: dict[str, Any] = {"action": "edit", "prompt": prompt, "image_url": image_url}
@@ -90,6 +94,8 @@ class AceDataFluxClient:
             payload["size"] = size
         if callback_url:
             payload["callback_url"] = callback_url
+            if async_mode:
+                payload["async"] = True
         return self._post_images(payload=payload, timeout_s=timeout_s)
 
     def _post_images(self, *, payload: dict[str, Any], timeout_s: int) -> AceDataFluxImagesResult:

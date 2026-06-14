@@ -95,6 +95,18 @@ parameters:
       zh_Hans: 异步回调地址（可选）。
     llm_description: Optional.
     form: form
+  - name: async
+    type: boolean
+    required: false
+    default: false
+    label:
+      en_US: Async
+      zh_Hans: 异步模式
+    human_description:
+      en_US: Return a task_id immediately without a callback_url; poll the tasks endpoint for the result.
+      zh_Hans: 立即返回 task_id，无需回调地址，通过任务查询接口轮询结果。
+    llm_description: Optional. Set true to submit asynchronously and get a task_id to poll.
+    form: form
   - name: application_id
     type: string
     required: false

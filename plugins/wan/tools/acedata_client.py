@@ -58,6 +58,7 @@ class AceDataWanClient:
         shot_type: str | None = None,
         reference_video_urls: str | None = None,
         callback_url: str | None = None,
+        async_mode: bool | None = None,
         timeout_s: int = 1800,
     ) -> AceDataWanVideosResult:
         payload: dict[str, Any] = {"action": action}
@@ -87,6 +88,8 @@ class AceDataWanClient:
             payload["reference_video_urls"] = reference_video_urls
         if callback_url:
             payload["callback_url"] = callback_url
+            if async_mode:
+                payload["async"] = True
 
         body = self._post_json(path="/wan/videos", payload=payload, timeout_s=timeout_s)
         return AceDataWanVideosResult(

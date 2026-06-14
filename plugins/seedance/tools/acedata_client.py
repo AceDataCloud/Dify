@@ -75,6 +75,7 @@ class AceDataSeedanceClient:
         watermark: bool | None = None,
         generate_audio: bool | None = None,
         callback_url: str | None = None,
+        async_mode: bool | None = None,
         return_last_frame: bool | None = None,
         service_tier: str | None = None,
         execution_expires_after: int | None = None,
@@ -109,6 +110,8 @@ class AceDataSeedanceClient:
             payload["generate_audio"] = generate_audio
         if callback_url:
             payload["callback_url"] = callback_url
+            if async_mode:
+                payload["async"] = True
         if return_last_frame is not None:
             payload["return_last_frame"] = return_last_frame
         if service_tier:

@@ -60,6 +60,7 @@ class AceDataHailuoClient:
         model: str | None = None,
         first_image_url: str | None = None,
         callback_url: str | None = None,
+        async_mode: bool | None = None,
         mirror: bool | None = None,
         timeout_s: int = 1800,
     ) -> AceDataHailuoVideosResult:
@@ -72,6 +73,8 @@ class AceDataHailuoClient:
             payload["first_image_url"] = first_image_url
         if callback_url:
             payload["callback_url"] = callback_url
+            if async_mode:
+                payload["async"] = True
         if mirror is not None:
             payload["mirror"] = mirror
 

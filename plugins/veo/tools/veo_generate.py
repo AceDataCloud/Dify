@@ -78,6 +78,7 @@ class VeoGenerateVideoTool(Tool):
                 resolution=resolution,
                 translation=translation,
                 callback_url=callback_url,
+                async_mode=bool(tool_parameters.get("async")),
                 timeout_s=1800,
             )
         except AceDataVeoError as e:

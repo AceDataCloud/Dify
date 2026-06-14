@@ -62,6 +62,7 @@ class AceDataGrokClient:
         resolution: str | None = None,
         duration: int | None = None,
         callback_url: str | None = None,
+        async_mode: bool | None = None,
         timeout_s: int = 1800,
     ) -> AceDataGrokVideosResult:
         payload: dict[str, Any] = {}
@@ -81,6 +82,8 @@ class AceDataGrokClient:
             payload["duration"] = duration
         if callback_url:
             payload["callback_url"] = callback_url
+            if async_mode:
+                payload["async"] = True
 
         body = self._post(path="/grok/videos", payload=payload, timeout_s=timeout_s)
 

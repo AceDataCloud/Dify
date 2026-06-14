@@ -147,6 +147,8 @@ class SunoGenerateAudiosTool(Tool):
             payload["style_influence"] = style_influence
         if callback_url:
             payload["callback_url"] = callback_url
+            if tool_parameters.get("async"):
+                payload["async"] = True
 
         client = AceDataSunoClient(bearer_token=str(self.runtime.credentials["acedata_bearer_token"]))
         try:

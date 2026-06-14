@@ -49,6 +49,7 @@ class AceDataLumaClient:
         loop: bool | None = None,
         timeout: int | float | None = None,
         callback_url: str | None = None,
+        async_mode: bool | None = None,
         timeout_s: int = 1800,
     ) -> dict[str, Any]:
         payload: dict[str, Any] = {"action": action}
@@ -72,6 +73,8 @@ class AceDataLumaClient:
             payload["timeout"] = timeout
         if callback_url:
             payload["callback_url"] = callback_url
+            if async_mode:
+                payload["async"] = True
 
         return self._post(path="/luma/videos", payload=payload, timeout_s=timeout_s)
 

@@ -62,6 +62,7 @@ class GrokGenerateVideoTool(Tool):
                 resolution=resolution,
                 duration=duration,
                 callback_url=callback_url,
+                async_mode=bool(tool_parameters.get("async")),
                 timeout_s=1800,
             )
         except AceDataGrokError as e:

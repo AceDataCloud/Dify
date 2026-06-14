@@ -65,6 +65,7 @@ class AceDataSoraClient:
         character_end: float | None = None,
         version: str | None = None,
         callback_url: str | None = None,
+        async_mode: bool | None = None,
         timeout_s: int = 1860,
     ) -> AceDataSoraVideosResult:
         payload: dict[str, Any] = {"prompt": prompt, "model": model}
@@ -86,6 +87,8 @@ class AceDataSoraClient:
             payload["version"] = version
         if callback_url:
             payload["callback_url"] = callback_url
+            if async_mode:
+                payload["async"] = True
 
         body = self._post(path="/sora/videos", payload=payload, timeout_s=timeout_s)
 

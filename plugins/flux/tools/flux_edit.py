@@ -38,6 +38,7 @@ class FluxEditImageTool(Tool):
                 model=model,
                 size=size,
                 callback_url=callback_url,
+                async_mode=bool(tool_parameters.get("async")),
                 timeout_s=150,
             )
         except AceDataFluxError as e:
