@@ -32,9 +32,9 @@ parameters:
     required: true
     label: { en_US: Action, zh_Hans: 行为 }
     human_description:
-      en_US: Generation action, e.g. generate/extend/cover/stems/all_stems/concat/remaster/mashup/replace_section/underpainting/overpainting/samples.
-      zh_Hans: 生成行为，如 generate/extend/cover/stems/all_stems/concat/remaster/mashup/replace_section/underpainting/overpainting/samples。
-    llm_description: Required. Typical values are generate, extend, upload_extend, cover, upload_cover, stems, all_stems, concat, remaster, artist_consistency, artist_consistency_vox, replace_section, underpainting, overpainting, mashup, samples.
+      en_US: Generation action, e.g. generate/extend/cover/stems/all_stems/concat/remaster/mashup/replace_section/underpainting/overpainting/samples/inspo.
+      zh_Hans: 生成行为，如 generate/extend/cover/stems/all_stems/concat/remaster/mashup/replace_section/underpainting/overpainting/samples/inspo。
+    llm_description: Required. Typical values are generate, extend, upload_extend, cover, upload_cover, stems, all_stems, concat, remaster, artist_consistency, artist_consistency_vox, replace_section, underpainting, overpainting, mashup, samples, inspo. Use inspo to generate new music inspired by 1-4 reference audios (requires audio_urls).
     form: form
   - name: prompt
     type: string
@@ -108,6 +108,15 @@ parameters:
       en_US: Required for extend/cover/stems/all_stems/concat/remaster and other edit actions.
       zh_Hans: extend/cover/stems/all_stems/concat/remaster 等编辑动作必填。
     form: form
+  - name: audio_urls
+    type: string
+    required: false
+    label: { en_US: Reference Audio URLs, zh_Hans: 参考音频URL }
+    human_description:
+      en_US: Required when action is inspo. 1 to 4 public audio URLs used as inspiration, comma-separated.
+      zh_Hans: action 为 inspo 时必填。1 到 4 个公开音频 URL 作为灵感来源，使用英文逗号分隔。
+    llm_description: Required when action is inspo. A comma-separated list of 1 to 4 publicly accessible reference audio URLs.
+    form: llm
   - name: continue_at
     type: number
     required: false

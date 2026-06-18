@@ -54,6 +54,15 @@ class SunoGenerateAudiosTool(Tool):
         audio_id = tool_parameters.get("audio_id")
         audio_id = audio_id.strip() if isinstance(audio_id, str) and audio_id.strip() else None
 
+        audio_urls_raw = tool_parameters.get("audio_urls")
+        audio_urls: list[str] | None = None
+        if isinstance(audio_urls_raw, str) and audio_urls_raw.strip():
+            audio_urls = [u.strip() for u in audio_urls_raw.split(",") if u.strip()]
+        elif isinstance(audio_urls_raw, list):
+            audio_urls = [str(u).strip() for u in audio_urls_raw if str(u).strip()]
+        if audio_urls is not None and not audio_urls:
+            audio_urls = None
+
         continue_at = parse_optional_float(tool_parameters.get("continue_at"), field="continue_at")
         audio_weight = parse_optional_float(tool_parameters.get("audio_weight"), field="audio_weight")
 
@@ -88,7 +97,10 @@ class SunoGenerateAudiosTool(Tool):
             else None
         )
 
-        if custom is True:
+        if action == "inspo":
+            if not audio_urls or not 1 <= len(audio_urls) <= 4:
+                raise ValueError("`audio_urls` must contain 1 to 4 reference audio URLs when action is inspo.")
+        elif custom is True:
             if not lyric and not lyric_prompt and not instrumental:
                 raise ValueError("When `custom` is true, provide `lyric` or `lyric_prompt` (unless instrumental).")
         else:
@@ -131,6 +143,8 @@ class SunoGenerateAudiosTool(Tool):
             payload["style_negative"] = style_negative
         if audio_id:
             payload["audio_id"] = audio_id
+        if audio_urls:
+            payload["audio_urls"] = audio_urls
         if continue_at is not None:
             payload["continue_at"] = continue_at
         if audio_weight is not None:
