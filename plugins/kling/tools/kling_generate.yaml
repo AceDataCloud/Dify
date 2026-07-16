@@ -94,14 +94,14 @@ parameters:
     form: form
   - name: model
     type: string
-    required: false
+    required: true
     label:
       en_US: Model
       zh_Hans: 模型
     human_description:
-      en_US: Optional model name (e.g., kling-v3, kling-v3-omni, kling-v2-6, kling-v2-master).
-      zh_Hans: 可选模型名称（如 kling-v3、kling-v3-omni、kling-v2-6、kling-v2-master）。
-    llm_description: "Optional. Examples: kling-v1, kling-v1-6, kling-v2-master, kling-v2-1-master, kling-v2-5-turbo, kling-v2-6, kling-v3, kling-v3-omni, kling-video-o1."
+      en_US: Required model name (e.g., kling-v3, kling-v3-omni, kling-v2-6, kling-o1).
+      zh_Hans: 必填模型名称（如 kling-v3、kling-v3-omni、kling-v2-6、kling-o1）。
+    llm_description: "Required. Choose one of kling-v1, kling-v1-6, kling-v2-master, kling-v2-1-master, kling-v2-5-turbo, kling-v2-6, kling-v3, kling-v3-omni, or kling-o1."
     form: form
   - name: mode
     type: select
@@ -112,13 +112,15 @@ parameters:
     human_description:
       en_US: Optional generation mode.
       zh_Hans: 可选生成模式。
-    llm_description: Optional. std for standard, pro for fast.
+    llm_description: Optional. std for standard, pro for fast, or 4k only for kling-v3/kling-v3-omni without Omni references.
     form: form
     options:
       - value: std
         label: { en_US: std, zh_Hans: 标准 }
       - value: pro
         label: { en_US: pro, zh_Hans: 极速 }
+      - value: 4k
+        label: { en_US: 4k, zh_Hans: 4K }
   - name: duration
     type: number
     required: false
@@ -126,9 +128,9 @@ parameters:
       en_US: Duration
       zh_Hans: 时长
     human_description:
-      en_US: Optional duration in seconds. For kling-v3/kling-v3-omni 3-15 (integer). Other models 5 or 10.
-      zh_Hans: 可选视频时长。kling-v3/kling-v3-omni 支持 3-15 秒整数，其他模型支持 5 或 10。
-    llm_description: Optional. For kling-v3/kling-v3-omni use integer 3-15. For other models use 5 or 10.
+      en_US: Optional duration in seconds. V3 models support integers 3-15; kling-o1 supports 5; other models support 5 or 10.
+      zh_Hans: 可选视频时长。V3 模型支持 3-15 秒整数，kling-o1 仅支持 5 秒，其他模型支持 5 或 10 秒。
+    llm_description: Optional. V3 models use integer 3-15; kling-o1 uses 5; other models use 5 or 10.
     form: form
   - name: aspect_ratio
     type: select
@@ -166,10 +168,32 @@ parameters:
       en_US: Camera control
       zh_Hans: 相机控制
     human_description:
-      en_US: Optional camera motion control (string or JSON object string).
-      zh_Hans: 可选相机运动控制（字符串或 JSON 对象字符串）。
-    llm_description: Optional. Provide a preset string, or a JSON object string for detailed control.
+      en_US: Optional camera motion control as a JSON object string.
+      zh_Hans: 可选相机运动控制，使用 JSON 对象字符串。
+    llm_description: Optional. Provide a JSON object string; Omni generation does not support this field.
     form: form
+  - name: image_list
+    type: string
+    required: false
+    label:
+      en_US: Reference Images
+      zh_Hans: 参考图片
+    human_description:
+      en_US: JSON array of reference images for kling-o1 or kling-v3-omni.
+      zh_Hans: kling-o1 或 kling-v3-omni 使用的参考图片 JSON 数组。
+    llm_description: 'Optional for kling-o1 or kling-v3-omni. JSON array where each item has image_url and optional type: first_frame or end_frame. Up to 7 images, or 4 when video_list is present.'
+    form: llm
+  - name: video_list
+    type: string
+    required: false
+    label:
+      en_US: Reference Video
+      zh_Hans: 参考视频
+    human_description:
+      en_US: JSON array containing one base or feature reference video.
+      zh_Hans: 包含一个基础视频或特征参考视频的 JSON 数组。
+    llm_description: 'Optional JSON array with one item: video_url, optional refer_type (base or feature), and optional keep_original_sound (yes or no). Use only with kling-o1 or kling-v3-omni.'
+    form: llm
   - name: negative_prompt
     type: string
     required: false
@@ -224,7 +248,7 @@ parameters:
     human_description:
       en_US: Return a task_id immediately without a callback_url; poll the tasks endpoint for the result.
       zh_Hans: 立即返回 task_id，无需回调地址，通过任务查询接口轮询结果。
-    llm_description: Optional. Set true to submit asynchronously and get a task_id to poll.
+    llm_description: Optional. Set true to return a task_id immediately and poll the tasks endpoint; callback_url is not required.
     form: form
 extra:
   python:
