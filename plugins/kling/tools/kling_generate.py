@@ -10,6 +10,8 @@ from tools.acedata_client import (
     AceDataKlingClient,
     AceDataKlingError,
     parse_camera_control,
+    parse_reference_list,
+    validate_video_request,
 )
 
 
@@ -63,6 +65,8 @@ class KlingGenerateVideoTool(Tool):
         if duration is not None:
             if isinstance(duration, bool) or not isinstance(duration, (int, float)):
                 raise ValueError("`duration` must be a number.")
+            if isinstance(duration, float) and not duration.is_integer():
+                raise ValueError("`duration` must be an integer.")
             duration = int(duration)
 
         cfg_scale = tool_parameters.get("cfg_scale")
@@ -72,6 +76,16 @@ class KlingGenerateVideoTool(Tool):
             cfg_scale = float(cfg_scale)
 
         camera_control = parse_camera_control(tool_parameters.get("camera_control"))
+        image_list = parse_reference_list(
+            tool_parameters.get("image_list"),
+            field_name="image_list",
+            allowed_keys={"image_url", "type"},
+        )
+        video_list = parse_reference_list(
+            tool_parameters.get("video_list"),
+            field_name="video_list",
+            allowed_keys={"video_url", "refer_type", "keep_original_sound"},
+        )
 
         callback_url = tool_parameters.get("callback_url")
         callback_url = (
@@ -81,7 +95,9 @@ class KlingGenerateVideoTool(Tool):
         )
 
         video_id = tool_parameters.get("video_id")
-        video_id = video_id.strip() if isinstance(video_id, str) and video_id.strip() else None
+        video_id = (
+            video_id.strip() if isinstance(video_id, str) and video_id.strip() else None
+        )
 
         mirror = tool_parameters.get("mirror")
         if mirror is not None and not isinstance(mirror, bool):
@@ -92,11 +108,30 @@ class KlingGenerateVideoTool(Tool):
             raise ValueError("`generate_audio` must be a boolean.")
 
         if action in {"text2video", "image2video", "extend"} and not prompt:
-            raise ValueError("`prompt` is required when action is text2video/image2video/extend.")
+            raise ValueError(
+                "`prompt` is required when action is text2video/image2video/extend."
+            )
         if action == "image2video" and not start_image_url:
-            raise ValueError("`start_image_url` is required when action is image2video.")
+            raise ValueError(
+                "`start_image_url` is required when action is image2video."
+            )
         if action == "extend" and not video_id:
             raise ValueError("`video_id` is required when action is extend.")
+
+        validate_video_request(
+            action=action,
+            model=model,
+            mode=mode,
+            duration=duration,
+            start_image_url=start_image_url,
+            end_image_url=end_image_url,
+            negative_prompt=negative_prompt,
+            camera_control=camera_control,
+            cfg_scale=cfg_scale,
+            image_list=image_list,
+            video_list=video_list,
+            generate_audio=generate_audio,
+        )
 
         client = AceDataKlingClient(
             bearer_token=str(self.runtime.credentials["acedata_bearer_token"])
@@ -114,6 +149,8 @@ class KlingGenerateVideoTool(Tool):
                 duration=duration,
                 camera_control=camera_control,
                 cfg_scale=cfg_scale,
+                image_list=image_list,
+                video_list=video_list,
                 callback_url=callback_url,
                 async_mode=bool(tool_parameters.get("async")),
                 video_id=video_id,
