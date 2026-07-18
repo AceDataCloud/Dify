@@ -6,7 +6,7 @@ metadata:
   name: dify-worker-beat
   namespace: acedatacloud
 spec:
-  replicas: 1
+  replicas: 0
   revisionHistoryLimit: 10
   selector:
     matchLabels:

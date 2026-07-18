@@ -6,7 +6,7 @@ metadata:
   name: dify-plugin-daemon
   namespace: acedatacloud
 spec:
-  replicas: 2
+  replicas: 0
   revisionHistoryLimit: 10
   selector:
     matchLabels:
