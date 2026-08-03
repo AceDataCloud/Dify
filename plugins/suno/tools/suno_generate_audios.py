@@ -90,6 +90,12 @@ class SunoGenerateAudiosTool(Tool):
         weirdness = parse_optional_float(tool_parameters.get("weirdness"), field="weirdness")
         style_influence = parse_optional_float(tool_parameters.get("style_influence"), field="style_influence")
 
+        # Dify has no integer parameter type, so a whole number arrives as a float.
+        # Narrow it back to int; the API owns every other rule about the value.
+        duration = parse_optional_float(tool_parameters.get("duration"), field="duration")
+        if duration is not None and duration.is_integer():
+            duration = int(duration)
+
         callback_url = tool_parameters.get("callback_url")
         callback_url = (
             callback_url.strip()
@@ -159,6 +165,8 @@ class SunoGenerateAudiosTool(Tool):
             payload["weirdness"] = weirdness
         if style_influence is not None:
             payload["style_influence"] = style_influence
+        if duration is not None:
+            payload["duration"] = duration
         if callback_url:
             payload["callback_url"] = callback_url
             if tool_parameters.get("async"):
