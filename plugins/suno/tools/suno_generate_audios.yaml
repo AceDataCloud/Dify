@@ -188,6 +188,15 @@ parameters:
       zh_Hans: 可选。0-1，控制风格影响强度。
     llm_description: Optional. Range 0-1.
     form: form
+  - name: duration
+    type: number
+    required: false
+    label: { en_US: Duration, zh_Hans: 时长 }
+    human_description:
+      en_US: Optional. Target length of the generated track in seconds, typically between 10 and 360. Mainly used in custom mode.
+      zh_Hans: 可选。生成音乐的目标时长（秒），通常在 10 到 360 之间，主要用于自定义模式。
+    llm_description: Optional. Target track length in whole seconds, typically 10-360. Mainly used when custom is true; support varies by model and action.
+    form: form
   - name: callback_url
     type: string
     required: false
