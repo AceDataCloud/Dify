@@ -95,10 +95,13 @@ parameters:
     required: false
     label: { en_US: Style, zh_Hans: 风格 }
     form: form
-  - name: style_negative
+  - name: negative_tags
     type: string
     required: false
-    label: { en_US: Negative Style, zh_Hans: 排除风格 }
+    label: { en_US: Negative Tags, zh_Hans: 排除风格 }
+    human_description:
+      en_US: Music styles or genres to exclude in custom mode.
+      zh_Hans: 自定义模式下希望排除的音乐风格或流派。
     form: form
   - name: audio_id
     type: string
