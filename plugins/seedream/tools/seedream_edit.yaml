@@ -77,6 +77,14 @@ parameters:
     llm_description: Optional. Choose a supported Seedream model.
     form: form
     options:
+      - value: doubao-seedream-5-0-pro-260628
+        label:
+          en_US: doubao-seedream-5-0-pro-260628
+          zh_Hans: doubao-seedream-5-0-pro-260628
+      - value: doubao-seedream-5-0-260128
+        label:
+          en_US: doubao-seedream-5-0-260128
+          zh_Hans: doubao-seedream-5-0-260128
       - value: doubao-seedream-4-0-250828
         label:
           en_US: doubao-seedream-4-0-250828 (default)
@@ -85,14 +93,6 @@ parameters:
         label:
           en_US: doubao-seedream-4-5-251128
           zh_Hans: doubao-seedream-4-5-251128
-      - value: doubao-seedream-3-0-t2i-250415
-        label:
-          en_US: doubao-seedream-3-0-t2i-250415
-          zh_Hans: doubao-seedream-3-0-t2i-250415
-      - value: doubao-seededit-3-0-i2i-250628
-        label:
-          en_US: doubao-seededit-3-0-i2i-250628
-          zh_Hans: doubao-seededit-3-0-i2i-250628
   - name: size
     type: select
     required: false
@@ -109,21 +109,12 @@ parameters:
         label: { en_US: 1K, zh_Hans: 1K }
       - value: 2K
         label: { en_US: 2K, zh_Hans: 2K }
+      - value: 3K
+        label: { en_US: 3K, zh_Hans: 3K }
       - value: 4K
         label: { en_US: 4K, zh_Hans: 4K }
       - value: adaptive
         label: { en_US: adaptive, zh_Hans: adaptive }
-  - name: seed
-    type: number
-    required: false
-    label:
-      en_US: Seed
-      zh_Hans: 随机种子
-    human_description:
-      en_US: Optional seed for reproducibility (supported by some models).
-      zh_Hans: 可选随机数种子（部分模型支持）。
-    llm_description: Optional. Integer only.
-    form: form
   - name: sequential_image_generation
     type: select
     required: false
@@ -131,15 +122,15 @@ parameters:
       en_US: Sequential image generation
       zh_Hans: 组图
     human_description:
-      en_US: Optional. Use disabled/enabled depending on model support.
-      zh_Hans: 可选，根据模型支持情况填写 disabled/enabled。
+      en_US: Optional. Use disabled/auto depending on model support.
+      zh_Hans: 可选，根据模型支持情况填写 disabled/auto。
     llm_description: Optional.
     form: form
     options:
       - value: disabled
         label: { en_US: disabled, zh_Hans: disabled }
-      - value: enabled
-        label: { en_US: enabled, zh_Hans: enabled }
+      - value: auto
+        label: { en_US: auto, zh_Hans: auto }
   - name: stream
     type: boolean
     required: false
@@ -149,17 +140,6 @@ parameters:
     human_description:
       en_US: Optional. Stream output (only supported by some models).
       zh_Hans: 可选，流式输出（仅部分模型支持）。
-    llm_description: Optional.
-    form: form
-  - name: guidance_scale
-    type: number
-    required: false
-    label:
-      en_US: Guidance scale
-      zh_Hans: 文本权重
-    human_description:
-      en_US: Optional prompt weight (only supported by some models).
-      zh_Hans: 可选文本权重（仅部分模型支持）。
     llm_description: Optional.
     form: form
   - name: response_format

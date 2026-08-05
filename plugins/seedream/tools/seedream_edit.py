@@ -31,10 +31,6 @@ class SeedreamEditImageTool(Tool):
         size = tool_parameters.get("size")
         size = size.strip() if isinstance(size, str) and size.strip() else None
 
-        seed = tool_parameters.get("seed")
-        if seed is not None and not isinstance(seed, int):
-            raise ValueError("`seed` must be an integer.")
-
         sequential_image_generation = tool_parameters.get("sequential_image_generation")
         sequential_image_generation = (
             sequential_image_generation.strip()
@@ -45,10 +41,6 @@ class SeedreamEditImageTool(Tool):
         stream = tool_parameters.get("stream")
         if stream is not None and not isinstance(stream, bool):
             raise ValueError("`stream` must be a boolean.")
-
-        guidance_scale = tool_parameters.get("guidance_scale")
-        if guidance_scale is not None and not isinstance(guidance_scale, (int, float)):
-            raise ValueError("`guidance_scale` must be a number.")
 
         response_format = tool_parameters.get("response_format")
         response_format = (
@@ -73,14 +65,10 @@ class SeedreamEditImageTool(Tool):
             payload["model"] = model
         if size:
             payload["size"] = size
-        if seed is not None:
-            payload["seed"] = seed
         if sequential_image_generation:
             payload["sequential_image_generation"] = sequential_image_generation
         if stream is not None:
             payload["stream"] = stream
-        if guidance_scale is not None:
-            payload["guidance_scale"] = guidance_scale
         if response_format:
             payload["response_format"] = response_format
         if watermark is not None:
