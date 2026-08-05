@@ -5,12 +5,17 @@ from typing import Any
 
 from dify_plugin import Tool
 from dify_plugin.entities.tool import ToolInvokeMessage
-
-from tools.acedata_client import AceDataSunoClient, AceDataSunoError, parse_optional_float
+from tools.acedata_client import (
+    AceDataSunoClient,
+    AceDataSunoError,
+    parse_optional_float,
+)
 
 
 class SunoGenerateAudiosTool(Tool):
-    def _invoke(self, tool_parameters: dict[str, Any]) -> Generator[ToolInvokeMessage, None, None]:
+    def _invoke(
+        self, tool_parameters: dict[str, Any]
+    ) -> Generator[ToolInvokeMessage, None, None]:
         action = tool_parameters.get("action")
         if not isinstance(action, str) or not action.strip():
             raise ValueError("`action` is required.")
@@ -35,7 +40,9 @@ class SunoGenerateAudiosTool(Tool):
 
         lyric_prompt = tool_parameters.get("lyric_prompt")
         lyric_prompt = (
-            lyric_prompt.strip() if isinstance(lyric_prompt, str) and lyric_prompt.strip() else None
+            lyric_prompt.strip()
+            if isinstance(lyric_prompt, str) and lyric_prompt.strip()
+            else None
         )
 
         title = tool_parameters.get("title")
@@ -44,15 +51,17 @@ class SunoGenerateAudiosTool(Tool):
         style = tool_parameters.get("style")
         style = style.strip() if isinstance(style, str) and style.strip() else None
 
-        style_negative = tool_parameters.get("style_negative")
-        style_negative = (
-            style_negative.strip()
-            if isinstance(style_negative, str) and style_negative.strip()
+        negative_tags = tool_parameters.get("negative_tags")
+        negative_tags = (
+            negative_tags.strip()
+            if isinstance(negative_tags, str) and negative_tags.strip()
             else None
         )
 
         audio_id = tool_parameters.get("audio_id")
-        audio_id = audio_id.strip() if isinstance(audio_id, str) and audio_id.strip() else None
+        audio_id = (
+            audio_id.strip() if isinstance(audio_id, str) and audio_id.strip() else None
+        )
 
         audio_urls_raw = tool_parameters.get("audio_urls")
         audio_urls: list[str] | None = None
@@ -63,11 +72,19 @@ class SunoGenerateAudiosTool(Tool):
         if audio_urls is not None and not audio_urls:
             audio_urls = None
 
-        continue_at = parse_optional_float(tool_parameters.get("continue_at"), field="continue_at")
-        audio_weight = parse_optional_float(tool_parameters.get("audio_weight"), field="audio_weight")
+        continue_at = parse_optional_float(
+            tool_parameters.get("continue_at"), field="continue_at"
+        )
+        audio_weight = parse_optional_float(
+            tool_parameters.get("audio_weight"), field="audio_weight"
+        )
 
         persona_id = tool_parameters.get("persona_id")
-        persona_id = persona_id.strip() if isinstance(persona_id, str) and persona_id.strip() else None
+        persona_id = (
+            persona_id.strip()
+            if isinstance(persona_id, str) and persona_id.strip()
+            else None
+        )
 
         vocal_gender = tool_parameters.get("vocal_gender")
         vocal_gender = (
@@ -84,15 +101,27 @@ class SunoGenerateAudiosTool(Tool):
             if isinstance(variation_category, str) and variation_category.strip()
             else None
         )
-        if variation_category is not None and variation_category not in {"high", "normal", "subtle"}:
-            raise ValueError("`variation_category` must be 'high', 'normal', or 'subtle'.")
+        if variation_category is not None and variation_category not in {
+            "high",
+            "normal",
+            "subtle",
+        }:
+            raise ValueError(
+                "`variation_category` must be 'high', 'normal', or 'subtle'."
+            )
 
-        weirdness = parse_optional_float(tool_parameters.get("weirdness"), field="weirdness")
-        style_influence = parse_optional_float(tool_parameters.get("style_influence"), field="style_influence")
+        weirdness = parse_optional_float(
+            tool_parameters.get("weirdness"), field="weirdness"
+        )
+        style_influence = parse_optional_float(
+            tool_parameters.get("style_influence"), field="style_influence"
+        )
 
         # Dify has no integer parameter type, so a whole number arrives as a float.
         # Narrow it back to int; the API owns every other rule about the value.
-        duration = parse_optional_float(tool_parameters.get("duration"), field="duration")
+        duration = parse_optional_float(
+            tool_parameters.get("duration"), field="duration"
+        )
         if duration is not None and duration.is_integer():
             duration = int(duration)
 
@@ -105,10 +134,14 @@ class SunoGenerateAudiosTool(Tool):
 
         if action == "inspo":
             if not audio_urls or not 1 <= len(audio_urls) <= 4:
-                raise ValueError("`audio_urls` must contain 1 to 4 reference audio URLs when action is inspo.")
+                raise ValueError(
+                    "`audio_urls` must contain 1 to 4 reference audio URLs when action is inspo."
+                )
         elif custom is True:
             if not lyric and not lyric_prompt and not instrumental:
-                raise ValueError("When `custom` is true, provide `lyric` or `lyric_prompt` (unless instrumental).")
+                raise ValueError(
+                    "When `custom` is true, provide `lyric` or `lyric_prompt` (unless instrumental)."
+                )
         else:
             if not prompt:
                 raise ValueError("`prompt` is required when `custom` is false.")
@@ -145,8 +178,8 @@ class SunoGenerateAudiosTool(Tool):
             payload["title"] = title
         if style:
             payload["style"] = style
-        if style_negative:
-            payload["style_negative"] = style_negative
+        if negative_tags:
+            payload["negative_tags"] = negative_tags
         if audio_id:
             payload["audio_id"] = audio_id
         if audio_urls:
@@ -172,12 +205,16 @@ class SunoGenerateAudiosTool(Tool):
             if tool_parameters.get("async"):
                 payload["async"] = True
 
-        client = AceDataSunoClient(bearer_token=str(self.runtime.credentials["acedata_bearer_token"]))
+        client = AceDataSunoClient(
+            bearer_token=str(self.runtime.credentials["acedata_bearer_token"])
+        )
         try:
             result = client.generate_audios(payload=payload, timeout_s=1800)
         except AceDataSunoError as e:
             yield self.create_variable_message("success", False)
-            yield self.create_variable_message("error", {"code": e.code, "message": e.message})
+            yield self.create_variable_message(
+                "error", {"code": e.code, "message": e.message}
+            )
             yield self.create_variable_message("trace_id", e.trace_id)
             return
 
