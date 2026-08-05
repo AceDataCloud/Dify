@@ -14,7 +14,7 @@ This plugin integrates **Ace Data Cloud Seedream Images API** as Dify tools for:
 ### Tools
 
 - `seedream_generate_image`
-  - Inputs: `prompt` (required), `model`, `size`, `seed`, `sequential_image_generation`, `stream`, `guidance_scale`, `response_format`, `watermark`, `callback_url`
+  - Inputs: `prompt` (required), `model`, `size`, `sequential_image_generation`, `stream`, `response_format`, `watermark`, `callback_url`
   - Outputs: `success`, `task_id`, `trace_id`, `data` (array of objects with `image_url`, optional `prompt`), `error`
 - `seedream_edit_image`
   - Inputs: `prompt` (required), `image_urls` (required), other optional params same as generate
