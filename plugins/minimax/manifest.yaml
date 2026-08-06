@@ -1,0 +1,37 @@
+version: 0.0.1
+type: plugin
+author: acedatacloud
+name: minimax
+label:
+  en_US: MiniMax H3
+  ja_JP: MiniMax H3
+  zh_Hans: MiniMax H3
+  pt_BR: MiniMax H3
+description:
+  en_US: Generate MiniMax H3 videos from text, images, or audio guidance.
+  ja_JP: テキスト、画像、音声ガイドから MiniMax H3 動画を生成します。
+  zh_Hans: 使用文本、图片或音频引导生成 MiniMax H3 视频。
+  pt_BR: Gere vídeos MiniMax H3 a partir de texto, imagens ou orientação de áudio.
+icon: icon.jpg
+icon_dark: icon.jpg
+resource:
+  memory: 268435456
+  permission:
+    tool:
+      enabled: true
+plugins:
+  tools:
+    - provider/minimax.yaml
+meta:
+  version: 0.0.1
+  arch:
+    - amd64
+    - arm64
+  runner:
+    language: python
+    version: "3.12"
+    entrypoint: main
+  minimum_dify_version: null
+created_at: 2026-01-09T00:00:00+08:00
+privacy: PRIVACY.md
+verified: false

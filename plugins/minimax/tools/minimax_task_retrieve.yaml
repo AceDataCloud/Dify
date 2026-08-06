@@ -1,0 +1,34 @@
+identity:
+  name: minimax_task_retrieve
+  author: acedatacloud
+  label:
+    en_US: MiniMax H3 Retrieve Task
+    zh_Hans: MiniMax H3 查询任务
+description:
+  human:
+    en_US: Retrieve a MiniMax H3 generation task by task_id.
+    zh_Hans: 通过 task_id 查询 MiniMax H3 视频任务。
+  llm: Retrieve MiniMax H3 task status and final video result.
+output_schema:
+  type: object
+  properties:
+    success: { type: boolean }
+    error:
+      type: object
+      additionalProperties: true
+    data:
+      type: object
+      additionalProperties: true
+parameters:
+  - name: task_id
+    type: string
+    required: true
+    label: { en_US: Task ID, zh_Hans: 任务 ID }
+    human_description:
+      en_US: The task_id returned by the MiniMax H3 generation tool.
+      zh_Hans: MiniMax H3 生成工具返回的 task_id。
+    llm_description: Provide the generation task_id to retrieve.
+    form: form
+extra:
+  python:
+    source: tools/minimax_task_retrieve.py

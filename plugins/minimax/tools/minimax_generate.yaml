@@ -1,0 +1,105 @@
+identity:
+  name: minimax_generate_video
+  author: acedatacloud
+  label:
+    en_US: MiniMax H3 Generate Video
+    zh_Hans: MiniMax H3 生成视频
+description:
+  human:
+    en_US: Generate MiniMax H3 video from text, images, or audio guidance.
+    zh_Hans: 使用文本、图片或音频引导生成 MiniMax H3 视频。
+  llm: Generate a 4-15 second MiniMax H3 video. Audio input takes priority over images, and images take priority over prompt-only mode.
+output_schema:
+  type: object
+  properties:
+    success: { type: boolean }
+    error:
+      type: object
+      properties:
+        code: { type: string }
+        message: { type: string }
+      additionalProperties: true
+    task_id: { type: string }
+    trace_id: { type: string }
+    data:
+      type: array
+      items:
+        type: object
+        additionalProperties: true
+parameters:
+  - name: prompt
+    type: string
+    required: false
+    label: { en_US: Prompt, zh_Hans: 提示词 }
+    human_description:
+      en_US: Scene, motion, camera, and style description. Required for text-only mode.
+      zh_Hans: 场景、动作、镜头和风格描述；纯文生视频时必填。
+    llm_description: Optional with image_urls or audio_urls; otherwise required.
+    form: llm
+  - name: image_urls
+    type: array
+    required: false
+    label: { en_US: Reference Image URLs, zh_Hans: 参考图片链接 }
+    human_description:
+      en_US: One to nine public image URLs.
+      zh_Hans: 1–9 个公网图片 URL。
+    llm_description: Optional one to nine reference images.
+    form: form
+    input_schema:
+      type: array
+      items: { type: string }
+  - name: audio_urls
+    type: array
+    required: false
+    label: { en_US: Reference Audio URLs, zh_Hans: 参考音频链接 }
+    human_description:
+      en_US: One to three public audio URLs. Enables audio-guided mode.
+      zh_Hans: 1–3 个公网音频 URL；传入后使用音频引导模式。
+    llm_description: Optional one to three audio references; takes priority over image mode.
+    form: form
+    input_schema:
+      type: array
+      items: { type: string }
+  - name: ratio
+    type: select
+    required: false
+    default: "16:9"
+    label: { en_US: Aspect Ratio, zh_Hans: 宽高比 }
+    human_description: { en_US: Output aspect ratio., zh_Hans: 输出视频宽高比。 }
+    llm_description: Choose 16:9 or 9:16.
+    form: form
+    options:
+      - value: "16:9"
+        label: { en_US: "16:9", zh_Hans: "16:9" }
+      - value: "9:16"
+        label: { en_US: "9:16", zh_Hans: "9:16" }
+  - name: duration
+    type: number
+    required: false
+    default: 4
+    min: 4
+    max: 15
+    label: { en_US: Duration, zh_Hans: 时长 }
+    human_description: { en_US: Integer duration from 4 to 15 seconds., zh_Hans: 4–15 秒整数时长。 }
+    llm_description: Integer from 4 to 15 seconds.
+    form: form
+  - name: callback_url
+    type: string
+    required: false
+    label: { en_US: Callback URL, zh_Hans: 回调地址 }
+    human_description: { en_US: Optional public webhook URL., zh_Hans: 可选公网回调地址。 }
+    llm_description: Optional webhook for the final result.
+    form: form
+  - name: async
+    type: boolean
+    required: false
+    default: true
+    label: { en_US: Async, zh_Hans: 异步模式 }
+    human_description:
+      en_US: Return task_id immediately and retrieve it with the task tool.
+      zh_Hans: 立即返回 task_id，随后用任务查询工具获取结果。
+    llm_description: Recommended for video generation.
+    form: form
+extra:
+  python:
+    source: tools/minimax_generate.py
