@@ -17,9 +17,14 @@ class MinimaxGenerateVideoTool(Tool):
         prompt = prompt_value.strip() if isinstance(prompt_value, str) and prompt_value.strip() else None
         image_urls = parse_urls(tool_parameters.get("image_urls"), field_name="image_urls", limit=9)
         audio_urls = parse_urls(tool_parameters.get("audio_urls"), field_name="audio_urls", limit=3)
-        if not prompt and not image_urls and not audio_urls:
-            raise ValueError("At least one of `prompt`, `image_urls`, or `audio_urls` is required.")
+        if not prompt:
+            raise ValueError("`prompt` is required in every generation mode.")
+        if audio_urls and not image_urls:
+            raise ValueError("`image_urls` is required when `audio_urls` is provided.")
 
+        resolution = tool_parameters.get("resolution") or "2K"
+        if resolution not in {"768P", "2K"}:
+            raise ValueError("`resolution` must be 768P or 2K.")
         ratio = tool_parameters.get("ratio") or "16:9"
         if ratio not in {"16:9", "9:16"}:
             raise ValueError("`ratio` must be 16:9 or 9:16.")
@@ -29,6 +34,10 @@ class MinimaxGenerateVideoTool(Tool):
         duration = int(duration)
         if duration < 4 or duration > 15:
             raise ValueError("`duration` must be an integer from 4 to 15.")
+
+        aigc_watermark = tool_parameters.get("aigc_watermark", False)
+        if not isinstance(aigc_watermark, bool):
+            raise TypeError("`aigc_watermark` must be a boolean.")
 
         callback_value = tool_parameters.get("callback_url")
         callback_url = callback_value.strip() if isinstance(callback_value, str) and callback_value.strip() else None
@@ -44,8 +53,10 @@ class MinimaxGenerateVideoTool(Tool):
                 prompt=prompt,
                 image_urls=image_urls or None,
                 audio_urls=audio_urls or None,
+                resolution=resolution,
                 ratio=ratio,
                 duration=duration,
+                aigc_watermark=aigc_watermark,
                 callback_url=callback_url,
                 async_mode=async_value,
                 timeout_s=1800,

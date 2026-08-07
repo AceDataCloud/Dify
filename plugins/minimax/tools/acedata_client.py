@@ -76,19 +76,26 @@ class AceDataMinimaxClient:
     def generate_video(
         self,
         *,
-        prompt: str | None = None,
+        prompt: str,
         image_urls: list[str] | None = None,
         audio_urls: list[str] | None = None,
         model: str = "minimax-h3",
+        resolution: str = "2K",
         ratio: str = "16:9",
         duration: int = 4,
+        aigc_watermark: bool = False,
         callback_url: str | None = None,
         async_mode: bool = False,
         timeout_s: int = 1800,
     ) -> AceDataMinimaxVideosResult:
-        payload: dict[str, Any] = {"model": model, "ratio": ratio, "duration": duration}
-        if prompt:
-            payload["prompt"] = prompt
+        payload: dict[str, Any] = {
+            "model": model,
+            "prompt": prompt,
+            "resolution": resolution,
+            "ratio": ratio,
+            "duration": duration,
+            "aigc_watermark": aigc_watermark,
+        }
         if image_urls:
             payload["image_urls"] = image_urls
         if audio_urls:

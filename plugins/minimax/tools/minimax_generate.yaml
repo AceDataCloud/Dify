@@ -8,7 +8,7 @@ description:
   human:
     en_US: Generate MiniMax H3 video from text, images, or audio guidance.
     zh_Hans: 使用文本、图片或音频引导生成 MiniMax H3 视频。
-  llm: Generate a 4-15 second MiniMax H3 video. Audio input takes priority over images, and images take priority over prompt-only mode.
+  llm: Generate a 4-15 second MiniMax H3 video at 768P or 2K. Prompt is required; audio also requires images.
 output_schema:
   type: object
   properties:
@@ -29,12 +29,12 @@ output_schema:
 parameters:
   - name: prompt
     type: string
-    required: false
+    required: true
     label: { en_US: Prompt, zh_Hans: 提示词 }
     human_description:
-      en_US: Scene, motion, camera, and style description. Required for text-only mode.
-      zh_Hans: 场景、动作、镜头和风格描述；纯文生视频时必填。
-    llm_description: Optional with image_urls or audio_urls; otherwise required.
+      en_US: Scene, motion, camera, and style description. Required in every mode.
+      zh_Hans: 场景、动作、镜头和风格描述；所有模式必填。
+    llm_description: Required in every generation mode, max 7000 characters.
     form: llm
   - name: image_urls
     type: array
@@ -55,11 +55,24 @@ parameters:
     human_description:
       en_US: One to three public audio URLs. Enables audio-guided mode.
       zh_Hans: 1–3 个公网音频 URL；传入后使用音频引导模式。
-    llm_description: Optional one to three audio references; takes priority over image mode.
+    llm_description: Optional one to three audio references; image_urls is required when audio is used.
     form: form
     input_schema:
       type: array
       items: { type: string }
+  - name: resolution
+    type: select
+    required: false
+    default: "2K"
+    label: { en_US: Resolution, zh_Hans: 分辨率 }
+    human_description: { en_US: Output resolution., zh_Hans: 输出视频分辨率。 }
+    llm_description: Choose 768P or 2K. Default is 2K.
+    form: form
+    options:
+      - value: "768P"
+        label: { en_US: "768P", zh_Hans: "768P" }
+      - value: "2K"
+        label: { en_US: "2K", zh_Hans: "2K" }
   - name: ratio
     type: select
     required: false
@@ -82,6 +95,14 @@ parameters:
     label: { en_US: Duration, zh_Hans: 时长 }
     human_description: { en_US: Integer duration from 4 to 15 seconds., zh_Hans: 4–15 秒整数时长。 }
     llm_description: Integer from 4 to 15 seconds.
+    form: form
+  - name: aigc_watermark
+    type: boolean
+    required: false
+    default: false
+    label: { en_US: AIGC Watermark, zh_Hans: AIGC 水印 }
+    human_description: { en_US: Add an AIGC watermark., zh_Hans: 添加 AIGC 标识水印。 }
+    llm_description: Optional. Disabled by default.
     form: form
   - name: callback_url
     type: string
