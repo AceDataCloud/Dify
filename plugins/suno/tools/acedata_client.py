@@ -72,8 +72,8 @@ class AceDataSunoClient:
     def generate_audios(self, *, payload: dict[str, Any], timeout_s: int = 1800) -> AceDataSunoListResult:
         return self._post_list(path="/suno/audios", payload=payload, timeout_s=timeout_s)
 
-    def generate_lyrics(self, *, prompt: str, timeout_s: int = 1800) -> AceDataSunoObjectResult:
-        return self._post_object(path="/suno/lyrics", payload={"prompt": prompt}, timeout_s=timeout_s)
+    def generate_lyrics(self, *, prompt: str, model: str, timeout_s: int = 1800) -> AceDataSunoObjectResult:
+        return self._post_object(path="/suno/lyrics", payload={"prompt": prompt, "model": model}, timeout_s=timeout_s)
 
     def upload_reference_audio(self, *, audio_url: str, timeout_s: int = 1800) -> AceDataSunoObjectResult:
         return self._post_object(path="/suno/upload", payload={"audio_url": audio_url}, timeout_s=timeout_s)

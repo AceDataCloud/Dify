@@ -16,9 +16,14 @@ class SunoGenerateLyricsTool(Tool):
             raise ValueError("`prompt` is required.")
         prompt = prompt.strip()
 
+        model = tool_parameters.get("model")
+        if not isinstance(model, str) or model.strip() not in {"default", "remi-v1"}:
+            raise ValueError("`model` must be one of: default, remi-v1.")
+        model = model.strip()
+
         client = AceDataSunoClient(bearer_token=str(self.runtime.credentials["acedata_bearer_token"]))
         try:
-            result = client.generate_lyrics(prompt=prompt, timeout_s=1800)
+            result = client.generate_lyrics(prompt=prompt, model=model, timeout_s=1800)
         except AceDataSunoError as e:
             yield self.create_variable_message("success", False)
             yield self.create_variable_message("error", {"code": e.code, "message": e.message})
