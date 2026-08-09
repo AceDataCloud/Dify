@@ -28,7 +28,6 @@ def test_generate_async_multimodal_payload(post: Mock):
         resolution="768P",
         ratio="9:16",
         duration=8,
-        aigc_watermark=True,
         async_mode=True,
     )
 
@@ -41,7 +40,6 @@ def test_generate_async_multimodal_payload(post: Mock):
         "resolution": "768P",
         "ratio": "9:16",
         "duration": 8,
-        "aigc_watermark": True,
         "async": True,
     }
 

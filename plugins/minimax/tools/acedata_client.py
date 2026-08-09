@@ -83,7 +83,6 @@ class AceDataMinimaxClient:
         resolution: str = "2K",
         ratio: str = "16:9",
         duration: int = 4,
-        aigc_watermark: bool = False,
         callback_url: str | None = None,
         async_mode: bool = False,
         timeout_s: int = 1800,
@@ -94,7 +93,6 @@ class AceDataMinimaxClient:
             "resolution": resolution,
             "ratio": ratio,
             "duration": duration,
-            "aigc_watermark": aigc_watermark,
         }
         if image_urls:
             payload["image_urls"] = image_urls

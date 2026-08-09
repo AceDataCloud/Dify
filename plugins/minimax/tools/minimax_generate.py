@@ -35,10 +35,6 @@ class MinimaxGenerateVideoTool(Tool):
         if duration < 4 or duration > 15:
             raise ValueError("`duration` must be an integer from 4 to 15.")
 
-        aigc_watermark = tool_parameters.get("aigc_watermark", False)
-        if not isinstance(aigc_watermark, bool):
-            raise TypeError("`aigc_watermark` must be a boolean.")
-
         callback_value = tool_parameters.get("callback_url")
         callback_url = callback_value.strip() if isinstance(callback_value, str) and callback_value.strip() else None
         async_value = tool_parameters.get("async", False)
@@ -56,7 +52,6 @@ class MinimaxGenerateVideoTool(Tool):
                 resolution=resolution,
                 ratio=ratio,
                 duration=duration,
-                aigc_watermark=aigc_watermark,
                 callback_url=callback_url,
                 async_mode=async_value,
                 timeout_s=1800,
