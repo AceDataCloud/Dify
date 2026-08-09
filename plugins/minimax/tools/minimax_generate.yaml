@@ -96,14 +96,6 @@ parameters:
     human_description: { en_US: Integer duration from 4 to 15 seconds., zh_Hans: 4–15 秒整数时长。 }
     llm_description: Integer from 4 to 15 seconds.
     form: form
-  - name: aigc_watermark
-    type: boolean
-    required: false
-    default: false
-    label: { en_US: AIGC Watermark, zh_Hans: AIGC 水印 }
-    human_description: { en_US: Add an AIGC watermark., zh_Hans: 添加 AIGC 标识水印。 }
-    llm_description: Optional. Disabled by default.
-    form: form
   - name: callback_url
     type: string
     required: false
