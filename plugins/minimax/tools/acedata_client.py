@@ -24,21 +24,6 @@ class AceDataMinimaxVideosResult:
     data: list[dict[str, Any]]
 
 
-def parse_urls(value: Any, *, field_name: str, limit: int) -> list[str]:
-    if value is None or value == "":
-        return []
-    if isinstance(value, str):
-        values = [part.strip() for part in value.replace(",", "\n").splitlines()]
-    elif isinstance(value, list):
-        values = [str(part).strip() for part in value]
-    else:
-        raise TypeError(f"`{field_name}` must be an array of URLs.")
-    values = [part for part in values if part]
-    if len(values) > limit:
-        raise ValueError(f"`{field_name}` accepts at most {limit} URLs.")
-    return values
-
-
 def _normalize_token(raw_token: str) -> str:
     token = raw_token.strip()
     if token.lower().startswith("bearer "):
@@ -76,40 +61,26 @@ class AceDataMinimaxClient:
     def generate_video(
         self,
         *,
-        prompt: str,
-        image_urls: list[str] | None = None,
-        audio_urls: list[str] | None = None,
-        model: str = "minimax-h3",
+        content: list[dict[str, Any]],
         resolution: str = "2K",
         ratio: str = "16:9",
         duration: int = 4,
         callback_url: str | None = None,
-        async_mode: bool = False,
         timeout_s: int = 1800,
     ) -> AceDataMinimaxVideosResult:
         payload: dict[str, Any] = {
-            "model": model,
-            "prompt": prompt,
+            "model": "MiniMax-H3",
+            "content": content,
             "resolution": resolution,
             "ratio": ratio,
             "duration": duration,
         }
-        if image_urls:
-            payload["image_urls"] = image_urls
-        if audio_urls:
-            payload["audio_urls"] = audio_urls
         if callback_url:
             payload["callback_url"] = callback_url
-        if async_mode:
-            payload["async"] = True
-
         body = self._post(path="/minimax/videos", payload=payload, timeout_s=timeout_s)
         task_id = body.get("task_id") if isinstance(body.get("task_id"), str) else None
         trace_id = body.get("trace_id") if isinstance(body.get("trace_id"), str) else None
-        if async_mode or callback_url:
-            if not task_id:
-                raise AceDataMinimaxError(code="api_error", message=str(body), trace_id=trace_id)
-        elif body.get("success") is not True:
+        if not task_id:
             raise AceDataMinimaxError(code="api_error", message=str(body), trace_id=trace_id)
         raw_data = body.get("data")
         data = [item for item in raw_data if isinstance(item, dict)] if isinstance(raw_data, list) else []

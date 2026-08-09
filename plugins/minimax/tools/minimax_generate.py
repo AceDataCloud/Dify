@@ -6,21 +6,30 @@ from typing import Any
 from dify_plugin import Tool
 from dify_plugin.entities.tool import ToolInvokeMessage
 
-from tools.acedata_client import AceDataMinimaxClient, AceDataMinimaxError, parse_urls
+from tools.acedata_client import AceDataMinimaxClient, AceDataMinimaxError
+
+
+_LEGACY_FIELDS = {"prompt", "image_urls", "audio_urls"}
 
 
 class MinimaxGenerateVideoTool(Tool):
     def _invoke(
         self, tool_parameters: dict[str, Any]
     ) -> Generator[ToolInvokeMessage, None, None]:
-        prompt_value = tool_parameters.get("prompt")
-        prompt = prompt_value.strip() if isinstance(prompt_value, str) and prompt_value.strip() else None
-        image_urls = parse_urls(tool_parameters.get("image_urls"), field_name="image_urls", limit=9)
-        audio_urls = parse_urls(tool_parameters.get("audio_urls"), field_name="audio_urls", limit=3)
-        if not prompt:
-            raise ValueError("`prompt` is required in every generation mode.")
-        if audio_urls and not image_urls:
-            raise ValueError("`image_urls` is required when `audio_urls` is provided.")
+        legacy_fields = sorted(_LEGACY_FIELDS.intersection(tool_parameters))
+        if legacy_fields:
+            raise ValueError(
+                f"Legacy fields {', '.join(f'`{field}`' for field in legacy_fields)} are no longer accepted. "
+                'Migrate to `content`, for example: [{"type":"text","text":"A cat waves"}].'
+            )
+        content = tool_parameters.get("content")
+        if not isinstance(content, list) or not content or not all(isinstance(item, dict) for item in content):
+            raise TypeError("`content` must be a non-empty array of content objects.")
+        if not any(
+            item.get("type") == "text" and isinstance(item.get("text"), str) and item["text"].strip()
+            for item in content
+        ):
+            raise ValueError("`content` must include one non-empty text item.")
 
         resolution = tool_parameters.get("resolution") or "2K"
         if resolution not in {"768P", "2K"}:
@@ -37,23 +46,22 @@ class MinimaxGenerateVideoTool(Tool):
 
         callback_value = tool_parameters.get("callback_url")
         callback_url = callback_value.strip() if isinstance(callback_value, str) and callback_value.strip() else None
-        async_value = tool_parameters.get("async", False)
-        if not isinstance(async_value, bool):
-            raise TypeError("`async` must be a boolean.")
+        if "async" in tool_parameters:
+            raise ValueError(
+                "`async` is no longer supported; MiniMax H3 V2 generation always returns a task. "
+                "Use the returned `task_id` with the task retrieval tool."
+            )
 
         client = AceDataMinimaxClient(
             bearer_token=str(self.runtime.credentials["acedata_bearer_token"])
         )
         try:
             result = client.generate_video(
-                prompt=prompt,
-                image_urls=image_urls or None,
-                audio_urls=audio_urls or None,
+                content=content,
                 resolution=resolution,
                 ratio=ratio,
                 duration=duration,
                 callback_url=callback_url,
-                async_mode=async_value,
                 timeout_s=1800,
             )
         except AceDataMinimaxError as exc:

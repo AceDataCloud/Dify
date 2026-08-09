@@ -1,17 +1,6 @@
 from unittest.mock import Mock, patch
 
-import pytest
-
-from tools.acedata_client import AceDataMinimaxClient, parse_urls
-
-
-def test_parse_urls_accepts_array_and_enforces_limits():
-    assert parse_urls([" https://a.test/1.png ", "https://a.test/2.png"], field_name="image_urls", limit=9) == [
-        "https://a.test/1.png",
-        "https://a.test/2.png",
-    ]
-    with pytest.raises(ValueError, match="at most 3"):
-        parse_urls(["a", "b", "c", "d"], field_name="audio_urls", limit=3)
+from tools.acedata_client import AceDataMinimaxClient
 
 
 @patch("tools.acedata_client.requests.post")
@@ -21,26 +10,33 @@ def test_generate_async_multimodal_payload(post: Mock):
     post.return_value = response
     client = AceDataMinimaxClient("token", base_url="https://api.test")
 
+    content = [
+        {"type": "text", "text": "dance"},
+        {
+            "type": "image_url",
+            "image_url": {"url": "https://a.test/image.png"},
+            "role": "reference_image",
+        },
+        {
+            "type": "audio_url",
+            "audio_url": {"url": "https://a.test/audio.mp3"},
+            "role": "reference_audio",
+        },
+    ]
     result = client.generate_video(
-        prompt="dance",
-        image_urls=["https://a.test/image.png"],
-        audio_urls=["https://a.test/audio.mp3"],
+        content=content,
         resolution="768P",
         ratio="9:16",
         duration=8,
-        async_mode=True,
     )
 
     assert result.task_id == "task-1"
     assert post.call_args.kwargs["json"] == {
-        "model": "minimax-h3",
-        "prompt": "dance",
-        "image_urls": ["https://a.test/image.png"],
-        "audio_urls": ["https://a.test/audio.mp3"],
+        "model": "MiniMax-H3",
+        "content": content,
         "resolution": "768P",
         "ratio": "9:16",
         "duration": 8,
-        "async": True,
     }
 
 
