@@ -85,8 +85,8 @@ parameters:
       en_US: Size
       zh_Hans: 尺寸
     human_description:
-      en_US: Optional image size like 1K/2K/4K/adaptive or 2048x2048 depending on model.
-      zh_Hans: 可选图像尺寸，如 1K/2K/4K/adaptive 或 2048x2048（取决于模型）。
+      en_US: Optional image size like 1K/2K/4K or 2048x2048 depending on model.
+      zh_Hans: 可选图像尺寸，如 1K/2K/4K 或 2048x2048（取决于模型）。
     llm_description: Optional.
     form: form
     options:
@@ -98,8 +98,6 @@ parameters:
         label: { en_US: 3K, zh_Hans: 3K }
       - value: 4K
         label: { en_US: 4K, zh_Hans: 4K }
-      - value: adaptive
-        label: { en_US: adaptive, zh_Hans: adaptive }
   - name: sequential_image_generation
     type: select
     required: false

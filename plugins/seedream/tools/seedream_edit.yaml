@@ -113,8 +113,6 @@ parameters:
         label: { en_US: 3K, zh_Hans: 3K }
       - value: 4K
         label: { en_US: 4K, zh_Hans: 4K }
-      - value: adaptive
-        label: { en_US: adaptive, zh_Hans: adaptive }
   - name: sequential_image_generation
     type: select
     required: false
