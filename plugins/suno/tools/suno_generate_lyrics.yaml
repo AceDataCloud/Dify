@@ -34,6 +34,21 @@ parameters:
       zh_Hans: 描述歌曲主题与风格。
     llm_description: Required. Provide a clear theme and vibe for the lyrics.
     form: llm
+  - name: model
+    type: select
+    required: true
+    default: default
+    label: { en_US: Model, zh_Hans: 模型 }
+    human_description:
+      en_US: Select the lyrics generation model.
+      zh_Hans: 选择歌词生成模型。
+    llm_description: Required. Select default or remi-v1.
+    form: form
+    options:
+      - value: default
+        label: { en_US: Default, zh_Hans: 默认 }
+      - value: remi-v1
+        label: { en_US: remi-v1, zh_Hans: remi-v1 }
 extra:
   python:
     source: tools/suno_generate_lyrics.py
