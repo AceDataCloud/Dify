@@ -27,39 +27,41 @@ output_schema:
         type: object
         additionalProperties: true
 parameters:
-  - name: prompt
-    type: string
+  - name: content
+    type: array
     required: true
-    label: { en_US: Prompt, zh_Hans: 提示词 }
+    label: { en_US: Content, zh_Hans: 内容 }
     human_description:
-      en_US: Scene, motion, camera, and style description. Required in every mode.
-      zh_Hans: 场景、动作、镜头和风格描述；所有模式必填。
-    llm_description: Required in every generation mode, max 7000 characters.
+      en_US: Ordered MiniMax H3 V2 text, image, video, and audio content items.
+      zh_Hans: 按顺序排列的 MiniMax H3 V2 文本、图片、视频和音频内容项。
+    llm_description: Must include one non-empty text item. Media URLs use nested objects such as {"type":"image_url","image_url":{"url":"https://..."},"role":"reference_image"}.
     form: llm
-  - name: image_urls
-    type: array
-    required: false
-    label: { en_US: Reference Image URLs, zh_Hans: 参考图片链接 }
-    human_description:
-      en_US: One to nine public image URLs.
-      zh_Hans: 1–9 个公网图片 URL。
-    llm_description: Optional one to nine reference images.
-    form: form
     input_schema:
       type: array
-      items: { type: string }
-  - name: audio_urls
-    type: array
-    required: false
-    label: { en_US: Reference Audio URLs, zh_Hans: 参考音频链接 }
-    human_description:
-      en_US: One to three public audio URLs. Enables audio-guided mode.
-      zh_Hans: 1–3 个公网音频 URL；传入后使用音频引导模式。
-    llm_description: Optional one to three audio references; image_urls is required when audio is used.
-    form: form
-    input_schema:
-      type: array
-      items: { type: string }
+      minItems: 1
+      items:
+        type: object
+        additionalProperties: false
+        properties:
+          type: { type: string, enum: [text, image_url, video_url, audio_url] }
+          text: { type: string }
+          image_url:
+            type: object
+            properties: { url: { type: string } }
+            required: [url]
+            additionalProperties: false
+          video_url:
+            type: object
+            properties: { url: { type: string } }
+            required: [url]
+            additionalProperties: false
+          audio_url:
+            type: object
+            properties: { url: { type: string } }
+            required: [url]
+            additionalProperties: false
+          role: { type: string, enum: [first_frame, last_frame, reference_image, reference_video, reference_audio] }
+        required: [type]
   - name: resolution
     type: select
     required: false
@@ -102,16 +104,6 @@ parameters:
     label: { en_US: Callback URL, zh_Hans: 回调地址 }
     human_description: { en_US: Optional public webhook URL., zh_Hans: 可选公网回调地址。 }
     llm_description: Optional webhook for the final result.
-    form: form
-  - name: async
-    type: boolean
-    required: false
-    default: true
-    label: { en_US: Async, zh_Hans: 异步模式 }
-    human_description:
-      en_US: Return task_id immediately and retrieve it with the task tool.
-      zh_Hans: 立即返回 task_id，随后用任务查询工具获取结果。
-    llm_description: Recommended for video generation.
     form: form
 extra:
   python:
