@@ -125,3 +125,6 @@ Package a `.difypkg` and distribute it via your preferred channel (private distr
 ## Privacy Policy
 
 If publishing to the Marketplace, provide a privacy policy in [PRIVACY.md](PRIVACY.md).
+
+
+Seedance 2.5 (`doubao-seedance-2-5-260628`) supports up to 30 seconds, pure-audio and multimodal reference, and video edit/extend.

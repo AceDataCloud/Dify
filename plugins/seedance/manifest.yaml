@@ -1,4 +1,4 @@
-version: 0.0.1
+version: 0.0.2
 type: plugin
 author: acedatacloud
 name: seedance
@@ -21,15 +21,15 @@ resource:
       enabled: true
 plugins:
   tools:
-    - provider/seedance.yaml
+  - provider/seedance.yaml
 meta:
-  version: 0.0.1
+  version: 0.0.2
   arch:
-    - amd64
-    - arm64
+  - amd64
+  - arm64
   runner:
     language: python
-    version: "3.12"
+    version: '3.12'
     entrypoint: main
   minimum_dify_version: null
 created_at: 2026-01-09T00:00:00+08:00

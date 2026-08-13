@@ -42,17 +42,26 @@ class SeedanceGenerateVideoTool(Tool):
             tool_parameters.get("reference_image_urls"),
             field_name="reference_image_urls",
         )
+        reference_audio_urls = parse_image_urls(
+            tool_parameters.get("reference_audio_urls"), field_name="reference_audio_urls"
+        )
+        reference_video_urls = parse_image_urls(
+            tool_parameters.get("reference_video_urls"), field_name="reference_video_urls"
+        )
 
         return_last_frame = tool_parameters.get("return_last_frame")
         if return_last_frame is not None and not isinstance(return_last_frame, bool):
             raise ValueError("`return_last_frame` must be a boolean.")
 
-        service_tier = tool_parameters.get("service_tier")
-        service_tier = (
-            service_tier.strip()
-            if isinstance(service_tier, str) and service_tier.strip()
-            else None
+        task_type = tool_parameters.get("omni_reference_task_type")
+        task_type = task_type.strip() if isinstance(task_type, str) and task_type.strip() else None
+        output_format = tool_parameters.get("output_format")
+        output_format = (
+            output_format.strip() if isinstance(output_format, str) and output_format.strip() else None
         )
+        tools = tool_parameters.get("tools")
+        if tools is not None and not isinstance(tools, list):
+            raise ValueError("`tools` must be an array of objects.")
 
         execution_expires_after = tool_parameters.get("execution_expires_after")
         if execution_expires_after is not None:
@@ -116,6 +125,8 @@ class SeedanceGenerateVideoTool(Tool):
                 first_frame_url=first_frame_url,
                 last_frame_url=last_frame_url,
                 reference_image_urls=reference_image_urls or None,
+                reference_audio_urls=reference_audio_urls or None,
+                reference_video_urls=reference_video_urls or None,
                 resolution=resolution,
                 ratio=ratio,
                 duration=duration,
@@ -124,7 +135,9 @@ class SeedanceGenerateVideoTool(Tool):
                 watermark=watermark,
                 generate_audio=generate_audio,
                 return_last_frame=return_last_frame,
-                service_tier=service_tier,
+                omni_reference_task_type=task_type,
+                output_format=output_format,
+                tools=tools,
                 execution_expires_after=execution_expires_after,
                 callback_url=callback_url,
                 async_mode=bool(tool_parameters.get("async")),
