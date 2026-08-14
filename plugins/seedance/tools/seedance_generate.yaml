@@ -27,261 +27,354 @@ output_schema:
     trace_id:
       type: string
     data:
-      type: array
-      items:
-        type: object
-        additionalProperties: true
+      type: object
+      additionalProperties: true
 parameters:
-  - name: prompt
-    type: string
-    required: true
+- name: prompt
+  type: string
+  required: true
+  label:
+    en_US: Prompt
+    zh_Hans: 提示词
+  human_description:
+    en_US: Text prompt used to generate the video.
+    zh_Hans: 用于生成视频的提示词。
+  llm_description: Describe the video you want to generate in detail (scene, motion, camera, style).
+  form: llm
+- name: model
+  type: select
+  required: false
+  label:
+    en_US: Model
+    zh_Hans: 模型
+  human_description:
+    en_US: Optional model. Default is doubao-seedance-2-0-260128.
+    zh_Hans: 可选模型，默认 doubao-seedance-2-0-260128。
+  llm_description: Optional. Choose a supported Seedance model.
+  form: form
+  options:
+  - value: doubao-seedance-2-5-260628
     label:
-      en_US: Prompt
-      zh_Hans: 提示词
-    human_description:
-      en_US: Text prompt used to generate the video.
-      zh_Hans: 用于生成视频的提示词。
-    llm_description: Describe the video you want to generate in detail (scene, motion, camera, style).
-    form: llm
-  - name: model
-    type: select
-    required: false
+      en_US: doubao-seedance-2-5-260628
+      zh_Hans: doubao-seedance-2-5-260628
+  - value: doubao-seedance-2-0-mini-260615
     label:
-      en_US: Model
-      zh_Hans: 模型
-    human_description:
-      en_US: Optional model name. Default is doubao-seedance-1-0-pro-250528.
-      zh_Hans: 可选模型名称，不填则默认为 doubao-seedance-1-0-pro-250528。
-    llm_description: Optional. Choose a supported Seedance model.
-    form: form
-    options:
-      - value: doubao-seedance-1-0-pro-250528
-        label:
-          {
-            en_US: doubao-seedance-1-0-pro-250528 (default),
-            zh_Hans: doubao-seedance-1-0-pro-250528（默认）,
-          }
-      - value: doubao-seedance-1-0-pro-fast-251015
-        label:
-          {
-            en_US: doubao-seedance-1-0-pro-fast-251015,
-            zh_Hans: doubao-seedance-1-0-pro-fast-251015,
-          }
-      - value: doubao-seedance-1-5-pro-251215
-        label:
-          {
-            en_US: doubao-seedance-1-5-pro-251215,
-            zh_Hans: doubao-seedance-1-5-pro-251215,
-          }
-      - value: doubao-seedance-1-0-lite-t2v-250428
-        label:
-          {
-            en_US: doubao-seedance-1-0-lite-t2v-250428,
-            zh_Hans: doubao-seedance-1-0-lite-t2v-250428,
-          }
-      - value: doubao-seedance-1-0-lite-i2v-250428
-        label:
-          {
-            en_US: doubao-seedance-1-0-lite-i2v-250428,
-            zh_Hans: doubao-seedance-1-0-lite-i2v-250428,
-          }
-  - name: first_frame_url
-    type: string
-    required: false
+      en_US: doubao-seedance-2-0-mini-260615
+      zh_Hans: doubao-seedance-2-0-mini-260615
+  - value: doubao-seedance-2-0-fast-260128
     label:
-      en_US: First Frame URL
-      zh_Hans: 首帧图片链接
-    human_description:
-      en_US: Optional. Provide a first frame reference image URL.
-      zh_Hans: 可选，提供首帧参考图片链接。
-    llm_description: Optional. Provide a public image URL or a base64 data URL for the first frame.
-    form: form
-  - name: last_frame_url
-    type: string
-    required: false
+      en_US: doubao-seedance-2-0-fast-260128
+      zh_Hans: doubao-seedance-2-0-fast-260128
+  - value: doubao-seedance-2-0-260128
     label:
-      en_US: Last Frame URL
-      zh_Hans: 尾帧图片链接
-    human_description:
-      en_US: Optional. Provide a last frame reference image URL.
-      zh_Hans: 可选，提供尾帧参考图片链接。
-    llm_description: Optional. Provide a public image URL or a base64 data URL for the last frame.
-    form: form
-  - name: reference_image_urls
+      en_US: doubao-seedance-2-0-260128 (default)
+      zh_Hans: doubao-seedance-2-0-260128（默认）
+  - value: doubao-seedance-1-0-pro-250528
+    label:
+      en_US: doubao-seedance-1-0-pro-250528
+      zh_Hans: doubao-seedance-1-0-pro-250528
+  - value: doubao-seedance-1-0-pro-fast-251015
+    label:
+      en_US: doubao-seedance-1-0-pro-fast-251015
+      zh_Hans: doubao-seedance-1-0-pro-fast-251015
+  - value: doubao-seedance-1-5-pro-251215
+    label:
+      en_US: doubao-seedance-1-5-pro-251215
+      zh_Hans: doubao-seedance-1-5-pro-251215
+  - value: doubao-seedance-1-0-lite-t2v-250428
+    label:
+      en_US: doubao-seedance-1-0-lite-t2v-250428
+      zh_Hans: doubao-seedance-1-0-lite-t2v-250428
+  - value: doubao-seedance-1-0-lite-i2v-250428
+    label:
+      en_US: doubao-seedance-1-0-lite-i2v-250428
+      zh_Hans: doubao-seedance-1-0-lite-i2v-250428
+- name: first_frame_url
+  type: string
+  required: false
+  label:
+    en_US: First Frame URL
+    zh_Hans: 首帧图片链接
+  human_description:
+    en_US: Optional. Provide a first frame reference image URL.
+    zh_Hans: 可选，提供首帧参考图片链接。
+  llm_description: Optional. Provide a public image URL or a base64 data URL for the first frame.
+  form: form
+- name: last_frame_url
+  type: string
+  required: false
+  label:
+    en_US: Last Frame URL
+    zh_Hans: 尾帧图片链接
+  human_description:
+    en_US: Optional. Provide a last frame reference image URL.
+    zh_Hans: 可选，提供尾帧参考图片链接。
+  llm_description: Optional. Provide a public image URL or a base64 data URL for the last frame.
+  form: form
+- name: reference_image_urls
+  type: array
+  required: false
+  label:
+    en_US: Reference Image URLs
+    zh_Hans: 参考图片链接列表
+  human_description:
+    en_US: Optional. Provide one or more reference images.
+    zh_Hans: 可选，提供一张或多张参考图片链接。
+  llm_description: Optional. Provide one or more image URLs (or base64 data URLs) as reference images.
+  form: form
+  input_schema:
     type: array
-    required: false
+    items:
+      type: string
+- name: reference_audio_urls
+  type: array
+  required: false
+  label:
+    en_US: Reference Audio URLs
+    zh_Hans: 参考音频链接
+  human_description:
+    en_US: Optional reference audio URLs. Seedance 2.5 supports audio-only reference.
+    zh_Hans: 可选参考音频链接，Seedance 2.5 支持纯音频参考。
+  form: form
+  input_schema:
+    type: array
+    items:
+      type: string
+- name: reference_video_urls
+  type: array
+  required: false
+  label:
+    en_US: Reference Video URLs
+    zh_Hans: 参考视频链接
+  human_description:
+    en_US: Optional reference videos for generation, edit, or extend.
+    zh_Hans: 可选参考视频，用于生成、编辑或延长。
+  form: form
+  input_schema:
+    type: array
+    items:
+      type: string
+- name: omni_reference_task_type
+  type: select
+  required: false
+  label:
+    en_US: Task Type
+    zh_Hans: 任务类型
+  human_description:
+    en_US: Seedance 2.5 task type.
+    zh_Hans: Seedance 2.5 任务类型。
+  form: form
+  options:
+  - value: auto
     label:
-      en_US: Reference Image URLs
-      zh_Hans: 参考图片链接列表
-    human_description:
-      en_US: Optional. Provide one or more reference images.
-      zh_Hans: 可选，提供一张或多张参考图片链接。
-    llm_description: Optional. Provide one or more image URLs (or base64 data URLs) as reference images.
-    form: form
-    input_schema:
-      type: array
-      items:
-        type: string
-  - name: resolution
-    type: select
-    required: false
+      en_US: auto
+      zh_Hans: auto
+  - value: edit
     label:
-      en_US: Resolution
-      zh_Hans: 分辨率
-    human_description:
-      en_US: Optional output resolution (480p/720p/1080p).
-      zh_Hans: 可选输出分辨率（480p/720p/1080p）。
-    llm_description: Optional. Choose 480p, 720p, or 1080p.
-    form: form
-    options:
-      - value: 480p
-        label: { en_US: 480p, zh_Hans: 480p }
-      - value: 720p
-        label: { en_US: 720p, zh_Hans: 720p }
-      - value: 1080p
-        label: { en_US: 1080p, zh_Hans: 1080p }
-  - name: ratio
-    type: select
-    required: false
+      en_US: edit
+      zh_Hans: edit
+  - value: extend
     label:
-      en_US: Aspect Ratio
-      zh_Hans: 画面比例
-    human_description:
-      en_US: Optional output aspect ratio. Default is 16:9.
-      zh_Hans: 可选输出画面比例，默认 16:9。
-    llm_description: Optional. Choose an aspect ratio.
-    form: form
-    options:
-      - value: "16:9"
-        label: { en_US: "16:9", zh_Hans: "16:9" }
-      - value: "4:3"
-        label: { en_US: "4:3", zh_Hans: "4:3" }
-      - value: "1:1"
-        label: { en_US: "1:1", zh_Hans: "1:1" }
-      - value: "3:4"
-        label: { en_US: "3:4", zh_Hans: "3:4" }
-      - value: "9:16"
-        label: { en_US: "9:16", zh_Hans: "9:16" }
-      - value: "21:9"
-        label: { en_US: "21:9", zh_Hans: "21:9" }
-      - value: adaptive
-        label: { en_US: adaptive, zh_Hans: adaptive }
-  - name: duration
-    type: number
-    required: false
+      en_US: extend
+      zh_Hans: extend
+- name: output_format
+  type: select
+  required: false
+  label:
+    en_US: Output Format
+    zh_Hans: 输出格式
+  human_description:
+    en_US: Seedance 2.5 output format.
+    zh_Hans: Seedance 2.5 输出格式。
+  form: form
+  options:
+  - value: mp4
     label:
-      en_US: Duration (seconds)
-      zh_Hans: 时长（秒）
-    human_description:
-      en_US: Optional video duration in seconds (2-12, varies by model).
-      zh_Hans: 可选视频时长，秒（2-12，因模型而异）。
-    llm_description: Optional. Integer seconds, range 2-12.
-    form: form
-  - name: seed
-    type: number
-    required: false
+      en_US: mp4
+      zh_Hans: mp4
+  - value: mov
     label:
-      en_US: Seed
-      zh_Hans: 随机种子
-    human_description:
-      en_US: Optional seed for reproducibility (-1 to 4294967295).
-      zh_Hans: 可选随机种子（-1 到 4294967295）。
-    llm_description: Optional. Integer seed value.
-    form: form
-  - name: camerafixed
-    type: boolean
-    required: false
+      en_US: mov
+      zh_Hans: mov
+- name: tools
+  type: array
+  required: false
+  label:
+    en_US: Tools
+    zh_Hans: 工具
+  human_description:
+    en_US: Optional Seedance 2.5 tool configuration objects.
+    zh_Hans: 可选 Seedance 2.5 工具配置对象。
+  form: llm
+  input_schema:
+    type: array
+    items:
+      type: object
+      additionalProperties: true
+- name: resolution
+  type: select
+  required: false
+  label:
+    en_US: Resolution
+    zh_Hans: 分辨率
+  human_description:
+    en_US: Optional output resolution (480p/720p/1080p).
+    zh_Hans: 可选输出分辨率（480p/720p/1080p）。
+  llm_description: Optional. Choose 480p, 720p, or 1080p.
+  form: form
+  options:
+  - value: 480p
     label:
-      en_US: Camera Fixed
-      zh_Hans: 固定镜头
-    human_description:
-      en_US: Optional. Fix camera position during generation.
-      zh_Hans: 可选。生成时固定镜头位置。
-    llm_description: Optional. Set true to lock camera.
-    form: form
-  - name: watermark
-    type: boolean
-    required: false
+      en_US: 480p
+      zh_Hans: 480p
+  - value: 720p
     label:
-      en_US: Watermark
-      zh_Hans: 水印
-    human_description:
-      en_US: Optional. Add watermark or not.
-      zh_Hans: 可选，是否添加水印。
-    llm_description: Optional.
-    form: form
-  - name: generate_audio
-    type: boolean
-    required: false
+      en_US: 720p
+      zh_Hans: 720p
+  - value: 1080p
     label:
-      en_US: Generate Audio
-      zh_Hans: 生成音频
-    human_description:
-      en_US: Optional. Generate audio for the video (only 1.5-pro model).
-      zh_Hans: 可选。为视频生成音频（仅 1.5-pro 模型支持）。
-    llm_description: Optional. Only supported by doubao-seedance-1-5-pro-251215.
-    form: form
-  - name: return_last_frame
-    type: boolean
-    required: false
+      en_US: 1080p
+      zh_Hans: 1080p
+- name: ratio
+  type: select
+  required: false
+  label:
+    en_US: Aspect Ratio
+    zh_Hans: 画面比例
+  human_description:
+    en_US: Optional output aspect ratio. Default is 16:9.
+    zh_Hans: 可选输出画面比例，默认 16:9。
+  llm_description: Optional. Choose an aspect ratio.
+  form: form
+  options:
+  - value: '16:9'
     label:
-      en_US: Return last frame
-      zh_Hans: 返回最后一帧
-    human_description:
-      en_US: Whether to return last frame URL (if supported).
-      zh_Hans: 是否返回最后一帧链接（若支持）。
-    llm_description: Optional. Set true to request last frame URL.
-    form: form
-  - name: service_tier
-    type: select
-    required: false
+      en_US: '16:9'
+      zh_Hans: '16:9'
+  - value: '4:3'
     label:
-      en_US: Service tier
-      zh_Hans: 服务档位
-    human_description:
-      en_US: Optional. Choose default or flex.
-      zh_Hans: 可选，选择 default 或 flex。
-    llm_description: Optional. Choose default or flex.
-    form: form
-    options:
-      - value: default
-        label: { en_US: default, zh_Hans: default }
-      - value: flex
-        label: { en_US: flex, zh_Hans: flex }
-  - name: execution_expires_after
-    type: number
-    required: false
+      en_US: '4:3'
+      zh_Hans: '4:3'
+  - value: '1:1'
     label:
-      en_US: Execution expires after (seconds)
-      zh_Hans: 执行超时（秒）
-    human_description:
-      en_US: Optional. Task timeout threshold in seconds (3600-259200).
-      zh_Hans: 可选，任务执行超时秒数（3600-259200）。
-    llm_description: Optional. Provide an integer seconds value.
-    form: form
-  - name: callback_url
-    type: string
-    required: false
+      en_US: '1:1'
+      zh_Hans: '1:1'
+  - value: '3:4'
     label:
-      en_US: Callback URL
-      zh_Hans: 回调地址
-    human_description:
-      en_US: Optional callback URL for async notifications.
-      zh_Hans: 可选回调地址，用于异步通知。
-    llm_description: Optional. Provide a public webhook URL for callbacks.
-    form: form
-  - name: async
-    type: boolean
-    required: false
-    default: false
+      en_US: '3:4'
+      zh_Hans: '3:4'
+  - value: '9:16'
     label:
-      en_US: Async
-      zh_Hans: 异步模式
-    human_description:
-      en_US: Return a task_id immediately without a callback_url; poll the tasks endpoint for the result.
-      zh_Hans: 立即返回 task_id，无需回调地址，通过任务查询接口轮询结果。
-    llm_description: Optional. Set true to submit asynchronously and get a task_id to poll.
-    form: form
+      en_US: '9:16'
+      zh_Hans: '9:16'
+  - value: '21:9'
+    label:
+      en_US: '21:9'
+      zh_Hans: '21:9'
+  - value: adaptive
+    label:
+      en_US: adaptive
+      zh_Hans: adaptive
+- name: duration
+  type: number
+  required: false
+  label:
+    en_US: Duration (seconds)
+    zh_Hans: 时长（秒）
+  human_description:
+    en_US: 'Model-specific duration: Seedance 2.5 supports 4–30 seconds or -1.'
+    zh_Hans: 按模型设置时长：Seedance 2.5 支持 4–30 秒或 -1。
+  llm_description: Optional. Integer seconds, range 2-12.
+  form: form
+- name: seed
+  type: number
+  required: false
+  label:
+    en_US: Seed
+    zh_Hans: 随机种子
+  human_description:
+    en_US: Optional seed for reproducibility (-1 to 4294967295).
+    zh_Hans: 可选随机种子（-1 到 4294967295）。
+  llm_description: Optional. Integer seed value.
+  form: form
+- name: camerafixed
+  type: boolean
+  required: false
+  label:
+    en_US: Camera Fixed
+    zh_Hans: 固定镜头
+  human_description:
+    en_US: Optional. Fix camera position during generation.
+    zh_Hans: 可选。生成时固定镜头位置。
+  llm_description: Optional. Set true to lock camera.
+  form: form
+- name: watermark
+  type: boolean
+  required: false
+  label:
+    en_US: Watermark
+    zh_Hans: 水印
+  human_description:
+    en_US: Optional. Add watermark or not.
+    zh_Hans: 可选，是否添加水印。
+  llm_description: Optional.
+  form: form
+- name: generate_audio
+  type: boolean
+  required: false
+  label:
+    en_US: Generate Audio
+    zh_Hans: 生成音频
+  human_description:
+    en_US: Optional. Generate audio for the video (only 1.5-pro model).
+    zh_Hans: 可选。为视频生成音频（仅 1.5-pro 模型支持）。
+  llm_description: Optional. Only supported by doubao-seedance-1-5-pro-251215.
+  form: form
+- name: return_last_frame
+  type: boolean
+  required: false
+  label:
+    en_US: Return last frame
+    zh_Hans: 返回最后一帧
+  human_description:
+    en_US: Whether to return last frame URL (if supported).
+    zh_Hans: 是否返回最后一帧链接（若支持）。
+  llm_description: Optional. Set true to request last frame URL.
+  form: form
+- name: execution_expires_after
+  type: number
+  required: false
+  label:
+    en_US: Execution expires after (seconds)
+    zh_Hans: 执行超时（秒）
+  human_description:
+    en_US: Optional. Task timeout threshold in seconds (3600-259200).
+    zh_Hans: 可选，任务执行超时秒数（3600-259200）。
+  llm_description: Optional. Provide an integer seconds value.
+  form: form
+- name: callback_url
+  type: string
+  required: false
+  label:
+    en_US: Callback URL
+    zh_Hans: 回调地址
+  human_description:
+    en_US: Optional callback URL for async notifications.
+    zh_Hans: 可选回调地址，用于异步通知。
+  llm_description: Optional. Provide a public webhook URL for callbacks.
+  form: form
+- name: async
+  type: boolean
+  required: false
+  default: false
+  label:
+    en_US: Async
+    zh_Hans: 异步模式
+  human_description:
+    en_US: Return a task_id immediately without a callback_url; poll the tasks endpoint for the result.
+    zh_Hans: 立即返回 task_id，无需回调地址，通过任务查询接口轮询结果。
+  llm_description: Optional. Set true to submit asynchronously and get a task_id to poll.
+  form: form
 extra:
   python:
     source: tools/seedance_generate.py

@@ -67,6 +67,8 @@ class AceDataSeedanceClient:
         first_frame_url: str | None = None,
         last_frame_url: str | None = None,
         reference_image_urls: list[str] | None = None,
+        reference_audio_urls: list[str] | None = None,
+        reference_video_urls: list[str] | None = None,
         resolution: str | None = None,
         ratio: str | None = None,
         duration: int | None = None,
@@ -77,7 +79,9 @@ class AceDataSeedanceClient:
         callback_url: str | None = None,
         async_mode: bool | None = None,
         return_last_frame: bool | None = None,
-        service_tier: str | None = None,
+        omni_reference_task_type: str | None = None,
+        output_format: str | None = None,
+        tools: list[dict[str, Any]] | None = None,
         execution_expires_after: int | None = None,
         timeout_s: int = 600,
     ) -> AceDataSeedanceVideosResult:
@@ -89,6 +93,8 @@ class AceDataSeedanceClient:
             first_frame_url=first_frame_url,
             last_frame_url=last_frame_url,
             reference_image_urls=reference_image_urls,
+            reference_audio_urls=reference_audio_urls,
+            reference_video_urls=reference_video_urls,
         )
 
         payload: dict[str, Any] = {"content": content}
@@ -110,12 +116,16 @@ class AceDataSeedanceClient:
             payload["generate_audio"] = generate_audio
         if callback_url:
             payload["callback_url"] = callback_url
-            if async_mode:
-                payload["async"] = True
+        if async_mode:
+            payload["async"] = True
         if return_last_frame is not None:
             payload["return_last_frame"] = return_last_frame
-        if service_tier:
-            payload["service_tier"] = service_tier
+        if omni_reference_task_type:
+            payload["omni_reference_task_type"] = omni_reference_task_type
+        if output_format:
+            payload["output_format"] = output_format
+        if tools:
+            payload["tools"] = tools
         if execution_expires_after is not None:
             payload["execution_expires_after"] = execution_expires_after
 
@@ -232,6 +242,8 @@ def build_content(
     first_frame_url: str | None = None,
     last_frame_url: str | None = None,
     reference_image_urls: list[str] | None = None,
+    reference_audio_urls: list[str] | None = None,
+    reference_video_urls: list[str] | None = None,
 ) -> list[dict[str, Any]]:
     content: list[dict[str, Any]] = [{"type": "text", "text": prompt.strip()}]
 
@@ -265,5 +277,23 @@ def build_content(
                         "role": "reference_image",
                     }
                 )
+    for url in reference_audio_urls or []:
+        if isinstance(url, str) and url.strip():
+            content.append(
+                {
+                    "type": "audio_url",
+                    "audio_url": {"url": url.strip()},
+                    "role": "reference_audio",
+                }
+            )
+    for url in reference_video_urls or []:
+        if isinstance(url, str) and url.strip():
+            content.append(
+                {
+                    "type": "video_url",
+                    "video_url": {"url": url.strip()},
+                    "role": "reference_video",
+                }
+            )
 
     return content

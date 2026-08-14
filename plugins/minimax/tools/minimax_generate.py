@@ -46,12 +46,8 @@ class MinimaxGenerateVideoTool(Tool):
 
         callback_value = tool_parameters.get("callback_url")
         callback_url = callback_value.strip() if isinstance(callback_value, str) and callback_value.strip() else None
-        if "async" in tool_parameters:
-            raise ValueError(
-                "`async` is no longer supported; MiniMax H3 V2 generation always returns a task. "
-                "Use the returned `task_id` with the task retrieval tool."
-            )
-
+        # `async` is retained by the public API for compatibility; creation is
+        # always asynchronous, so the plugin intentionally ignores its value.
         client = AceDataMinimaxClient(
             bearer_token=str(self.runtime.credentials["acedata_bearer_token"])
         )
