@@ -48,15 +48,15 @@ parameters:
     en_US: Model
     zh_Hans: 模型
   human_description:
-    en_US: Optional model. Default is doubao-seedance-2-5-260628.
-    zh_Hans: 可选模型，默认 doubao-seedance-2-5-260628。
+    en_US: Optional model. Default is doubao-seedance-2-0-260128.
+    zh_Hans: 可选模型，默认 doubao-seedance-2-0-260128。
   llm_description: Optional. Choose a supported Seedance model.
   form: form
   options:
   - value: doubao-seedance-2-5-260628
     label:
-      en_US: doubao-seedance-2-5-260628 (default)
-      zh_Hans: doubao-seedance-2-5-260628（默认）
+      en_US: doubao-seedance-2-5-260628
+      zh_Hans: doubao-seedance-2-5-260628
   - value: doubao-seedance-2-0-mini-260615
     label:
       en_US: doubao-seedance-2-0-mini-260615
@@ -67,12 +67,12 @@ parameters:
       zh_Hans: doubao-seedance-2-0-fast-260128
   - value: doubao-seedance-2-0-260128
     label:
-      en_US: doubao-seedance-2-0-260128
-      zh_Hans: doubao-seedance-2-0-260128
+      en_US: doubao-seedance-2-0-260128 (default)
+      zh_Hans: doubao-seedance-2-0-260128（默认）
   - value: doubao-seedance-1-0-pro-250528
     label:
       en_US: doubao-seedance-1-0-pro-250528
-      zh_Hans: doubao-seedance-1-0-pro-250528（默认）
+      zh_Hans: doubao-seedance-1-0-pro-250528
   - value: doubao-seedance-1-0-pro-fast-251015
     label:
       en_US: doubao-seedance-1-0-pro-fast-251015

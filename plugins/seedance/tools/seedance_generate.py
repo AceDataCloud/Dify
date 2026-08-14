@@ -22,7 +22,11 @@ class SeedanceGenerateVideoTool(Tool):
             raise ValueError("`prompt` is required.")
 
         model = tool_parameters.get("model")
-        model = model.strip() if isinstance(model, str) and model.strip() else None
+        model = (
+            model.strip()
+            if isinstance(model, str) and model.strip()
+            else "doubao-seedance-2-0-260128"
+        )
 
         first_frame_url = tool_parameters.get("first_frame_url")
         first_frame_url = (
