@@ -7,13 +7,13 @@ import requests
 
 # Allowed actions map to API endpoint suffix under /face/...
 ACTION_PATHS = {
-    "keypoints": "/face/keypoints",
+    "keypoints": "/face/analyze",
     "beautify": "/face/beautify",
-    "age": "/face/age",
-    "gender": "/face/gender",
+    "age": "/face/change-age",
+    "gender": "/face/change-gender",
     "swap": "/face/swap",
     "cartoon": "/face/cartoon",
-    "liveness": "/face/liveness",
+    "liveness": "/face/detect-live",
 }
 
 

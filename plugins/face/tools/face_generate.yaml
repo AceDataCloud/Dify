@@ -67,6 +67,51 @@ parameters:
       zh_Hans: 图片链接。keypoints / beautify / age / gender / cartoon / liveness 必填。
     llm_description: URL of the face image (required for non-swap actions).
     form: form
+  - name: mode
+    type: number
+    required: false
+    label: { en_US: Analyze Mode, zh_Hans: 分析模式 }
+    human_description:
+      en_US: For keypoints only. 0 analyzes all faces; 1 analyzes the largest face.
+      zh_Hans: 仅用于关键点分析。0 分析所有人脸，1 仅分析最大人脸。
+    llm_description: Optional for action=keypoints. Use 0 for all faces or 1 for the largest face.
+    form: form
+  - name: need_rotate_detection
+    type: number
+    required: false
+    label: { en_US: Rotate Detection, zh_Hans: 旋转检测 }
+    human_description:
+      en_US: For keypoints only. 0 disables and 1 enables rotate detection.
+      zh_Hans: 仅用于关键点分析。0 关闭、1 开启旋转检测。
+    llm_description: Optional for action=keypoints. Use 0 or 1.
+    form: form
+  - name: face_model_version
+    type: string
+    required: false
+    label: { en_US: Face Model Version, zh_Hans: 人脸模型版本 }
+    human_description:
+      en_US: Optional model version for keypoints or liveness detection.
+      zh_Hans: 关键点分析或活体检测可选的模型版本。
+    llm_description: Optional for action=keypoints or action=liveness.
+    form: form
+  - name: age_infos
+    type: string
+    required: false
+    label: { en_US: Age Information, zh_Hans: 年龄信息 }
+    human_description:
+      en_US: Required for age. JSON array such as [{"age": 30}].
+      zh_Hans: age 操作必填。JSON 数组，例如 [{"age": 30}]。
+    llm_description: Required for action=age. A non-empty JSON array of objects containing age.
+    form: form
+  - name: gender_infos
+    type: string
+    required: false
+    label: { en_US: Gender Information, zh_Hans: 性别信息 }
+    human_description:
+      en_US: Required for gender. JSON array such as [{"gender": 1}].
+      zh_Hans: gender 操作必填。JSON 数组，例如 [{"gender": 1}]。
+    llm_description: Required for action=gender. A non-empty JSON array of gender objects.
+    form: form
   - name: source_image_url
     type: string
     required: false
@@ -140,9 +185,9 @@ parameters:
       en_US: Callback URL
       zh_Hans: 回调地址
     human_description:
-      en_US: Optional async callback URL.
-      zh_Hans: 可选异步回调地址。
-    llm_description: Optional public webhook URL.
+      en_US: For swap only. Optional async callback URL.
+      zh_Hans: 仅用于换脸。可选异步回调地址。
+    llm_description: Optional public webhook URL for action=swap only.
     form: form
   - name: async
     type: boolean
@@ -152,9 +197,9 @@ parameters:
       en_US: Async
       zh_Hans: 异步模式
     human_description:
-      en_US: Return a task_id immediately without a callback_url; poll the tasks endpoint for the result.
-      zh_Hans: 立即返回 task_id，无需回调地址，通过任务查询接口轮询结果。
-    llm_description: Optional. Set true to submit asynchronously and get a task_id to poll.
+      en_US: For swap only. Return a task_id immediately and poll the tasks endpoint.
+      zh_Hans: 仅用于换脸。立即返回 task_id，并通过任务查询接口轮询结果。
+    llm_description: Optional for action=swap only. Set true to submit asynchronously.
     form: form
 extra:
   python:
