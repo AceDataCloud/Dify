@@ -99,8 +99,10 @@ parameters:
     required: false
     label: { en_US: Age Information, zh_Hans: 年龄信息 }
     human_description:
-      en_US: Required for age. JSON array such as [{"age": 30}].
-      zh_Hans: age 操作必填。JSON 数组，例如 [{"age": 30}]。
+      en_US: >-
+        Required for age. JSON array such as [{"age": 30}].
+      zh_Hans: >-
+        age 操作必填。JSON 数组，例如 [{"age": 30}]。
     llm_description: Required for action=age. A non-empty JSON array of objects containing age.
     form: form
   - name: gender_infos
@@ -108,8 +110,10 @@ parameters:
     required: false
     label: { en_US: Gender Information, zh_Hans: 性别信息 }
     human_description:
-      en_US: Required for gender. JSON array such as [{"gender": 1}].
-      zh_Hans: gender 操作必填。JSON 数组，例如 [{"gender": 1}]。
+      en_US: >-
+        Required for gender. JSON array such as [{"gender": 1}].
+      zh_Hans: >-
+        gender 操作必填。JSON 数组，例如 [{"gender": 1}]。
     llm_description: Required for action=gender. A non-empty JSON array of gender objects.
     form: form
   - name: source_image_url
