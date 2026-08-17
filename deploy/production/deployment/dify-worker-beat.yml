@@ -37,7 +37,7 @@ spec:
           envFrom:
             - configMapRef:
                 name: dify-env
-          image: ghcr.io/acedatacloud/dify-api:latest
+          image: ghcr.io/acedatacloud/dify-api:${TAG}
           imagePullPolicy: IfNotPresent
           env:
             - name: MODE

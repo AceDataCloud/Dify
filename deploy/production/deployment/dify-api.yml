@@ -203,7 +203,7 @@ spec:
           value: "1000"
         - name: INDEXING_MAX_SEGMENTATION_TOKENS_LENGTH
           value: "1000"
-        image: ghcr.io/acedatacloud/dify-api:latest
+        image: ghcr.io/acedatacloud/dify-api:${TAG}
         imagePullPolicy: IfNotPresent
         name: dify-api
         ports:

@@ -186,7 +186,7 @@ spec:
           value: "0"
         - name: TENCENT_VECTOR_DB_ENABLE_HYBRID_SEARCH
           value: "false"
-        image: ghcr.io/acedatacloud/dify-api:latest
+        image: ghcr.io/acedatacloud/dify-api:${TAG}
         imagePullPolicy: IfNotPresent
         name: dify-worker
         resources:
