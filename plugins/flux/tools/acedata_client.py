@@ -72,8 +72,8 @@ class AceDataFluxClient:
             payload["count"] = count
         if callback_url:
             payload["callback_url"] = callback_url
-            if async_mode:
-                payload["async"] = True
+        if async_mode:
+            payload["async"] = True
         return self._post_images(payload=payload, timeout_s=timeout_s)
 
     def edit(
@@ -94,8 +94,8 @@ class AceDataFluxClient:
             payload["size"] = size
         if callback_url:
             payload["callback_url"] = callback_url
-            if async_mode:
-                payload["async"] = True
+        if async_mode:
+            payload["async"] = True
         return self._post_images(payload=payload, timeout_s=timeout_s)
 
     def _post_images(self, *, payload: dict[str, Any], timeout_s: int) -> AceDataFluxImagesResult:

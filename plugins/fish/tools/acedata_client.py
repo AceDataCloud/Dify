@@ -70,8 +70,8 @@ class AceDataFishClient:
             payload["latency"] = latency
         if callback_url:
             payload["callback_url"] = callback_url
-            if async_mode:
-                payload["async"] = True
+        if async_mode:
+            payload["async"] = True
 
         body = self._post_json(path="/fish/audios", payload=payload, timeout_s=timeout_s)
         return AceDataFishAudioResult(

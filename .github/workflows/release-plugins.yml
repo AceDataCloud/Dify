@@ -106,6 +106,10 @@ jobs:
           chmod +x "$RUNNER_TEMP/bin/dify-plugin"
           "$RUNNER_TEMP/bin/dify-plugin" --help >/dev/null
 
+      - name: Validate plugin contracts
+        if: steps.changes.outputs.changed == 'true'
+        run: python3 scripts/test_plugin_contracts.py
+
       - name: Package all plugins (timestamp version)
         if: steps.changes.outputs.changed == 'true'
         shell: bash

@@ -87,8 +87,8 @@ class AceDataSunoClient:
         payload: dict[str, Any] = {"audio_id": audio_id}
         if callback_url:
             payload["callback_url"] = callback_url
-            if async_mode:
-                payload["async"] = True
+        if async_mode:
+            payload["async"] = True
         return self._post_list(path="/suno/wav", payload=payload, timeout_s=timeout_s)
 
     def midi(
@@ -97,8 +97,8 @@ class AceDataSunoClient:
         payload: dict[str, Any] = {"audio_id": audio_id}
         if callback_url:
             payload["callback_url"] = callback_url
-            if async_mode:
-                payload["async"] = True
+        if async_mode:
+            payload["async"] = True
         return self._post_list(path="/suno/midi", payload=payload, timeout_s=timeout_s)
 
     def timing(self, *, audio_id: str, timeout_s: int = 1800) -> AceDataSunoObjectResult:

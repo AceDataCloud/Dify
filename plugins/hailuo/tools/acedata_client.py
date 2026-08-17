@@ -73,8 +73,8 @@ class AceDataHailuoClient:
             payload["first_image_url"] = first_image_url
         if callback_url:
             payload["callback_url"] = callback_url
-            if async_mode:
-                payload["async"] = True
+        if async_mode:
+            payload["async"] = True
         if mirror is not None:
             payload["mirror"] = mirror
 

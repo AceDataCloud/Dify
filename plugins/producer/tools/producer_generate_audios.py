@@ -116,8 +116,8 @@ class ProducerGenerateAudiosTool(Tool):
             payload["seed"] = seed
         if callback_url:
             payload["callback_url"] = callback_url
-            if tool_parameters.get("async"):
-                payload["async"] = True
+        if tool_parameters.get("async"):
+            payload["async"] = True
 
         client = AceDataProducerClient(bearer_token=str(self.runtime.credentials["acedata_bearer_token"]))
         try:
