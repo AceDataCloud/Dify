@@ -94,7 +94,12 @@ jobs:
           BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
         run: docker compose push
 
-      - name: Deploy
+      - name: Apply manifests
         env:
           BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
-        run: bash ../deploy/run.sh
+        run: sh ../deploy/run.sh
+
+      - name: Verify release
+        env:
+          BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
+        run: sh ../deploy/verify-release.sh
