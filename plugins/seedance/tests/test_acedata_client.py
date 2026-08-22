@@ -27,6 +27,8 @@ def test_generate_seedance_25_multimodal_payload_and_object_response() -> None:
             omni_reference_task_type="extend",
             output_format="mov",
             tools=[{"type": "web_search"}],
+            priority=5,
+            safety_identifier="user_abc",
             async_mode=True,
         )
     payload = post.call_args.kwargs["json"]
@@ -35,6 +37,8 @@ def test_generate_seedance_25_multimodal_payload_and_object_response() -> None:
     assert payload["omni_reference_task_type"] == "extend"
     assert payload["output_format"] == "mov"
     assert payload["tools"] == [{"type": "web_search"}]
+    assert payload["priority"] == 5
+    assert payload["safety_identifier"] == "user_abc"
     assert payload["async"] is True
     assert result.video_urls == ["https://cdn.test/video.mov"]
 
@@ -50,3 +54,20 @@ def test_seedance_20_omits_seedance_25_options() -> None:
     payload = post.call_args.kwargs["json"]
     assert "output_format" not in payload
     assert "omni_reference_task_type" not in payload
+
+
+def test_generate_allows_promptless_seedance_25_reference_audio():
+    response = Mock()
+    response.status_code = 200
+    response.json.return_value = {"success": True, "task_id": "t", "data": []}
+    with patch("tools.acedata_client.requests.post", return_value=response) as post:
+        client = AceDataSeedanceClient("token")
+        client.generate_video(
+            model="doubao-seedance-2-5-260628",
+            prompt=None,
+            reference_audio_urls=["a.mp3"],
+        )
+    payload = post.call_args.kwargs["json"]
+    assert payload["content"] == [
+        {"type": "audio_url", "audio_url": {"url": "a.mp3"}, "role": "reference_audio"}
+    ]
