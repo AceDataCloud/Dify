@@ -32,7 +32,7 @@ output_schema:
 parameters:
 - name: prompt
   type: string
-  required: true
+  required: false
   label:
     en_US: Prompt
     zh_Hans: 提示词
@@ -203,14 +203,34 @@ parameters:
     en_US: Tools
     zh_Hans: 工具
   human_description:
-    en_US: Optional Seedance 2.5 tool configuration objects.
-    zh_Hans: 可选 Seedance 2.5 工具配置对象。
+    en_US: Optional Seedance 2.5 web_search tool configuration.
+    zh_Hans: 可选 Seedance 2.5 web_search 工具配置。
   form: llm
   input_schema:
     type: array
     items:
       type: object
       additionalProperties: true
+- name: priority
+  type: number
+  required: false
+  label:
+    en_US: Priority
+    zh_Hans: 优先级
+  human_description:
+    en_US: Seedance 2.5 queue priority from 0 to 9.
+    zh_Hans: Seedance 2.5 队列优先级，取值 0 到 9。
+  form: form
+- name: safety_identifier
+  type: string
+  required: false
+  label:
+    en_US: Anonymous User ID
+    zh_Hans: 匿名用户标识
+  human_description:
+    en_US: Stable anonymous end-user identifier, up to 64 characters. Do not send personal information.
+    zh_Hans: 稳定匿名终端用户标识，最长 64 字符，请勿传入个人信息。
+  form: form
 - name: resolution
   type: select
   required: false
@@ -326,8 +346,8 @@ parameters:
     en_US: Generate Audio
     zh_Hans: 生成音频
   human_description:
-    en_US: Optional. Generate audio for the video (only 1.5-pro model).
-    zh_Hans: 可选。为视频生成音频（仅 1.5-pro 模型支持）。
+    en_US: Optional. Generate synchronized audio with Seedance 1.5 Pro, 2.0, or 2.5.
+    zh_Hans: 可选。Seedance 1.5 Pro、2.0 或 2.5 可生成同步音频。
   llm_description: Optional. Only supported by doubao-seedance-1-5-pro-251215.
   form: form
 - name: return_last_frame

@@ -51,10 +51,14 @@ def _normalize_token(raw_token: str) -> str:
 
 
 class AceDataSeedanceClient:
-    def __init__(self, bearer_token: str, base_url: str = "https://api.acedata.cloud") -> None:
+    def __init__(
+        self, bearer_token: str, base_url: str = "https://api.acedata.cloud"
+    ) -> None:
         token = _normalize_token(bearer_token)
         if not token:
-            raise AceDataSeedanceError(code="token_empty", message="Empty bearer token.")
+            raise AceDataSeedanceError(
+                code="token_empty", message="Empty bearer token."
+            )
 
         self._token = token
         self._base_url = base_url.rstrip("/")
@@ -82,12 +86,11 @@ class AceDataSeedanceClient:
         omni_reference_task_type: str | None = None,
         output_format: str | None = None,
         tools: list[dict[str, Any]] | None = None,
+        priority: int | None = None,
+        safety_identifier: str | None = None,
         execution_expires_after: int | None = None,
         timeout_s: int = 600,
     ) -> AceDataSeedanceVideosResult:
-        if not prompt or not prompt.strip():
-            raise ValueError("`prompt` is required.")
-
         content = build_content(
             prompt=prompt,
             first_frame_url=first_frame_url,
@@ -97,6 +100,10 @@ class AceDataSeedanceClient:
             reference_video_urls=reference_video_urls,
         )
 
+        if not content:
+            raise ValueError(
+                "At least one prompt or reference media input is required."
+            )
         payload: dict[str, Any] = {"content": content}
         if model:
             payload["model"] = model
@@ -126,16 +133,24 @@ class AceDataSeedanceClient:
             payload["output_format"] = output_format
         if tools:
             payload["tools"] = tools
+        if priority is not None:
+            payload["priority"] = priority
+        if safety_identifier:
+            payload["safety_identifier"] = safety_identifier
         if execution_expires_after is not None:
             payload["execution_expires_after"] = execution_expires_after
 
         body = self._post(path="/seedance/videos", payload=payload, timeout_s=timeout_s)
 
         if body.get("success") is not True:
-            trace_id = body.get("trace_id") if isinstance(body.get("trace_id"), str) else None
+            trace_id = (
+                body.get("trace_id") if isinstance(body.get("trace_id"), str) else None
+            )
             error = body.get("error") if isinstance(body.get("error"), dict) else {}
             code = error.get("code") if isinstance(error.get("code"), str) else None
-            message = error.get("message") if isinstance(error.get("message"), str) else None
+            message = (
+                error.get("message") if isinstance(error.get("message"), str) else None
+            )
             raise AceDataSeedanceError(
                 code=code or "api_error",
                 message=message or str(body),
@@ -151,18 +166,30 @@ class AceDataSeedanceClient:
             data = []
 
         return AceDataSeedanceVideosResult(
-            task_id=body.get("task_id") if isinstance(body.get("task_id"), str) else None,
-            trace_id=body.get("trace_id") if isinstance(body.get("trace_id"), str) else None,
+            task_id=body.get("task_id")
+            if isinstance(body.get("task_id"), str)
+            else None,
+            trace_id=body.get("trace_id")
+            if isinstance(body.get("trace_id"), str)
+            else None,
             data=data,
         )
 
     def retrieve_task(self, *, task_id: str, timeout_s: int = 60) -> dict[str, Any]:
-        raise NotImplementedError("Seedance Tasks API is not integrated in this plugin.")
+        raise NotImplementedError(
+            "Seedance Tasks API is not integrated in this plugin."
+        )
 
-    def retrieve_tasks(self, *, task_ids: list[str], timeout_s: int = 60) -> dict[str, Any]:
-        raise NotImplementedError("Seedance Tasks API is not integrated in this plugin.")
+    def retrieve_tasks(
+        self, *, task_ids: list[str], timeout_s: int = 60
+    ) -> dict[str, Any]:
+        raise NotImplementedError(
+            "Seedance Tasks API is not integrated in this plugin."
+        )
 
-    def _post(self, *, path: str, payload: dict[str, Any], timeout_s: int) -> dict[str, Any]:
+    def _post(
+        self, *, path: str, payload: dict[str, Any], timeout_s: int
+    ) -> dict[str, Any]:
         url = f"{self._base_url}{path}"
         headers = {
             "authorization": f"Bearer {self._token}",
@@ -193,10 +220,14 @@ class AceDataSeedanceClient:
             )
 
         if resp.status_code >= 400:
-            trace_id = body.get("trace_id") if isinstance(body.get("trace_id"), str) else None
+            trace_id = (
+                body.get("trace_id") if isinstance(body.get("trace_id"), str) else None
+            )
             error = body.get("error") if isinstance(body.get("error"), dict) else {}
             code = error.get("code") if isinstance(error.get("code"), str) else None
-            message = error.get("message") if isinstance(error.get("message"), str) else None
+            message = (
+                error.get("message") if isinstance(error.get("message"), str) else None
+            )
             raise AceDataSeedanceError(
                 code=code or "error",
                 message=message or str(body),
@@ -225,11 +256,15 @@ def parse_image_urls(value: Any, *, field_name: str = "image_urls") -> list[str]
 
             loaded = json.loads(text)
             if not isinstance(loaded, list):
-                raise ValueError(f"`{field_name}` must be a JSON array or a list of strings.")
+                raise ValueError(
+                    f"`{field_name}` must be a JSON array or a list of strings."
+                )
             return [str(item).strip() for item in loaded if str(item).strip()]
         return [line.strip() for line in text.splitlines() if line.strip()]
 
-    raise ValueError(f"`{field_name}` must be an array of strings or a string (one URL per line).")
+    raise ValueError(
+        f"`{field_name}` must be an array of strings or a string (one URL per line)."
+    )
 
 
 def parse_task_ids(value: Any) -> list[str]:
@@ -238,17 +273,27 @@ def parse_task_ids(value: Any) -> list[str]:
 
 def build_content(
     *,
-    prompt: str,
+    prompt: str | None,
     first_frame_url: str | None = None,
     last_frame_url: str | None = None,
     reference_image_urls: list[str] | None = None,
     reference_audio_urls: list[str] | None = None,
     reference_video_urls: list[str] | None = None,
 ) -> list[dict[str, Any]]:
-    content: list[dict[str, Any]] = [{"type": "text", "text": prompt.strip()}]
+    content: list[dict[str, Any]] = []
+    if isinstance(prompt, str) and prompt.strip():
+        content.append({"type": "text", "text": prompt.strip()})
 
-    normalized_first = first_frame_url.strip() if isinstance(first_frame_url, str) and first_frame_url.strip() else None
-    normalized_last = last_frame_url.strip() if isinstance(last_frame_url, str) and last_frame_url.strip() else None
+    normalized_first = (
+        first_frame_url.strip()
+        if isinstance(first_frame_url, str) and first_frame_url.strip()
+        else None
+    )
+    normalized_last = (
+        last_frame_url.strip()
+        if isinstance(last_frame_url, str) and last_frame_url.strip()
+        else None
+    )
 
     if normalized_first:
         content.append(
