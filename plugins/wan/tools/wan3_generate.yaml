@@ -1,0 +1,37 @@
+identity:
+  name: wan3_generate
+  author: acedatacloud
+  label: { en_US: Wan 3 Generate, zh_Hans: Wan 3 生成 }
+description:
+  human: { en_US: Generate video from text or multimodal references., zh_Hans: 通过文本或多模态参考生成视频。 }
+  llm: Generate a Wan 3 video using text and optional media JSON.
+output_schema:
+  type: object
+  properties:
+    success: { type: boolean }
+    task_id: { type: string }
+    trace_id: { type: string }
+    data: { type: object, additionalProperties: true }
+parameters:
+  - { name: prompt, type: string, required: false, label: { en_US: Prompt, zh_Hans: 提示词 }, human_description: { en_US: Video instruction., zh_Hans: 视频指令。 }, llm_description: Refer to media by order., form: llm }
+  - { name: media, type: string, required: false, label: { en_US: Media JSON, zh_Hans: 素材 JSON }, human_description: { en_US: JSON array of type/url objects., zh_Hans: type/url 对象 JSON 数组。 }, llm_description: Supports first_frame, last_frame, reference_image, reference_video, reference_audio, file, link., form: llm }
+  - { name: duration, type: number, required: false, default: 5, label: { en_US: Duration, zh_Hans: 时长 }, human_description: { en_US: 2–30 or -1., zh_Hans: 2–30 或 -1。 }, llm_description: Output seconds., form: form }
+  - name: resolution
+    type: select
+    required: false
+    default: 1080P
+    label: { en_US: Resolution, zh_Hans: 分辨率 }
+    human_description: { en_US: Output resolution., zh_Hans: 输出分辨率。 }
+    llm_description: 480P, 720P, or 1080P.
+    form: form
+    options:
+      - { value: 480P, label: { en_US: 480P, zh_Hans: 480P } }
+      - { value: 720P, label: { en_US: 720P, zh_Hans: 720P } }
+      - { value: 1080P, label: { en_US: 1080P, zh_Hans: 1080P } }
+  - { name: ratio, type: string, required: false, default: adaptive, label: { en_US: Ratio, zh_Hans: 画幅 }, human_description: { en_US: Output ratio., zh_Hans: 输出画幅。 }, llm_description: adaptive or a supported ratio., form: form }
+  - { name: audio, type: boolean, required: false, default: true, label: { en_US: Audio, zh_Hans: 音频 }, human_description: { en_US: Include audio., zh_Hans: 包含音频。 }, llm_description: Optional., form: form }
+  - { name: watermark, type: boolean, required: false, default: false, label: { en_US: Watermark, zh_Hans: 水印 }, human_description: { en_US: Add watermark., zh_Hans: 添加水印。 }, llm_description: Optional., form: form }
+  - { name: async, type: boolean, required: false, default: true, label: { en_US: Async, zh_Hans: 异步 }, human_description: { en_US: Return task_id., zh_Hans: 返回 task_id。 }, llm_description: Recommended., form: form }
+extra:
+  python:
+    source: tools/wan3_generate.py

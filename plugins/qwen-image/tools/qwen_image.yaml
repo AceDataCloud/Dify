@@ -1,0 +1,43 @@
+identity:
+  name: qwen_image
+  author: acedatacloud
+  label: { en_US: Qwen Image 3, zh_Hans: Qwen Image 3 }
+description:
+  human: { en_US: Generate or edit images with Qwen Image 3., zh_Hans: 使用 Qwen Image 3 生成或编辑图片。 }
+  llm: Generate images from text or edit one to three reference images.
+output_schema:
+  type: object
+  properties:
+    success: { type: boolean }
+    task_id: { type: string }
+    trace_id: { type: string }
+    data: { type: array, items: { type: object, additionalProperties: true } }
+parameters:
+  - { name: prompt, type: string, required: true, label: { en_US: Prompt, zh_Hans: 提示词 }, human_description: { en_US: Generation or editing instruction., zh_Hans: 生成或编辑指令。 }, llm_description: Describe the desired image or edit., form: llm }
+  - name: image_urls
+    type: string
+    required: false
+    label: { en_US: Reference images, zh_Hans: 参考图 }
+    human_description: { en_US: One to three URLs, one per line., zh_Hans: 1–3 个图片 URL，每行一个。 }
+    llm_description: Optional reference image URLs.
+    form: llm
+  - name: model
+    type: select
+    required: true
+    default: qwen-image-3.0
+    label: { en_US: Model, zh_Hans: 模型 }
+    human_description: { en_US: Standard or Pro., zh_Hans: 标准版或 Pro。 }
+    llm_description: Select a Qwen Image 3 model.
+    form: form
+    options:
+      - { value: qwen-image-3.0, label: { en_US: qwen-image-3.0, zh_Hans: qwen-image-3.0 } }
+      - { value: qwen-image-3.0-pro, label: { en_US: qwen-image-3.0-pro, zh_Hans: qwen-image-3.0-pro } }
+  - { name: n, type: number, required: false, default: 1, label: { en_US: Count, zh_Hans: 数量 }, human_description: { en_US: 1–6 outputs., zh_Hans: 输出 1–6 张。 }, llm_description: Output count., form: form }
+  - { name: size, type: string, required: false, label: { en_US: Size, zh_Hans: 尺寸 }, human_description: { en_US: WIDTH*HEIGHT., zh_Hans: 宽*高。 }, llm_description: Optional output dimensions., form: form }
+  - { name: prompt_extend, type: boolean, required: false, default: true, label: { en_US: Prompt enhancement, zh_Hans: 提示词增强 }, human_description: { en_US: Enhance the prompt., zh_Hans: 增强提示词。 }, llm_description: Optional., form: form }
+  - { name: enable_thinking, type: boolean, required: false, default: true, label: { en_US: Enhanced reasoning, zh_Hans: 增强推理 }, human_description: { en_US: Improve instruction following., zh_Hans: 提升指令理解。 }, llm_description: Optional., form: form }
+  - { name: watermark, type: boolean, required: false, default: false, label: { en_US: Watermark, zh_Hans: 水印 }, human_description: { en_US: Add a watermark., zh_Hans: 添加水印。 }, llm_description: Optional., form: form }
+  - { name: async, type: boolean, required: false, default: false, label: { en_US: Async, zh_Hans: 异步 }, human_description: { en_US: Return task_id immediately., zh_Hans: 立即返回 task_id。 }, llm_description: Optional., form: form }
+extra:
+  python:
+    source: tools/qwen_image.py
