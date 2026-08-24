@@ -1,0 +1,32 @@
+## Qwen Image
+
+**Author:** acedatacloud  
+**Type:** tool provider plugin  
+**API:** `https://api.acedata.cloud/qwen_image/images`
+
+### What it does
+
+This plugin integrates **Ace Data Cloud Qwen Image API** as Dify tools for:
+
+- Generating images from a prompt
+- Editing images with a prompt and `image_urls`
+
+### Tools
+
+- `qwen_image_image`
+  - Inputs: `prompt` (required), `model`, `size`, `sequential_image_generation`, `stream`, `response_format`, `watermark`, `callback_url`
+  - Outputs: `success`, `task_id`, `trace_id`, `data` (array of objects with `image_url`, optional `prompt`), `error`
+- `qwen_image_image`
+  - Inputs: `prompt` (required), `image_urls` (required), other optional params same as generate
+  - Outputs: same as generate
+
+### Credentials
+
+Requires `acedata_bearer_token` (paste the token without the `Bearer ` prefix).
+
+### Packaging
+
+```bash
+dify plugin package plugins/qwen_image -o qwen_image.difypkg
+```
+

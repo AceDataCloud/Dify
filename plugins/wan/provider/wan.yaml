@@ -35,6 +35,7 @@ credentials_for_provider:
 
 tools:
   - tools/wan_generate.yaml
+  - tools/wan3_generate.yaml
 
 extra:
   python:
