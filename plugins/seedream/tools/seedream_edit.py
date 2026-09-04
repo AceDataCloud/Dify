@@ -38,9 +38,6 @@ class SeedreamEditImageTool(Tool):
             else None
         )
 
-        stream = tool_parameters.get("stream")
-        if stream is not None and not isinstance(stream, bool):
-            raise ValueError("`stream` must be a boolean.")
 
         response_format = tool_parameters.get("response_format")
         response_format = (
@@ -67,12 +64,24 @@ class SeedreamEditImageTool(Tool):
             payload["size"] = size
         if sequential_image_generation:
             payload["sequential_image_generation"] = sequential_image_generation
-        if stream is not None:
-            payload["stream"] = stream
         if response_format:
             payload["response_format"] = response_format
         if watermark is not None:
             payload["watermark"] = watermark
+        output_format = tool_parameters.get("output_format")
+        if isinstance(output_format, str) and output_format.strip():
+            payload["output_format"] = output_format.strip()
+        max_images = tool_parameters.get("max_images")
+        if isinstance(max_images, int):
+            payload["sequential_image_generation_options"] = {"max_images": max_images}
+        optimize_mode = tool_parameters.get("optimize_prompt_mode")
+        if isinstance(optimize_mode, str) and optimize_mode.strip():
+            payload["optimize_prompt_options"] = {"mode": optimize_mode.strip()}
+        if tool_parameters.get("web_search") is True:
+            payload["tools"] = [{"type": "web_search"}]
+        background = tool_parameters.get("background")
+        if isinstance(background, str) and background.strip():
+            payload["background"] = background.strip()
         if callback_url:
             payload["callback_url"] = callback_url
         if tool_parameters.get("async"):

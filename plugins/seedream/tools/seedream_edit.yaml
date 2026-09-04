@@ -8,7 +8,8 @@ description:
   human:
     en_US: Edit image(s) with Ace Data Cloud Seedream Images API.
     zh_Hans: 通过 Ace Data Cloud Seedream Images API 编辑图片。
-  llm: Edit image(s) with a prompt and image_urls via Ace Data Cloud Seedream Images API.
+  llm: Edit image(s) with a prompt and image_urls via Ace Data Cloud Seedream Images
+    API.
 output_schema:
   type: object
   properties:
@@ -39,158 +40,254 @@ output_schema:
             type: string
         additionalProperties: true
 parameters:
-  - name: prompt
-    type: string
-    required: true
-    label:
-      en_US: Prompt
-      zh_Hans: 提示词
-    human_description:
-      en_US: Text prompt describing the edit.
-      zh_Hans: 描述编辑目标的提示词。
-    llm_description: Describe how to edit the image(s).
-    form: llm
-  - name: image_urls
+- name: prompt
+  type: string
+  required: true
+  label:
+    en_US: Prompt
+    zh_Hans: 提示词
+  human_description:
+    en_US: Text prompt describing the edit.
+    zh_Hans: 描述编辑目标的提示词。
+  llm_description: Describe how to edit the image(s).
+  form: llm
+- name: image_urls
+  type: array
+  required: true
+  label:
+    en_US: Image URLs
+    zh_Hans: 图片链接
+  human_description:
+    en_US: A list of image URLs (or base64 data URLs).
+    zh_Hans: 图片链接数组（也支持 base64 data URL）。
+  llm_description: Provide one or more image URLs (or base64 data URLs) to be edited.
+  form: form
+  input_schema:
     type: array
-    required: true
+    items:
+      type: string
+- name: model
+  type: select
+  required: false
+  label:
+    en_US: Model
+    zh_Hans: 模型
+  human_description:
+    en_US: Choose a model whose capabilities match the selected parameters.
+    zh_Hans: 请选择支持所选参数的模型。
+  llm_description: Optional. Choose a supported Seedream model.
+  form: form
+  options:
+  - value: doubao-seedream-5-0-pro-260628
     label:
-      en_US: Image URLs
-      zh_Hans: 图片链接
-    human_description:
-      en_US: A list of image URLs (or base64 data URLs).
-      zh_Hans: 图片链接数组（也支持 base64 data URL）。
-    llm_description: Provide one or more image URLs (or base64 data URLs) to be edited.
-    form: form
-    input_schema:
-      type: array
-      items:
-        type: string
-  - name: model
-    type: select
-    required: false
+      en_US: doubao-seedream-5-0-pro-260628
+      zh_Hans: doubao-seedream-5-0-pro-260628
+  - value: doubao-seedream-5-0-260128
     label:
-      en_US: Model
-      zh_Hans: 模型
-    human_description:
-      en_US: Optional model name.
-      zh_Hans: 可选模型名称。
-    llm_description: Optional. Choose a supported Seedream model.
-    form: form
-    options:
-      - value: doubao-seedream-5-0-pro-260628
-        label:
-          en_US: doubao-seedream-5-0-pro-260628
-          zh_Hans: doubao-seedream-5-0-pro-260628
-      - value: doubao-seedream-5-0-260128
-        label:
-          en_US: doubao-seedream-5-0-260128
-          zh_Hans: doubao-seedream-5-0-260128
-      - value: doubao-seedream-4-0-250828
-        label:
-          en_US: doubao-seedream-4-0-250828 (default)
-          zh_Hans: doubao-seedream-4-0-250828（默认）
-      - value: doubao-seedream-4-5-251128
-        label:
-          en_US: doubao-seedream-4-5-251128
-          zh_Hans: doubao-seedream-4-5-251128
-  - name: size
-    type: select
-    required: false
+      en_US: doubao-seedream-5-0-260128
+      zh_Hans: doubao-seedream-5-0-260128
+  - value: doubao-seedream-5-0-lite-260128
     label:
-      en_US: Size
-      zh_Hans: 尺寸
-    human_description:
-      en_US: Optional image size.
-      zh_Hans: 可选图像尺寸。
-    llm_description: Optional.
-    form: form
-    options:
-      - value: 1K
-        label: { en_US: 1K, zh_Hans: 1K }
-      - value: 2K
-        label: { en_US: 2K, zh_Hans: 2K }
-      - value: 3K
-        label: { en_US: 3K, zh_Hans: 3K }
-      - value: 4K
-        label: { en_US: 4K, zh_Hans: 4K }
-  - name: sequential_image_generation
-    type: select
-    required: false
+      en_US: doubao-seedream-5-0-lite-260128
+      zh_Hans: doubao-seedream-5-0-lite-260128
+  - value: doubao-seedream-4-0-250828
     label:
-      en_US: Sequential image generation
-      zh_Hans: 组图
-    human_description:
-      en_US: Optional. Use disabled/auto depending on model support.
-      zh_Hans: 可选，根据模型支持情况填写 disabled/auto。
-    llm_description: Optional.
-    form: form
-    options:
-      - value: disabled
-        label: { en_US: disabled, zh_Hans: disabled }
-      - value: auto
-        label: { en_US: auto, zh_Hans: auto }
-  - name: stream
-    type: boolean
-    required: false
+      en_US: doubao-seedream-4-0-250828 (default)
+      zh_Hans: doubao-seedream-4-0-250828（默认）
+  - value: doubao-seedream-4-5-251128
     label:
-      en_US: Stream
-      zh_Hans: 流式输出
-    human_description:
-      en_US: Optional. Stream output (only supported by some models).
-      zh_Hans: 可选，流式输出（仅部分模型支持）。
-    llm_description: Optional.
-    form: form
-  - name: response_format
-    type: select
-    required: false
+      en_US: doubao-seedream-4-5-251128
+      zh_Hans: doubao-seedream-4-5-251128
+- name: size
+  type: select
+  required: false
+  label:
+    en_US: Size
+    zh_Hans: 尺寸
+  human_description:
+    en_US: Optional image size.
+    zh_Hans: 可选图像尺寸。
+  llm_description: Optional.
+  form: form
+  options:
+  - value: 1K
     label:
-      en_US: Response format
-      zh_Hans: 返回格式
-    human_description:
-      en_US: Optional. url or b64_json.
-      zh_Hans: 可选，url 或 b64_json。
-    llm_description: Optional.
-    form: form
-    options:
-      - value: url
-        label: { en_US: url, zh_Hans: url }
-      - value: b64_json
-        label: { en_US: b64_json, zh_Hans: b64_json }
-  - name: watermark
-    type: boolean
-    required: false
+      en_US: 1K
+      zh_Hans: 1K
+  - value: 1.5K
     label:
-      en_US: Watermark
-      zh_Hans: 水印
-    human_description:
-      en_US: Optional. Add watermark or not.
-      zh_Hans: 可选，是否添加水印。
-    llm_description: Optional.
-    form: form
-  - name: callback_url
-    type: string
-    required: false
+      en_US: 1.5K
+      zh_Hans: 1.5K
+  - value: 2K
     label:
-      en_US: Callback URL
-      zh_Hans: 回调地址
-    human_description:
-      en_US: Optional. If provided, the task result will be POSTed to this URL.
-      zh_Hans: 可选，若提供则任务完成后会回调该地址。
-    llm_description: Optional.
-    form: form
-  - name: async
-    type: boolean
-    required: false
-    default: false
+      en_US: 2K
+      zh_Hans: 2K
+  - value: 3K
     label:
-      en_US: Async
-      zh_Hans: 异步模式
-    human_description:
-      en_US: Return a task_id immediately without a callback_url; poll the tasks endpoint for the result.
-      zh_Hans: 立即返回 task_id，无需回调地址，通过任务查询接口轮询结果。
-    llm_description: Optional. Set true to submit asynchronously and get a task_id to poll.
-    form: form
+      en_US: 3K
+      zh_Hans: 3K
+  - value: 4K
+    label:
+      en_US: 4K
+      zh_Hans: 4K
+- name: sequential_image_generation
+  type: select
+  required: false
+  label:
+    en_US: Sequential image generation
+    zh_Hans: 组图
+  human_description:
+    en_US: Optional. Use disabled/auto depending on model support.
+    zh_Hans: 可选，根据模型支持情况填写 disabled/auto。
+  llm_description: Optional.
+  form: form
+  options:
+  - value: disabled
+    label:
+      en_US: disabled
+      zh_Hans: disabled
+  - value: auto
+    label:
+      en_US: auto
+      zh_Hans: auto
+- name: response_format
+  type: select
+  required: false
+  label:
+    en_US: Response format
+    zh_Hans: 返回格式
+  human_description:
+    en_US: Optional. url or b64_json.
+    zh_Hans: 可选，url 或 b64_json。
+  llm_description: Optional.
+  form: form
+  options:
+  - value: url
+    label:
+      en_US: url
+      zh_Hans: url
+  - value: b64_json
+    label:
+      en_US: b64_json
+      zh_Hans: b64_json
+- name: watermark
+  type: boolean
+  required: false
+  label:
+    en_US: Watermark
+    zh_Hans: 水印
+  human_description:
+    en_US: Optional. Add watermark or not.
+    zh_Hans: 可选，是否添加水印。
+  llm_description: Optional.
+  form: form
+- name: output_format
+  type: select
+  required: false
+  label:
+    en_US: Output format
+    zh_Hans: 输出格式
+  human_description:
+    en_US: 'Seedream 5.0 Pro/Lite: jpeg or png.'
+    zh_Hans: Seedream 5.0 Pro/Lite 支持 jpeg 或 png。
+  llm_description: Optional output image format.
+  form: form
+  options:
+  - value: jpeg
+    label:
+      en_US: jpeg
+      zh_Hans: jpeg
+  - value: png
+    label:
+      en_US: png
+      zh_Hans: png
+- name: max_images
+  type: number
+  required: false
+  label:
+    en_US: Maximum images
+    zh_Hans: 最大图片数
+  human_description:
+    en_US: 1-15 for sequential mode; inputs plus outputs must be at most 15.
+    zh_Hans: 组图模式为 1-15；输入图与输出图总数不超过 15。
+  llm_description: Sequential output maximum.
+  form: form
+- name: optimize_prompt_mode
+  type: select
+  required: false
+  label:
+    en_US: Prompt optimization
+    zh_Hans: 提示词优化
+  human_description:
+    en_US: Pro supports standard/fast; Lite and 4.5 support standard.
+    zh_Hans: Pro 支持 standard/fast；Lite 与 4.5 支持 standard。
+  llm_description: Optional prompt optimization mode.
+  form: form
+  options:
+  - value: standard
+    label:
+      en_US: standard
+      zh_Hans: standard
+  - value: fast
+    label:
+      en_US: fast
+      zh_Hans: fast
+- name: web_search
+  type: boolean
+  required: false
+  label:
+    en_US: Web search
+    zh_Hans: 联网搜索
+  human_description:
+    en_US: Seedream 5.0 Lite only.
+    zh_Hans: 仅 Seedream 5.0 Lite。
+  llm_description: Enable Lite web search when current information matters.
+  form: form
+- name: background
+  type: select
+  required: false
+  label:
+    en_US: Background
+    zh_Hans: 背景
+  human_description:
+    en_US: Pro-only transparent or opaque background mode.
+    zh_Hans: 仅 Pro 支持 transparent 或 opaque。
+  llm_description: Use transparent only with one PNG input and PNG output.
+  form: form
+  options:
+  - value: transparent
+    label:
+      en_US: transparent
+      zh_Hans: transparent
+  - value: opaque
+    label:
+      en_US: opaque
+      zh_Hans: opaque
+- name: callback_url
+  type: string
+  required: false
+  label:
+    en_US: Callback URL
+    zh_Hans: 回调地址
+  human_description:
+    en_US: Optional. If provided, the task result will be POSTed to this URL.
+    zh_Hans: 可选，若提供则任务完成后会回调该地址。
+  llm_description: Optional.
+  form: form
+- name: async
+  type: boolean
+  required: false
+  default: false
+  label:
+    en_US: Async
+    zh_Hans: 异步模式
+  human_description:
+    en_US: Return a task_id immediately without a callback_url; poll the tasks endpoint
+      for the result.
+    zh_Hans: 立即返回 task_id，无需回调地址，通过任务查询接口轮询结果。
+  llm_description: Optional. Set true to submit asynchronously and get a task_id to
+    poll.
+  form: form
 extra:
   python:
     source: tools/seedream_edit.py
-
