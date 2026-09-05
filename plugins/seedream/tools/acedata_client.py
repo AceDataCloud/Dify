@@ -56,7 +56,8 @@ class AceDataSeedreamClient:
     ) -> AceDataSeedreamImagesResult:
         body = self._post(path="/seedream/images", payload=payload, timeout_s=timeout_s)
 
-        if body.get("success") is not True:
+        task_id = body.get("task_id") if isinstance(body.get("task_id"), str) else None
+        if body.get("success") is not True and not task_id:
             trace_id = body.get("trace_id") if isinstance(body.get("trace_id"), str) else None
             error = body.get("error") if isinstance(body.get("error"), dict) else {}
             code = error.get("code") if isinstance(error.get("code"), str) else None
@@ -70,7 +71,7 @@ class AceDataSeedreamClient:
         raw_data: Any = body.get("data")
         data = [item for item in raw_data if isinstance(item, dict)] if isinstance(raw_data, list) else []
         return AceDataSeedreamImagesResult(
-            task_id=body.get("task_id") if isinstance(body.get("task_id"), str) else None,
+            task_id=task_id,
             trace_id=body.get("trace_id") if isinstance(body.get("trace_id"), str) else None,
             data=data,
         )

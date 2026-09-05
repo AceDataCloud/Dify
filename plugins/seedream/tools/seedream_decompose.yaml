@@ -1,0 +1,141 @@
+identity:
+  name: seedream_decompose_image
+  author: acedatacloud
+  label:
+    en_US: Seedream Decompose Image
+    zh_Hans: Seedream 图层拆分
+description:
+  human:
+    en_US: Split one image into a base plus editable transparent layers.
+    zh_Hans: 将一张图片拆分为底图和可编辑透明图层。
+  llm: Use Seedream 5.0 Pro to decompose one image. Omit prompt for automatic decomposition.
+output_schema:
+  type: object
+  properties:
+    success:
+      type: boolean
+    task_id:
+      type: string
+    trace_id:
+      type: string
+    data:
+      type: array
+      items:
+        type: object
+        properties:
+          image_url:
+            type: string
+          size:
+            type: string
+          output_format:
+            type: string
+          z_index:
+            type: number
+          name:
+            type: string
+          description:
+            type: string
+          bounding_box:
+            type: object
+            additionalProperties: true
+        additionalProperties: true
+parameters:
+- name: image_url
+  type: string
+  required: true
+  label:
+    en_US: Image URL
+    zh_Hans: 图片链接
+  human_description:
+    en_US: Exactly one PNG or JPEG URL/base64 image.
+    zh_Hans: 恰好一张 PNG/JPEG URL 或 Base64 图片。
+  llm_description: The single image to decompose.
+  form: llm
+- name: prompt
+  type: string
+  required: false
+  label:
+    en_US: Elements
+    zh_Hans: 拆分元素
+  human_description:
+    en_US: Optional elements or <bbox> regions; omit for automatic decomposition.
+    zh_Hans: 可选元素或 <bbox> 区域；留空则自动拆分。
+  llm_description: Optional decomposition instruction.
+  form: llm
+- name: size
+  type: select
+  required: false
+  default: auto
+  label:
+    en_US: Size
+    zh_Hans: 尺寸
+  human_description:
+    en_US: auto, 1K, 1.5K, or 2K.
+    zh_Hans: auto、1K、1.5K 或 2K。
+  llm_description: Layer output size.
+  form: form
+  options:
+  - value: auto
+    label:
+      en_US: auto
+      zh_Hans: auto
+  - value: 1K
+    label:
+      en_US: 1K
+      zh_Hans: 1K
+  - value: 1.5K
+    label:
+      en_US: 1.5K
+      zh_Hans: 1.5K
+  - value: 2K
+    label:
+      en_US: 2K
+      zh_Hans: 2K
+- name: output_format
+  type: select
+  required: false
+  default: jpeg
+  label:
+    en_US: Base format
+    zh_Hans: 底图格式
+  human_description:
+    en_US: Base jpeg/png; layers are always PNG.
+    zh_Hans: 底图 jpeg/png；图层固定 PNG。
+  llm_description: Base image format.
+  form: form
+  options:
+  - value: jpeg
+    label:
+      en_US: jpeg
+      zh_Hans: jpeg
+  - value: png
+    label:
+      en_US: png
+      zh_Hans: png
+- name: watermark
+  type: boolean
+  required: false
+  default: true
+  label:
+    en_US: Watermark
+    zh_Hans: 水印
+  human_description:
+    en_US: Add an AI watermark.
+    zh_Hans: 添加 AI 水印。
+  llm_description: Watermark output.
+  form: form
+- name: async
+  type: boolean
+  required: false
+  default: false
+  label:
+    en_US: Async
+    zh_Hans: 异步
+  human_description:
+    en_US: Return task_id for polling.
+    zh_Hans: 返回 task_id 供轮询。
+  llm_description: Submit asynchronously.
+  form: form
+extra:
+  python:
+    source: tools/seedream_decompose.py
