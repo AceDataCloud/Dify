@@ -24,6 +24,7 @@ share/python-wheels/
 MANIFEST
 
 # Unit test / coverage reports
+tests/
 htmlcov/
 .tox/
 .nox/
@@ -40,6 +41,7 @@ cover/
 
 # Environments
 .env
+.env.*
 .venv
 env/
 venv/

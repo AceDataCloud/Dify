@@ -27,6 +27,8 @@ class AceDataSerpResult:
 
 def _normalize_token(raw_token: str) -> str:
     token = raw_token.strip()
+    if token.lower() == "bearer":
+        return ""
     if token.lower().startswith("bearer "):
         token = token[7:].strip()
     return token

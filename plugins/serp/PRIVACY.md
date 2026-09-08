@@ -1,69 +1,36 @@
-## Privacy
+# Privacy
 
-This document describes how the serp plugin handles your data.
+This policy describes the data flow of the Ace Data Cloud SERP plugin for Dify.
 
-### Scope
+## Data processed
 
-This privacy statement applies only to the serp plugin and to data
-processed through its features. It does not cover any other plugins, tools,
-or services you may use alongside it.
+When the tool runs, the plugin processes:
 
-### Data We Collect
+- the Ace Data Cloud bearer token configured in Dify;
+- the search query;
+- optional search type, country, language, date range, result count, and page number;
+- the structured search response, error details, and trace ID returned by the API.
 
-Depending on how you use the plugin, serp may process the following
-categories of data:
+Search queries may contain personal or confidential information. Do not submit data that you are not authorized to process.
 
-- **Configuration data**: Settings and preferences you configure for the
-  plugin.
-- **Operational data**: Information necessary for the plugin to function,
-  such as plugin state, request metadata, and error messages.
-- **Usage data (telemetry)**: Anonymous or aggregated metrics about which
-  features are used and basic performance information, if telemetry is
-  enabled in your host environment.
+## Data transfer
 
-The plugin is not designed to intentionally collect directly identifying
-personal information beyond what is already handled by the platform or
-service hosting the plugin. However, personal information could be present
-in the content you submit (for example, search queries); such data is
-processed only to provide the plugin's functionality.
+The plugin sends the query and provided search parameters over HTTPS only to the fixed endpoint `https://api.acedata.cloud/serp/google`. The bearer token is sent only in the `Authorization` header. The plugin does not accept an alternate API host or arbitrary destination URL.
 
-### How We Use Data
+The API response is returned to the Dify workflow. The plugin does not send data to advertising or analytics services and contains no telemetry code.
 
-We use data processed by the plugin solely for the following purposes:
+## Storage and retention
 
-- To provide and operate the plugin's core features.
-- To maintain and improve reliability, performance, and security.
-- To diagnose and fix bugs or issues you report.
+The plugin does not write queries, responses, or credentials to local files or its own database. Dify controls how plugin credentials, workflow inputs, outputs, and execution logs are stored and retained. Data processed by Ace Data Cloud is subject to the [Ace Data Cloud Privacy Policy](https://platform.acedata.cloud/privacy).
 
-We do not use plugin data to build user profiles for advertising or
-marketing.
+## Logging and errors
 
-### Data Storage and Retention
+The plugin does not log the bearer token. Structured API errors may return an error code, message, HTTP status, and trace ID to the Dify workflow for troubleshooting.
 
-- **Local data**: Configuration and operational data are typically stored
-  locally within your development environment, project, or host application.
-  Retention is controlled by that environment.
-- **Remote services**: This plugin communicates with external services
-  (Ace Data Cloud APIs). Any data sent to those services is subject to their
-  respective policies and retention practices.
+## Your choices
 
-### Data Sharing
+You can stop further processing by disabling or uninstalling the plugin and removing its credential in Dify. Use Dify's controls to delete retained workflow data or logs.
 
-We do not sell your data.
+## Contact
 
-### Your Choices and Rights
-
-- You can configure or disable the plugin through your host environment's
-  extension or plugin management features.
-- You can edit or remove configuration files used by the plugin.
-
-If you believe the plugin is handling data in a way that is inconsistent
-with this policy, you should discontinue use of the plugin and contact the
-maintainers.
-
-### Contact
-
-If you have questions about this privacy information, please contact the
-maintainers of the serp plugin through the official project repository or
-distribution channel where you obtained this plugin.
-
+For plugin questions, open an issue in the [source repository](https://github.com/AceDataCloud/Dify/tree/main/plugins/serp) or email [office@acedata.cloud](mailto:office@acedata.cloud).
