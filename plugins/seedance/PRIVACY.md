@@ -1,43 +1,39 @@
-## Privacy
+# Privacy
 
-This document describes how the seedance plugin handles your data.
+This policy describes the data flow of the Ace Data Cloud Seedance plugin for Dify.
 
-### Scope
+## Data processed
 
-This privacy statement applies only to the seedance plugin and to data
-processed through its features. It does not cover any other plugins, tools,
-or services you may use alongside it.
+When the tool runs, the plugin processes:
 
-### Data We Collect
+- the Ace Data Cloud bearer token configured in Dify;
+- the prompt and selected generation options;
+- image, audio, or video URLs supplied as frames or references;
+- callback URL when the user explicitly provides one;
+- generated video metadata, task ID, error details, and trace ID returned by the API.
 
-Depending on how you use the plugin, seedance may process the following
-categories of data:
+Prompts and referenced media may contain personal or confidential information. Do not submit content that you are not authorized to process.
 
-- **Configuration data**: Settings and credentials you configure for the plugin.
-- **Operational data**: Information necessary for the plugin to function,
-  such as request payloads, responses, and error messages.
+## Data transfer
 
-The plugin is not designed to intentionally collect directly identifying
-personal information beyond what is required to call the Ace Data Cloud API.
+The plugin sends the selected inputs over HTTPS only to the fixed endpoint `https://api.acedata.cloud/seedance/videos`. The bearer token is sent only in the `Authorization` header. The plugin does not expose a configurable destination host.
 
-### How We Use Data
+The response is returned to the Dify workflow. The plugin does not send data to advertising or analytics services and contains no telemetry code. A callback URL is sent only when the user explicitly configures it; that destination then receives data according to the user's workflow design.
 
-We use data processed by the plugin solely to provide the plugin's features:
-calling the Seedance Videos API and returning results back to Dify.
+## Storage and retention
 
-### Data Storage and Retention
+The plugin does not write prompts, referenced media, responses, or credentials to local files or its own database. Dify controls how plugin credentials, workflow inputs, outputs, and execution logs are stored and retained. Data processed by Ace Data Cloud is subject to the [Ace Data Cloud Privacy Policy](https://platform.acedata.cloud/privacy).
 
-The plugin does not persist your prompts, image URLs, or generated video URLs
-outside of the hosting environment. Any data sent to external services is
-subject to their respective terms and retention practices.
+Generated URLs may expire. Users who need durable artifacts must save them in storage they control and are authorized to use.
 
-### Data Sharing
+## Logging and errors
 
-We do not sell your data. Data is only transmitted to Ace Data Cloud endpoints
-you invoke via this plugin.
+The plugin does not log the bearer token. It redacts the configured token from network and API error messages before returning them. Structured failures may include an error code, HTTP status, message, and trace ID for troubleshooting.
 
-### Security
+## Your choices
 
-You are responsible for protecting your credentials and securing your runtime
-environment.
+You can stop further processing by disabling or uninstalling the plugin and removing its credential in Dify. Use Dify's controls to delete retained workflow data or logs. Omit `callback_url` to prevent callback delivery.
 
+## Contact
+
+For plugin questions, open an issue in the [source repository](https://github.com/AceDataCloud/Dify/tree/main/plugins/seedance) or email [office@acedata.cloud](mailto:office@acedata.cloud).
