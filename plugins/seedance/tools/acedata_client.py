@@ -45,8 +45,9 @@ class AceDataSeedanceVideosResult:
 
 def _normalize_token(raw_token: str) -> str:
     token = raw_token.strip()
-    if token.lower().startswith("bearer "):
-        token = token[7:].strip()
+    parts = token.split(maxsplit=1)
+    if parts and parts[0].lower() == "bearer":
+        token = parts[1].strip() if len(parts) == 2 else ""
     return token
 
 
@@ -62,6 +63,9 @@ class AceDataSeedanceClient:
 
         self._token = token
         self._base_url = base_url.rstrip("/")
+
+    def _safe_message(self, value: object) -> str:
+        return str(value).replace(self._token, "[redacted]")
 
     def generate_video(
         self,
@@ -153,7 +157,7 @@ class AceDataSeedanceClient:
             )
             raise AceDataSeedanceError(
                 code=code or "api_error",
-                message=message or str(body),
+                message=self._safe_message(message or body),
                 trace_id=trace_id,
             )
 
@@ -200,7 +204,9 @@ class AceDataSeedanceClient:
         try:
             resp = requests.post(url, json=payload, headers=headers, timeout=timeout_s)
         except requests.RequestException as e:
-            raise AceDataSeedanceError(code="request_failed", message=str(e)) from e
+            raise AceDataSeedanceError(
+                code="request_failed", message=self._safe_message(e)
+            ) from e
 
         try:
             body = resp.json()
@@ -208,7 +214,7 @@ class AceDataSeedanceClient:
             snippet = (resp.text or "")[:500]
             raise AceDataSeedanceError(
                 code="invalid_json",
-                message=f"Invalid JSON response: {snippet}",
+                message=self._safe_message(f"Invalid JSON response: {snippet}"),
                 status_code=resp.status_code,
             ) from e
 
@@ -230,7 +236,7 @@ class AceDataSeedanceClient:
             )
             raise AceDataSeedanceError(
                 code=code or "error",
-                message=message or str(body),
+                message=self._safe_message(message or body),
                 trace_id=trace_id,
                 status_code=resp.status_code,
             )
