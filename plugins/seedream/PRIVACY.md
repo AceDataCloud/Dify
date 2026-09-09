@@ -1,102 +1,39 @@
-## Privacy
+# Privacy
 
-This document describes how the seedream plugin handles your data.
+This policy describes the data flow of the Ace Data Cloud Seedream plugin for Dify.
 
-### Scope
+## Data processed
 
-This privacy statement applies only to the seedream plugin and to data
-processed through its features. It does not cover any other plugins, tools,
-or services you may use alongside it.
+When a tool runs, the plugin processes:
 
-### Data We Collect
+- the Ace Data Cloud bearer token configured in Dify;
+- the prompt and selected generation options;
+- image URLs or image strings supplied for editing or layer decomposition;
+- callback URL when the user explicitly provides one;
+- generated image metadata, task ID, error details, and trace ID returned by the API.
 
-Depending on how you use the plugin, seedream may process the following
-categories of data:
+Prompts and images may contain personal or confidential information. Do not submit content that you are not authorized to process.
 
-- **Configuration data**: Settings and preferences you configure for the
-  plugin (for example, enabling or disabling features, thresholds, or
-  integration options).
-- **Operational data**: Information necessary for the plugin to function,
-  such as file paths, project identifiers, plugin state, and error messages.
-- **Usage data (telemetry)**: Anonymous or aggregated metrics about which
-  features are used and basic performance information, if telemetry is
-  enabled in your host environment.
+## Data transfer
 
-The plugin is not designed to intentionally collect directly identifying
-personal information (such as your name, email address, or payment details)
-beyond what is already handled by the platform or service hosting the
-plugin. However, personal information could be present in the content of
-files or project metadata you work with; such data is processed only to
-provide the plugin's functionality.
+The plugin sends the selected inputs over HTTPS only to the fixed endpoint `https://api.acedata.cloud/seedream/images`. The bearer token is sent only in the `Authorization` header. The plugin does not expose a configurable destination host.
 
-### How We Use Data
+The response is returned to the Dify workflow. The plugin does not send data to advertising or analytics services and contains no telemetry code. A callback URL is sent only when the user explicitly configures it; that destination then receives data according to the user's workflow design.
 
-We use data processed by the plugin solely for the following purposes:
+## Storage and retention
 
-- To provide and operate the plugin's core features.
-- To maintain and improve reliability, performance, and security.
-- To diagnose and fix bugs or issues you report.
-- To understand, in aggregate, how features are used (if telemetry is
-  enabled in your environment).
+The plugin does not write prompts, images, responses, or credentials to local files or its own database. Dify controls how plugin credentials, workflow inputs, outputs, and execution logs are stored and retained. Data processed by Ace Data Cloud is subject to the [Ace Data Cloud Privacy Policy](https://platform.acedata.cloud/privacy).
 
-We do not use plugin data to build user profiles for advertising or
-marketing.
+Generated URLs may expire. Users who need durable artifacts must save them in storage they control and are authorized to use.
 
-### Data Storage and Retention
+## Logging and errors
 
-- **Local data**: Configuration and operational data are typically stored
-  locally within your development environment, project, or host application.
-  Retention is controlled by that environment (for example, by deleting or
-  modifying configuration files or logs).
-- **Remote services**: If the plugin is configured to communicate with
-  external services or APIs, any data sent to those services is subject to
-  their respective privacy policies and retention practices.
-- **Diagnostic data**: If you choose to share logs or error reports with the
-  maintainers (for example, via issue trackers), these may be retained for as
-  long as needed to investigate and resolve the issue.
+The plugin does not log the bearer token. It redacts the configured token from network and API error messages before returning them. Structured failures may include an error code, HTTP status, message, and trace ID for troubleshooting.
 
-### Data Sharing
+## Your choices
 
-We do not sell your data.
+You can stop further processing by disabling or uninstalling the plugin and removing its credential in Dify. Use Dify's controls to delete retained workflow data or logs. Omit `callback_url` to prevent callback delivery.
 
-We may share data only in the following limited circumstances:
+## Contact
 
-- With service providers or infrastructure used to host issue trackers,
-  crash reports, or similar tooling, and only to the extent necessary to
-  operate those services.
-- When required by law, regulation, or legal process, or to protect the
-  rights, property, or safety of users or others.
-
-Any third-party services you configure the plugin to interact with (for
-example, source control platforms, CI/CD systems, or external APIs) will
-process data under their own terms and privacy policies.
-
-### Security
-
-We take reasonable technical and organizational measures to help protect
-data processed by the plugin from unauthorized access, alteration, or
-destruction. However, no software system or transmission method is entirely
-secure, and we cannot guarantee absolute security.
-
-You are responsible for configuring and securing your own environment,
-including access controls, network security, and backups.
-
-### Your Choices and Rights
-
-- You can configure or disable the plugin through your host environment's
-  extension or plugin management features.
-- You can edit or remove configuration files used by the plugin.
-- You may choose not to enable integrations with any optional third-party
-  services.
-
-If you believe the plugin is handling data in a way that is inconsistent
-with this policy, you should discontinue use of the plugin and contact the
-maintainers.
-
-### Contact
-
-If you have questions about this privacy information, or if you wish to
-raise a privacy-related concern, please contact the maintainers of the
-seedream plugin through the official project repository or distribution
-channel where you obtained this plugin.
-
+For plugin questions, open an issue in the [source repository](https://github.com/AceDataCloud/Dify/tree/main/plugins/seedream) or email [office@acedata.cloud](mailto:office@acedata.cloud).
