@@ -37,19 +37,27 @@ class AceDataSeedreamImagesResult:
 
 def _normalize_token(raw_token: str) -> str:
     token = raw_token.strip()
-    if token.lower().startswith("bearer "):
-        token = token[7:].strip()
+    parts = token.split(maxsplit=1)
+    if parts and parts[0].lower() == "bearer":
+        token = parts[1].strip() if len(parts) == 2 else ""
     return token
 
 
 class AceDataSeedreamClient:
-    def __init__(self, bearer_token: str, base_url: str = "https://api.acedata.cloud") -> None:
+    def __init__(
+        self, bearer_token: str, base_url: str = "https://api.acedata.cloud"
+    ) -> None:
         token = _normalize_token(bearer_token)
         if not token:
-            raise AceDataSeedreamError(code="token_empty", message="Empty bearer token.")
+            raise AceDataSeedreamError(
+                code="token_empty", message="Empty bearer token."
+            )
 
         self._token = token
         self._base_url = base_url.rstrip("/")
+
+    def _safe_message(self, value: object) -> str:
+        return str(value).replace(self._token, "[redacted]")
 
     def generate_images(
         self, *, payload: dict[str, Any], timeout_s: int = 150
@@ -58,25 +66,37 @@ class AceDataSeedreamClient:
 
         task_id = body.get("task_id") if isinstance(body.get("task_id"), str) else None
         if body.get("success") is not True and not task_id:
-            trace_id = body.get("trace_id") if isinstance(body.get("trace_id"), str) else None
+            trace_id = (
+                body.get("trace_id") if isinstance(body.get("trace_id"), str) else None
+            )
             error = body.get("error") if isinstance(body.get("error"), dict) else {}
             code = error.get("code") if isinstance(error.get("code"), str) else None
-            message = error.get("message") if isinstance(error.get("message"), str) else None
+            message = (
+                error.get("message") if isinstance(error.get("message"), str) else None
+            )
             raise AceDataSeedreamError(
                 code=code or "api_error",
-                message=message or str(body),
+                message=self._safe_message(message or body),
                 trace_id=trace_id,
             )
 
         raw_data: Any = body.get("data")
-        data = [item for item in raw_data if isinstance(item, dict)] if isinstance(raw_data, list) else []
+        data = (
+            [item for item in raw_data if isinstance(item, dict)]
+            if isinstance(raw_data, list)
+            else []
+        )
         return AceDataSeedreamImagesResult(
             task_id=task_id,
-            trace_id=body.get("trace_id") if isinstance(body.get("trace_id"), str) else None,
+            trace_id=body.get("trace_id")
+            if isinstance(body.get("trace_id"), str)
+            else None,
             data=data,
         )
 
-    def _post(self, *, path: str, payload: dict[str, Any], timeout_s: int) -> dict[str, Any]:
+    def _post(
+        self, *, path: str, payload: dict[str, Any], timeout_s: int
+    ) -> dict[str, Any]:
         url = f"{self._base_url}{path}"
         headers = {
             "authorization": f"Bearer {self._token}",
@@ -87,7 +107,9 @@ class AceDataSeedreamClient:
         try:
             resp = requests.post(url, json=payload, headers=headers, timeout=timeout_s)
         except requests.RequestException as e:
-            raise AceDataSeedreamError(code="request_failed", message=str(e)) from e
+            raise AceDataSeedreamError(
+                code="request_failed", message=self._safe_message(e)
+            ) from e
 
         try:
             body = resp.json()
@@ -95,7 +117,7 @@ class AceDataSeedreamClient:
             snippet = (resp.text or "")[:500]
             raise AceDataSeedreamError(
                 code="invalid_json",
-                message=f"Invalid JSON response: {snippet}",
+                message=self._safe_message(f"Invalid JSON response: {snippet}"),
                 status_code=resp.status_code,
             ) from e
 
@@ -107,13 +129,17 @@ class AceDataSeedreamClient:
             )
 
         if resp.status_code >= 400:
-            trace_id = body.get("trace_id") if isinstance(body.get("trace_id"), str) else None
+            trace_id = (
+                body.get("trace_id") if isinstance(body.get("trace_id"), str) else None
+            )
             error = body.get("error") if isinstance(body.get("error"), dict) else {}
             code = error.get("code") if isinstance(error.get("code"), str) else None
-            message = error.get("message") if isinstance(error.get("message"), str) else None
+            message = (
+                error.get("message") if isinstance(error.get("message"), str) else None
+            )
             raise AceDataSeedreamError(
                 code=code or "error",
-                message=message or str(body),
+                message=self._safe_message(message or body),
                 trace_id=trace_id,
                 status_code=resp.status_code,
             )
@@ -139,8 +165,12 @@ def parse_image_inputs(value: Any) -> list[str]:
 
             loaded = json.loads(text)
             if not isinstance(loaded, list):
-                raise ValueError("`image_urls` must be a JSON array or a list of strings.")
+                raise ValueError(
+                    "`image_urls` must be a JSON array or a list of strings."
+                )
             return [str(item).strip() for item in loaded if str(item).strip()]
         return [line.strip() for line in text.splitlines() if line.strip()]
 
-    raise ValueError("`image_urls` must be an array of strings or a string (one URL per line).")
+    raise ValueError(
+        "`image_urls` must be an array of strings or a string (one URL per line)."
+    )
