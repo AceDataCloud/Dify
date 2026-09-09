@@ -50,8 +50,8 @@ parameters:
     required: false
     label: { en_US: Model, zh_Hans: 模型 }
     human_description:
-      en_US: Optional model name, e.g. chirp-v5.
-      zh_Hans: 可选模型名，如 chirp-v5。
+      en_US: "Optional model name: chirp-v6, chirp-v6-wild, or chirp-v6-mini."
+      zh_Hans: "可选模型名：chirp-v6、chirp-v6-wild 或 chirp-v6-mini。"
     form: form
   - name: custom
     type: boolean
