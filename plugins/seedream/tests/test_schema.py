@@ -25,6 +25,7 @@ def test_public_model_options_use_only_canonical_lite_id(schema_file: str) -> No
 
     assert models.count("doubao-seedream-5-0-lite-260128") == 1
     assert "doubao-seedream-5-0-260128" not in models
+    assert model_parameter["default"] == "doubao-seedream-5-0-lite-260128"
     lite = next(option for option in model_parameter["options"] if option["value"] == "doubao-seedream-5-0-lite-260128")
     assert "default" in lite["label"]["en_US"]
     assert "默认" in lite["label"]["zh_Hans"]

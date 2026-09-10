@@ -69,6 +69,7 @@ parameters:
 - name: model
   type: select
   required: false
+  default: doubao-seedream-5-0-lite-260128
   label:
     en_US: Model
     zh_Hans: 模型
