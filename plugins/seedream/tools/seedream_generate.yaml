@@ -53,6 +53,7 @@ parameters:
 - name: model
   type: select
   required: false
+  default: doubao-seedream-5-0-lite-260128
   label:
     en_US: Model
     zh_Hans: 模型
@@ -66,18 +67,14 @@ parameters:
     label:
       en_US: doubao-seedream-5-0-pro-260628
       zh_Hans: doubao-seedream-5-0-pro-260628
-  - value: doubao-seedream-5-0-260128
-    label:
-      en_US: doubao-seedream-5-0-260128
-      zh_Hans: doubao-seedream-5-0-260128
   - value: doubao-seedream-5-0-lite-260128
     label:
-      en_US: doubao-seedream-5-0-lite-260128
-      zh_Hans: doubao-seedream-5-0-lite-260128
+      en_US: doubao-seedream-5-0-lite-260128 (default)
+      zh_Hans: doubao-seedream-5-0-lite-260128（默认）
   - value: doubao-seedream-4-0-250828
     label:
-      en_US: doubao-seedream-4-0-250828 (default)
-      zh_Hans: doubao-seedream-4-0-250828（默认）
+      en_US: doubao-seedream-4-0-250828
+      zh_Hans: doubao-seedream-4-0-250828
   - value: doubao-seedream-4-5-251128
     label:
       en_US: doubao-seedream-4-5-251128
