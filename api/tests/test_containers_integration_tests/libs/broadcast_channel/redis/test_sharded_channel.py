@@ -8,11 +8,13 @@ Covers real Redis 7+ sharded pub/sub interactions including:
 - Resource cleanup accounting via PUBSUB SHARDNUMSUB
 """
 
+import socket
 import threading
 import time
 import uuid
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from unittest.mock import MagicMock
 
 import pytest
 import redis
@@ -359,7 +361,9 @@ class TestShardedRedisBroadcastChannelClusterIntegration:
     @staticmethod
     def _ensure_single_node_cluster(host: str, port: int) -> None:
         client = redis.Redis(host=host, port=port, decode_responses=False)
-        client.config_set("cluster-announce-ip", host)
+        # Testcontainers may return localhost, while Redis only accepts an IP
+        # literal for cluster announcements. Keep the client connection host.
+        client.config_set("cluster-announce-ip", socket.gethostbyname(host))
         client.config_set("cluster-announce-port", port)
         slots = client.execute_command("CLUSTER", "SLOTS")
         if not slots:
@@ -373,6 +377,20 @@ class TestShardedRedisBroadcastChannelClusterIntegration:
                 return
             time.sleep(0.05)
         raise RuntimeError("Redis cluster did not become ready in time")
+
+    @pytest.mark.parametrize("host", ["localhost", "127.0.0.1"])
+    def test_cluster_announcement_uses_ip_address(self, monkeypatch, host: str):
+        client = MagicMock()
+        client.execute_command.side_effect = [[[0, 16383]], b"cluster_state:ok\r\n"]
+        factory = MagicMock(return_value=client)
+        monkeypatch.setattr(redis, "Redis", factory)
+        monkeypatch.setattr(socket, "gethostbyname", lambda _: "127.0.0.1")
+
+        self._ensure_single_node_cluster(host, 6379)
+
+        factory.assert_called_once_with(host=host, port=6379, decode_responses=False)
+        client.config_set.assert_any_call("cluster-announce-ip", "127.0.0.1")
+        client.config_set.assert_any_call("cluster-announce-port", 6379)
 
     @pytest.fixture(scope="class")
     def redis_cluster_client(self, redis_cluster_container: RedisContainer) -> RedisCluster:
