@@ -19,7 +19,7 @@ done
 # A scaled-to-zero Deployment also satisfies rollout status. A usable console
 # requires each interactive component to have a desired and available replica.
 # Background workers remain disabled until their existing queues are reviewed.
-for deployment in dify-api dify-web dify-plugin-daemon dify-nginx; do
+for deployment in dify-api dify-web dify-nginx; do
   desired=$(kubectl -n "$NAMESPACE" get deployment "$deployment" -o jsonpath='{.spec.replicas}')
   available=$(kubectl -n "$NAMESPACE" get deployment "$deployment" -o jsonpath='{.status.availableReplicas}')
   if [ "${desired:-0}" -lt 1 ] || [ "${available:-0}" -lt 1 ]; then

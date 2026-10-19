@@ -8,8 +8,8 @@ import pytest
 import yaml
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-INTERACTIVE = ("dify-api", "dify-web", "dify-nginx", "dify-plugin-daemon")
-BACKGROUND = ("dify-worker", "dify-worker-beat", "dify-sandbox")
+INTERACTIVE = ("dify-api", "dify-web", "dify-nginx")
+BACKGROUND = ("dify-worker", "dify-worker-beat", "dify-sandbox", "dify-plugin-daemon")
 
 
 def test_interactive_manifests_keep_background_work_disabled():
