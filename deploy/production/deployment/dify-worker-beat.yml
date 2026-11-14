@@ -55,25 +55,25 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: PGSQL_USER
-                  name: pgsql-qcloud
+                  name: pgsql-dify
                   optional: false
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: PGSQL_PASSWORD
-                  name: pgsql-qcloud
+                  name: pgsql-dify
                   optional: false
             - name: DB_HOST
               valueFrom:
                 secretKeyRef:
                   key: PGSQL_HOST
-                  name: pgsql-qcloud
+                  name: pgsql-dify
                   optional: false
             - name: DB_PORT
               valueFrom:
                 secretKeyRef:
                   key: PGSQL_PORT
-                  name: pgsql-qcloud
+                  name: pgsql-dify
                   optional: false
             - name: DB_DATABASE
               value: acedatacloud_dify

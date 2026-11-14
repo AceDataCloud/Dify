@@ -58,8 +58,9 @@ spec:
             secretKeyRef:
               name: dify
               key: SECRET_KEY
+        # Schema upgrades use a separate maintenance identity.
         - name: MIGRATION_ENABLED
-          value: "true"
+          value: "false"
         - name: PLUGIN_DAEMON_URL
           value: http://dify-plugin-daemon:5002
         - name: PLUGIN_DAEMON_KEY
@@ -78,25 +79,25 @@ spec:
           valueFrom:
             secretKeyRef:
               key: PGSQL_USER
-              name: pgsql-qcloud
+              name: pgsql-dify
               optional: false
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
               key: PGSQL_PASSWORD
-              name: pgsql-qcloud
+              name: pgsql-dify
               optional: false
         - name: DB_HOST
           valueFrom:
             secretKeyRef:
               key: PGSQL_HOST
-              name: pgsql-qcloud
+              name: pgsql-dify
               optional: false
         - name: DB_PORT
           valueFrom:
             secretKeyRef:
               key: PGSQL_PORT
-              name: pgsql-qcloud
+              name: pgsql-dify
               optional: false
         - name: DB_DATABASE
           value: acedatacloud_dify

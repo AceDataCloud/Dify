@@ -5,7 +5,7 @@ set -eu
 NAMESPACE="${NAMESPACE:-acedatacloud}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-for resource in "secret/dify" "pvc/dify" "secret/pgsql-qcloud" "secret/redis-qcloud" "secret/vdb-qcloud" "secret/docker-registry"; do
+for resource in "secret/dify" "pvc/dify" "secret/pgsql-dify" "secret/redis-qcloud" "secret/vdb-qcloud" "secret/docker-registry"; do
   kubectl -n "$NAMESPACE" get "$resource" >/dev/null
  done
 
